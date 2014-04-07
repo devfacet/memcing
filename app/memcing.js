@@ -153,13 +153,13 @@ function cmdLoadFile(iPath) {
 
   // line event
   rl.on('line', function(iLine) {
+
     // Check the line
     lineCntr++;
     if(!iLine.trim()) { return; }
 
     // Execute the command
     var cp = cacheCmd(iLine);
-
     if(cp.cmdRes && cp.cmdRes.error) {
       lineErr = cp.cmdRes.error + ' - Line #' + lineCntr + ': ' + iLine;
       rl.close();
@@ -168,7 +168,6 @@ function cmdLoadFile(iPath) {
 
   // close event
   rl.on('close', function() {
-    if(gConfig.debug === true) mUtilex.tidyLog('[memching.cmdLoadFile]: close');
     if(lineErr) {
       deferred.reject(lineErr);
     } else {
