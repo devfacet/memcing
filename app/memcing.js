@@ -255,10 +255,11 @@ function cmdArgParse() {
   var args = mUtilex.tidyArgs();
 
   // Check args
-  if(typeof args['help'] !== 'undefined')        gConfig.help              = true;
   if(typeof args['i'] !== 'undefined')           gConfig.isIactive         = true;
   if(typeof args['load-file'] !== 'undefined')   gConfig.loadFile          = args['load-file'];
+  if(typeof args['help'] !== 'undefined')        gConfig.help              = true;
   if(typeof args['debug'] !== 'undefined')       gConfig.debug             = true;
+
   if(typeof args['cache-limit'] !== 'undefined') gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
   if(typeof args['vacuum-ival'] !== 'undefined') gConfig.cache.vacuumIval  = parseInt(args['vacuum-ival'], 10);
   if(typeof args['eviction'] !== 'undefined')    gConfig.cache.eviction    = true;
@@ -268,6 +269,7 @@ function cmdArgParse() {
 
 // Executes the help command.
 function cmdHelp() {
+
   console.log("Usage: node memching.js [OPTION]...\n");
   console.log("Memcing is an application for simple memory caching.\n");
   console.log("  Options:");
