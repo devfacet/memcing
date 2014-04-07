@@ -1,0 +1,10 @@
+set foo bar
+get foo
+get something_undefined
+add counter 1
+increment counter
+add counter 9
+delete counter
+add counter 9
+decrement counter
+exit

@@ -1,0 +1,5 @@
+set hello world
+set counter 1
+increment counter
+decrement counter
+set bye bye 5
