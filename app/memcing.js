@@ -47,7 +47,7 @@ if(gConfig.loadFile) {
       process.exit(0);
     }
   }, function(err) {
-    console.log('Error on ' + gConfig.loadFile + ' (' + err + ')');
+    mUtilex.tidyLog('Error on ' + gConfig.loadFile + ' (' + err + ')');
     process.exit(0);
   });
 } else if(gConfig.isIactive === true) {
@@ -76,10 +76,13 @@ function cmdIactive() {
     if(gConfig.isDebug === true) {
       if(cp.cmd) {
         mUtilex.tidyLog('[memching.cmdIactive]: ' + cp.cmd + ' ' + cp.cmdArgs.join(' '));
-
-        // Don't show result for some commands
-        if(cp.cmd != 'stats' && cp.cmd != 'dump' && cp.cmd != 'vacuum') console.log(cp.cmdRes);
+        mUtilex.tidyLog(cp.cmdRes, 'JSONT');
       }
+
+      if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
+
+      rl.prompt();
+      return;
     }
 
     switch(cp.cmd) {
@@ -97,6 +100,11 @@ function cmdIactive() {
       case 'decrement':
         console.log((cp.cmdRes.error) ? 'ERROR' : cp.cmdRes.val);
         break;
+      case 'stats':
+      case 'dump':
+      case 'vacuum':
+        console.log(cp.cmdRes);
+        break;
       case 'exit':
         if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
         break;
@@ -104,7 +112,7 @@ function cmdIactive() {
         if(cp.cmdRes && cp.cmdRes.error) {
           console.log('ERROR: ' + cp.cmdRes.error);
         } else {
-          console.log(cp.cmdRes);
+          console.log('ERROR: Unexpected command!' + cp);
         }
     }
 
@@ -113,7 +121,6 @@ function cmdIactive() {
 
   // close event
   rl.on('close', function() {
-    console.log('Bye.');
     process.exit(0);
   });
 

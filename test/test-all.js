@@ -2,7 +2,9 @@
 /* jslint node: true */
 'use strict';
 
-var mCache  = require('../app/cache');
+var mUtilex = require('utilex'),
+    mCache  = require('../app/cache')
+;
 
 // Init vars
 var gTestList = {
@@ -11,46 +13,52 @@ var gTestList = {
 ;
 
 // Tests
-console.log('test-all.js');
+mUtilex.tidyLog('test-all.js');
 
-// Test for set
+// Test for set command
 if(gTestList.SET === true) {
 
-  console.log('SET:');
+  mUtilex.tidyLog('SET:');
 
   // Init vars
-  var setAry    = [],
-      setLimit  = 115000,
+  var lineStr     = new Array(40).join('-'),
+
+      setAry      = [],
+      setLimit    = 115000,
+      noeForExp1  = 2500,
+      noeForExp2  = 30000,
+
       rndKey,
       rndVal,
       rndNum
   ;
 
-  console.log('Preparing ' + setLimit + ' entries...');
+  mUtilex.tidyLog('Preparing ' + setLimit + ' entries...');
 
   for(var i = 0; i < setLimit; i++) {
     rndKey = (Math.random() + 1).toString(36).substring(2);
     rndVal = (Math.random() + 1).toString(36).substring(2) + (Math.random() + 1).toString(36).substring(2);
-    rndNum = Math.floor((Math.random()*3));
+    rndNum = (i < noeForExp1 || i > noeForExp2) ? Math.floor((Math.random()*3)) : null;
+
     setAry.push([rndKey, rndVal, rndNum]);
   }
 
-  var cache     = mCache({isDebug: true, limitInKB: 131072, eviction: true}),
+  var cache     = mCache({isDebug: true, limitInKB: 131072, eviction: true}), // 128MB
       setAryLen = setAry.length
   ;
 
-  console.log('Caching ' + setAryLen + ' entries with eviction mode...');
+  mUtilex.tidyLog('Caching ' + setAryLen + ' entries with eviction mode...');
   for(var i = 0; i < setAryLen; i++) {
     cache.set(setAry[i][0], setAry[i][1], setAry[i][2]);
   }
-  console.log('Caching is DONE!');
-  console.log(cache.stats());
+  mUtilex.tidyLog('Caching is DONE!');
+  mUtilex.tidyLog(cache.stats(), 'JSONT');
 
-  console.log('Waiting 3 seconds for entries which will be expired...');
+  mUtilex.tidyLog('Waiting 3 seconds for entries which will be expired...');
   setTimeout(function() {
-    console.log('Vacuuming expired entries...');
-    console.log(cache.vacuum({exp: true}));
-    console.log(cache.stats());
+    mUtilex.tidyLog('Vacuuming expired entries...');
+    mUtilex.tidyLog(cache.vacuum({exp: true}));
+    mUtilex.tidyLog(cache.stats(), 'JSONT');
     process.exit(0);
   }, 3000);
 }
