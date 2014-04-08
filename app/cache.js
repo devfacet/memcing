@@ -61,7 +61,7 @@ exports = module.exports = function(iParam) {
   gCacheOpt.limitInEntry = Math.floor((gCacheOpt.limitInKB*1024)/((gCacheOpt.keyLIC+gCacheOpt.valLIC)*4));
 
   // Calculate the eviction limit.
-  gCacheOpt.eviction.limitInEntry = Math.floor((gCacheOpt.limitInKB*2)/100); // 2%
+  gCacheOpt.eviction.limitInEntry = Math.floor((gCacheOpt.limitInEntry*2)/100); // 2%
 
   // Check and init the vacuum timer.
   if(gCacheOpt.vacuumIval < 1) gCacheOpt.vacuumIval = 30; // Do not allowed <= 0
