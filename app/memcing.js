@@ -16,7 +16,7 @@ var mFS       = require('fs'),
 ;
 
 // Init vars
-var gConfig   = {debug: false, isHelp: false, isIactive: false, loadFile: null, cache: {}},
+var gConfig   = {isDebug: false, isHelp: false, isIactive: false, loadFile: null, cache: {}},
     gCache,
     gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'vacuum', 'stats', 'dump', 'exit'],
     gRegex    = {
@@ -73,7 +73,7 @@ function cmdIactive() {
     var cp = cacheCmd(iLine);
 
     // for debug
-    if(gConfig.debug === true) {
+    if(gConfig.isDebug === true) {
       if(cp.cmd) {
         mUtilex.tidyLog('[memching.cmdIactive]: ' + cp.cmd + ' ' + cp.cmdArgs.join(' '));
 
@@ -255,15 +255,15 @@ function cmdArgParse() {
   var args = mUtilex.tidyArgs();
 
   // Check args
-  if(typeof args['debug'] !== 'undefined')        gConfig.debug             = true;
+  if(typeof args['debug'] !== 'undefined')        gConfig.isDebug           = true;
   if(typeof args['help'] !== 'undefined')         gConfig.isHelp            = true;
   if(typeof args['i'] !== 'undefined')            gConfig.isIactive         = true;
   if(args['load-file'])                           gConfig.loadFile          = args['load-file'];
 
+  if(typeof args['debug'] !== 'undefined')        gConfig.cache.isDebug     = true;
   if(typeof args['cache-limit'] !== 'undefined')  gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
   if(typeof args['vacuum-ival'] !== 'undefined')  gConfig.cache.vacuumIval  = parseInt(args['vacuum-ival'], 10);
   if(typeof args['eviction'] !== 'undefined')     gConfig.cache.eviction    = true;
-  if(typeof args['debug'] !== 'undefined')        gConfig.cache.debug       = true;
 
   return true;
 }

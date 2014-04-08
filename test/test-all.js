@@ -35,7 +35,7 @@ if(gTestList.SET === true) {
     setAry.push([rndKey, rndVal, rndNum]);
   }
 
-  var cache     = mCache({limitInKB: 131072, eviction: true, debug: true}),
+  var cache     = mCache({isDebug: true, limitInKB: 131072, eviction: true}),
       setAryLen = setAry.length
   ;
 

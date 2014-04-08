@@ -16,7 +16,7 @@ var mUtilex = require('utilex');
 exports = module.exports = function(iParam) {
 
   // Init vars
-  var gConfig       = {debug: false},
+  var gConfig       = {isDebug: false},
 
       gDataSet      = {},
       gDataLen      = 0,
@@ -49,10 +49,10 @@ exports = module.exports = function(iParam) {
   ;
 
   // Check params
+  if(iParam && iParam.isDebug === true)   gConfig.isDebug             = true;
   if(iParam && !isNaN(iParam.limitInKB))  gCacheOpt.limitInKB         = iParam.limitInKB;
   if(iParam && !isNaN(iParam.vacuumIval)) gCacheOpt.vacuumIval        = iParam.vacuumIval;
   if(iParam && iParam.eviction === true)  gCacheOpt.eviction.enabled  = true;
-  if(iParam && iParam.debug === true)     gConfig.debug               = true;
 
   // Calculate the entry limit.
   // Empty space should be guaranteed for each key. Otherwise will fail on updates.
@@ -116,7 +116,7 @@ exports = module.exports = function(iParam) {
       }
 
       tsList.exp = (new Date().getTime())-tsVarI;
-      if(gConfig.debug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + tCntr + ' entry / ' + tsList.exp + 'ms)');
+      if(gConfig.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + tCntr + ' entry / ' + tsList.exp + 'ms)');
     }
 
     // Check the data for eviction
@@ -142,7 +142,7 @@ exports = module.exports = function(iParam) {
       }
 
       tsList.eviction = (new Date().getTime())-tsVarI;
-      if(gConfig.debug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + calcEvictEntry + ' entry / ' +  tsList.eviction + 'ms)');
+      if(gConfig.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + calcEvictEntry + ' entry / ' +  tsList.eviction + 'ms)');
     }
 
     tsList.total = (new Date().getTime())-tsVarT;
