@@ -45,6 +45,7 @@ gCache = mCache({
 if(gConfig.loadFile) {
   cmdLoadFile(gConfig.loadFile).then(function() {
     if(!gConfig.isIactive) process.exit(0);
+    console.log('loaded');
   }, function(err) {
     console.log('Error on ' + gConfig.loadFile);
     console.log(err);
@@ -67,6 +68,7 @@ function cmdIactive() {
 
   // line event
   rl.on('line', function(iLine) {
+
     // Check the line
     if(!iLine.trim()) { rl.prompt(); return; }
 
@@ -77,6 +79,8 @@ function cmdIactive() {
     if(gConfig.debug === true) {
       if(cp.cmd) {
         mUtilex.tidyLog('[memching.cmdIactive]: ' + cp.cmd + ' ' + cp.cmdArgs.join(' '));
+
+        // Don't show result for some commands
         if(cp.cmd != 'stats' && cp.cmd != 'dump' && cp.cmd != 'vacuum') console.log(cp.cmdRes);
       }
     }
