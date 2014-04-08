@@ -41,20 +41,22 @@ gCache = mCache({
   debug:      gConfig.debug
 });
 
-// Load file
 if(gConfig.loadFile) {
+  // Load file
   cmdLoadFile(gConfig.loadFile).then(function() {
-    if(!gConfig.isIactive) process.exit(0);
-    console.log('loaded');
+    // Interactive mode
+    if(gConfig.isIactive === true) {
+      cmdIactive();
+    } else {
+      // Nothing to do
+      process.exit(0);
+    }
   }, function(err) {
-    console.log('Error on ' + gConfig.loadFile);
-    console.log(err);
+    console.log('Error on ' + gConfig.loadFile + ' (' + err + ')');
     process.exit(0);
   });
-}
-
-// Interactive mode
-if(gConfig.isIactive === true) {
+} else if(gConfig.isIactive === true) {
+  // Interactive mode
   cmdIactive();
 }
 
@@ -165,7 +167,7 @@ function cmdLoadFile(iPath) {
     // Execute the command
     var cp = cacheCmd(iLine);
     if(cp.cmdRes && cp.cmdRes.error) {
-      lineErr = cp.cmdRes.error + ' - Line #' + lineCntr + ': ' + iLine;
+      lineErr = cp.cmdRes.error + ' - line #' + lineCntr + ': ' + iLine;
       rl.close();
     }
   });
