@@ -31,7 +31,7 @@ var gConfig   = {isHelp: false, isIactive: false, loadFile: null, debug : false,
 cmdArgParse();
 
 // Check whether help or not
-if(gConfig.help || (!gConfig.isIactive && !gConfig.loadFile)) cmdHelp();
+if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) cmdHelp();
 
 // Init cache
 gCache = mCache({
@@ -262,7 +262,7 @@ function cmdArgParse() {
   // Check args
   if(typeof args['i'] !== 'undefined')           gConfig.isIactive         = true;
   if(typeof args['load-file'] !== 'undefined')   gConfig.loadFile          = args['load-file'];
-  if(typeof args['help'] !== 'undefined')        gConfig.help              = true;
+  if(typeof args['help'] !== 'undefined')        gConfig.isHelp            = true;
   if(typeof args['debug'] !== 'undefined')       gConfig.debug             = true;
 
   if(typeof args['cache-limit'] !== 'undefined') gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
