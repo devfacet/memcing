@@ -112,13 +112,13 @@ function cmdIactive() {
 
   // close event
   rl.on('close', function() {
-    if(gConfig.debug === true) mUtilex.tidyLog('[memching.cmdIactive]: close');
     console.log('Bye.');
     process.exit(0);
   });
 
   // SIGINT (^C) event
   rl.on('SIGINT', function() {
+
     rl.clearLine(process.stdin, 0); // clear prompt
     rl.question('All the cached data will be gone. Are you sure? (y/n) ', function(answer) {
       if(answer.match(/^(y|yes)$/i)) {
