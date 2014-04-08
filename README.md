@@ -57,7 +57,7 @@ node memcing.js -help
     exit
 ```
 
-#### Example
+#### Examples
 ```
 node memcing.js -i < ../test/cmds-im.txt
 ```
@@ -70,7 +70,8 @@ and display result.
 node memcing.js -i -load-file ../test/cmds-lf.txt
 ```
 Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
-and switch to interactive mode. Stop running if there is an error on loaded file.
+and switch to interactive mode. The cached data will be available in interactive mode.
+It stops running while loading the file if there is an error.
 
 ### Notes
 
