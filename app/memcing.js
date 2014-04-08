@@ -48,7 +48,7 @@ if(gConfig.loadFile) {
     if(gConfig.isIactive === true) {
       cmdIactive();
     } else {
-      // Nothing to do
+      // Nothing else to do
       process.exit(0);
     }
   }, function(err) {
