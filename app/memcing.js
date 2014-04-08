@@ -16,7 +16,7 @@ var mFS       = require('fs'),
 ;
 
 // Init vars
-var gConfig   = {isHelp: false, isIactive: false, loadFile: null, debug : false, cache: {}},
+var gConfig   = {debug: false, isHelp: false, isIactive: false, loadFile: null, cache: {}},
     gCache,
     gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'vacuum', 'stats', 'dump', 'exit'],
     gRegex    = {
@@ -34,12 +34,7 @@ cmdArgParse();
 if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) cmdHelp();
 
 // Init cache
-gCache = mCache({
-  limitInKB:  gConfig.cache.limitInKB,
-  vacuumIval: gConfig.cache.vacuumIval,
-  eviction:   gConfig.cache.eviction,
-  debug:      gConfig.debug
-});
+gCache = mCache(gConfig.cache);
 
 if(gConfig.loadFile) {
   // Load file
@@ -238,7 +233,7 @@ function cacheCmd(iCmd) {
       result.cmdRes = gCache.vacuum({all: true});
       break;
     case 'stats':
-      result.cmdRes = {cache: gCache.stats()};
+      result.cmdRes = gCache.stats();
       break;
     case 'dump':
       result.cmdRes = gCache.dump();
@@ -260,14 +255,15 @@ function cmdArgParse() {
   var args = mUtilex.tidyArgs();
 
   // Check args
-  if(typeof args['i'] !== 'undefined')           gConfig.isIactive         = true;
-  if(typeof args['load-file'] !== 'undefined')   gConfig.loadFile          = args['load-file'];
-  if(typeof args['help'] !== 'undefined')        gConfig.isHelp            = true;
-  if(typeof args['debug'] !== 'undefined')       gConfig.debug             = true;
+  if(typeof args['debug'] !== 'undefined')        gConfig.debug             = true;
+  if(typeof args['help'] !== 'undefined')         gConfig.isHelp            = true;
+  if(typeof args['i'] !== 'undefined')            gConfig.isIactive         = true;
+  if(args['load-file'])                           gConfig.loadFile          = args['load-file'];
 
-  if(typeof args['cache-limit'] !== 'undefined') gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
-  if(typeof args['vacuum-ival'] !== 'undefined') gConfig.cache.vacuumIval  = parseInt(args['vacuum-ival'], 10);
-  if(typeof args['eviction'] !== 'undefined')    gConfig.cache.eviction    = true;
+  if(typeof args['cache-limit'] !== 'undefined')  gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
+  if(typeof args['vacuum-ival'] !== 'undefined')  gConfig.cache.vacuumIval  = parseInt(args['vacuum-ival'], 10);
+  if(typeof args['eviction'] !== 'undefined')     gConfig.cache.eviction    = true;
+  if(typeof args['debug'] !== 'undefined')        gConfig.cache.debug       = true;
 
   return true;
 }
