@@ -16,24 +16,19 @@ var mUtilex = require('utilex');
 exports = module.exports = function(iParam) {
 
   // Init vars
-  var pLimitInKB    = (iParam && !isNaN(iParam.limitInKB))  ? iParam.limitInKB  : 16384,  // cache limit in kilobytes
-      pVacuumIval   = (iParam && !isNaN(iParam.vacuumIval)) ? iParam.vacuumIval : 30,     // vacuum interval in seconds
-      pEviction     = (iParam && iParam.eviction === true)  ? true              : false,  // eviction
-      pDebug        = (iParam && iParam.debug === true)     ? true              : false,  // debug
-
-      gDataSet      = {},
+  var gDataSet      = {},
       gDataLen      = 0,
 
       gCacheOpt     = {
-        limitInKB: pLimitInKB,
-        limitInEntry: 0,
-        keyLIC: 64,
-        valLIC: 256,
-        vacuumIval: pVacuumIval,
-        eviction: pEviction,
-        evictionNOE: Math.ceil((pLimitInKB*2)/100),
-        evictionLTM: 0,
-        debug: pDebug
+        limitInKB: 16384, // cache limit in kilobytes
+        limitInEntry: 0,  // cache limit in number of entry
+        keyLIC: 64,       // key limit in char
+        valLIC: 256,      // val limit in char
+        vacuumIval: 30,   // vacuum interval in seconds
+        eviction: false,  // eviction on/off
+        evictionLIE: 0,   // Eviction limit in number of entry
+        evictionLTM: 0,   // last eviction time
+        debug: false      // debug
       },
 
       stats,        // stats - function
@@ -50,16 +45,23 @@ exports = module.exports = function(iParam) {
       decrement     // decrement value - function
   ;
 
+  // Check params
+  if(iParam && !isNaN(iParam.limitInKB))  gCacheOpt.limitInKB   = iParam.limitInKB;
+  if(iParam && !isNaN(iParam.vacuumIval)) gCacheOpt.vacuumIval  = iParam.vacuumIval;
+  if(iParam && iParam.eviction === true)  gCacheOpt.eviction    = true;
+  if(iParam && iParam.debug === true)     gCacheOpt.debug       = true;
+
   // Calculate the entry limit.
   // Empty space should be guaranteed for each key. Otherwise will fail on updates.
   // This calculation might be important for eviction policies.
   // Also UTF-8 considered for the calculation. (4 bytes for each char.)
   gCacheOpt.limitInEntry = Math.floor((gCacheOpt.limitInKB*1024)/((gCacheOpt.keyLIC+gCacheOpt.valLIC)*4));
 
-  // Check the vacuum interval
-  if(gCacheOpt.vacuumIval < 1) gCacheOpt.vacuumIval = 30;
+  // Calculate the eviction limit.
+  gCacheOpt.evictionLIE = Math.floor((gCacheOpt.limitInKB*2)/100); // 2%
 
-  // Timer for expired entries
+  // Check and init the vacuum timer.
+  if(gCacheOpt.vacuumIval < 1) gCacheOpt.vacuumIval = 30; // Do not allowed <= 0
   vacuumTimer = setInterval(function() { vacuum({all: true}); }, gCacheOpt.vacuumIval*1000);
 
   // Returns the stats.
@@ -116,7 +118,7 @@ exports = module.exports = function(iParam) {
 
     // Check the data for eviction
     if(pEviction === true) {
-      var calcEvictEntry = ((gCacheOpt.limitInEntry-gDataLen) < gCacheOpt.evictionNOE) ? (gCacheOpt.evictionNOE-(gCacheOpt.limitInEntry-gDataLen)) : 0;
+      var calcEvictEntry = ((gCacheOpt.limitInEntry-gDataLen) < gCacheOpt.evictionLIE) ? (gCacheOpt.evictionLIE-(gCacheOpt.limitInEntry-gDataLen)) : 0;
 
       tsVarI = new Date().getTime();
 
