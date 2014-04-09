@@ -30,7 +30,10 @@ exports = module.exports = function(iParam) {
         eviction: {
           enabled: false,   // eviction enabled or not
           limitInEntry: 0,  // limit in number of entry
-          lastTS: 0         // last eviction time
+        },
+        ts: {
+          outOfLimit: 0,    // time stamp for last out of limit
+          eviction: 0       // eviction process
         }
       },
 
@@ -38,6 +41,7 @@ exports = module.exports = function(iParam) {
       dump,         // dump - function
       vacuum,       // vacuum - function
       vacuumTimer,  // timer for vacuum
+      avlbEntry,    // available space in entry - function
 
       get,          // get - function
       set,          // set - function
@@ -72,8 +76,14 @@ exports = module.exports = function(iParam) {
     return {
       options: gCacheOpt,
       numberOfEntry: gDataLen,
+      numberOfAvlbEntry: avlbEntry(),
       usageInPercent: Math.floor((gDataLen*100)/gCacheOpt.limitInEntry)
     };
+  };
+
+  // Returns available space in entry.
+  avlbEntry = function avlbEntry() {
+    return (gCacheOpt.limitInEntry-gDataLen);
   };
 
   // Dump the cached data.
@@ -87,31 +97,34 @@ exports = module.exports = function(iParam) {
 
     // Init vars
     var result    = {},
-        pAll      = (iParam && iParam.all === true)       ? true  : false,
-        pExp      = (iParam && iParam.exp === true)       ? true  : false,
-        pEviction = (iParam && iParam.eviction === true)  ? true  : false,
+        pAll      = (iParam && iParam.all === true)                     ? true                : false,
+        pExp      = (iParam && iParam.exp === true)                     ? true                : false,
+        pExpLIE   = (iParam && !isNaN(iParam.expLIE))                   ? iParam.expLIE       : 0,
+        pEvict    = (iParam && iParam.eviction === true)                ? true                : false,
+        pEvictLIE = (iParam.evictionLIE && !isNaN(iParam.evictionLIE))  ? iParam.evictionLIE  : 0,
         tsList    = {total: 0, exp: 0, eviction: 0},
         tsVarT    = new Date().getTime(),
-        tsVarI
+        tsVarI,
+        tCntr
     ;
 
     // Check vars
     if(pAll === true) {
       pExp    = true;
-      pEviction  = true;
+      pEvict  = (gCacheOpt.eviction.enabled === true) ? true : false;
     }
-    // Overwrite eviction process
-    if(gCacheOpt.eviction.enabled !== true) pEviction = false;
 
     // Check the data for expired entries
     if(pExp === true) {
-      var tCntr = 0;
-      tsVarI = new Date().getTime();
+      tsVarI  = new Date().getTime();
+      tCntr   = 0;
 
       for(var key in gDataSet) {
         if(gDataSet[key].expTS > 0 && gDataSet[key].expTS < (new Date().getTime())) {
           del(key);
           tCntr++;
+
+          if(pExpLIE > 0 && tCntr >= pExpLIE) break;
         }
       }
 
@@ -120,32 +133,38 @@ exports = module.exports = function(iParam) {
     }
 
     // Check the data for eviction
-    if(pEviction === true) {
-      var calcEvictEntry = ((gCacheOpt.limitInEntry-gDataLen) < gCacheOpt.eviction.limitInEntry) ? (gCacheOpt.eviction.limitInEntry-(gCacheOpt.limitInEntry-gDataLen)) : 0;
+    if(pEvict === true) {
+      tsVarI  = new Date().getTime();
+      tCntr   = 0;
 
-      tsVarI = new Date().getTime();
+      if(pEvictLIE === 0) {
+        pEvictLIE = (avlbEntry() < gCacheOpt.eviction.limitInEntry) ? (gCacheOpt.eviction.limitInEntry-avlbEntry()) : 0;
+      }
 
-      // Note: This rule should be base on memory size...
-      if(gCacheOpt.eviction.lastTS+3000 > tsVarI) calcEvictEntry = calcEvictEntry*(Math.ceil(3-((tsVarI-gCacheOpt.eviction.lastTS)/1000)));
-      gCacheOpt.eviction.lastTS = tsVarI;
-
-      if(calcEvictEntry > 0) {
+      if(pEvictLIE > 0) {
         var tAry      = [],
+            tAryLen   = 0,
             tArySort  = function(a, b) { return a[1] - b[1]; }
         ;
 
         for(var key2 in gDataSet) tAry.push([key2, gDataSet[key2].ts]);
         tAry.sort(tArySort);
-        for (var i = 0; i < calcEvictEntry; i++) {
+        tAryLen = tAry.length;
+        for(var i = 0; i < tAryLen; i++) {
           del(tAry[i][0]);
+          tCntr++;
+
+          if(tCntr >= pEvictLIE) break;
         }
+
+        gCacheOpt.ts.eviction = tsVarI;
       }
 
       tsList.eviction = (new Date().getTime())-tsVarI;
-      if(gConfig.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + calcEvictEntry + ' entry / ' +  tsList.eviction + 'ms)');
+      if(gConfig.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + tCntr + ' entry / ' +  tsList.eviction + 'ms)');
     }
 
-    tsList.total = (new Date().getTime())-tsVarT;
+    tsList.total  = (new Date().getTime())-tsVarT;
     result.timeMS = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
 
     return result;
@@ -194,12 +213,31 @@ exports = module.exports = function(iParam) {
     var cData = get(pKey);
 
     // Check the memory
-    if(!cData && gDataLen >= gCacheOpt.limitInEntry) {
+    if(!cData && avlbEntry() < 1) { // no more available space
 
-      // Do not mess with entries which will be expired. Just try eviction if it is enable.
-      if(gCacheOpt.eviction.enabled === true) {
-        vacuum({eviction: true});
+      if(gConfig.isDebug) mUtilex.tidyLog('[cache.set]: Out of entry limit. (' + gDataLen + ')');
+
+      var tDGT = new Date().getTime();
+
+      // Cleanup expired entries
+      vacuum({exp: true});
+
+      if(gCacheOpt.eviction.enabled === true && avlbEntry() < 2) { // last space
+        // Cleanup for enough space
+        var tLIE = gCacheOpt.eviction.limitInEntry;
+
+        // Overwrite the limit for preventing bottlenecks.
+        // Note: This rule should be base on memory size.
+        // Also consider an entry / per minute calculation.
+        if(gCacheOpt.ts.outOfLimit && gCacheOpt.ts.outOfLimit+5000 > tDGT) {
+          tLIE = tLIE*(5-(Math.ceil((tDGT-gCacheOpt.ts.outOfLimit)/1000)));
+        }
+
+        // Evict entries
+        vacuum({eviction: true, evictionLIE: tLIE});
       }
+
+      gCacheOpt.ts.outOfLimit = tDGT;
 
       if(gDataLen >= gCacheOpt.limitInEntry) {
         result.error = 'Out of entry limit. (' + gDataLen + '/' + gCacheOpt.limitInEntry + ')';

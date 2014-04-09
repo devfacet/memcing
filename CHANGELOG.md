@@ -5,6 +5,11 @@
 ```
 ```
 
+### 0.1.2 (2014-04-09)
+
+* Changes for eviction.
+* Better vacuuming.
+
 ### 0.1.1 (2014-04-08)
 
 * Misc. improvements.

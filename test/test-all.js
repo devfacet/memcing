@@ -21,12 +21,10 @@ if(gTestList.SET === true) {
   mUtilex.tidyLog('SET:');
 
   // Init vars
-  var lineStr     = new Array(40).join('-'),
-
-      setAry      = [],
-      setLimit    = 115000,
-      noeForExp1  = 2500,
-      noeForExp2  = 30000,
+  var setAry    = [],
+      setLimit  = 115000,
+      expLimit1 = 5000,
+      expLimit2 = 100000,
 
       rndKey,
       rndVal,
@@ -38,7 +36,7 @@ if(gTestList.SET === true) {
   for(var i = 0; i < setLimit; i++) {
     rndKey = (Math.random() + 1).toString(36).substring(2);
     rndVal = (Math.random() + 1).toString(36).substring(2) + (Math.random() + 1).toString(36).substring(2);
-    rndNum = (i < noeForExp1 || i > noeForExp2) ? Math.floor((Math.random()*3)) : null;
+    rndNum = (i < expLimit1 || i > expLimit2) ? Math.floor((Math.random()*3)) : null;
 
     setAry.push([rndKey, rndVal, rndNum]);
   }
