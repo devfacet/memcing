@@ -23,8 +23,7 @@ if(gTestList.SET === true) {
   // Init vars
   var setAry    = [],
       setLimit  = 115000,
-      expLimit1 = 5000,
-      expLimit2 = 100000,
+      expLimit1 = 90000,
 
       rndKey,
       rndVal,
@@ -36,27 +35,27 @@ if(gTestList.SET === true) {
   for(var i = 0; i < setLimit; i++) {
     rndKey = (Math.random() + 1).toString(36).substring(2);
     rndVal = (Math.random() + 1).toString(36).substring(2) + (Math.random() + 1).toString(36).substring(2);
-    rndNum = (i < expLimit1 || i > expLimit2) ? Math.floor((Math.random()*3)) : null;
+    rndNum = (i > expLimit1) ? Math.floor((Math.random()*3)) : null;
 
     setAry.push([rndKey, rndVal, rndNum]);
   }
 
   var cache     = mCache({isDebug: true, limitInKB: 131072, eviction: true}), // 128MB
-      setAryLen = setAry.length
+      setAryLen = setAry.length,
+      tsS       = new Date().getTime()
   ;
 
   mUtilex.tidyLog('Caching ' + setAryLen + ' entries with eviction mode...');
   for(var i = 0; i < setAryLen; i++) {
     cache.set(setAry[i][0], setAry[i][1], setAry[i][2]);
   }
-  mUtilex.tidyLog('Caching is DONE!');
+  mUtilex.tidyLog('Caching with expiration and eviction is DONE! (' + ((new Date().getTime())-tsS) + 'ms)');
   mUtilex.tidyLog(cache.stats(), 'JSONT');
 
   mUtilex.tidyLog('Waiting 3 seconds for entries which will be expired...');
   setTimeout(function() {
     mUtilex.tidyLog('Vacuuming expired entries...');
     mUtilex.tidyLog(cache.vacuum({exp: true}));
-    mUtilex.tidyLog(cache.stats(), 'JSONT');
     process.exit(0);
   }, 3000);
 }
