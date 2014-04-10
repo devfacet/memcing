@@ -79,6 +79,7 @@ It stops running while loading the file if there is an error.
 
 * [x] Interactive mode
 * [ ] HTTP back-end
+      - [ ] get
 
 ### Changelog
 
