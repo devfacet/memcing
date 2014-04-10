@@ -28,8 +28,7 @@ exports = module.exports = function(iParam) {
         valLIC: 256,        // val limit in char
         vacuum: {
           ival: 30,         // vacuum interval in seconds
-          running: false,   // whether vacuum running or not
-          timer: null       // timer for vacuum
+          running: false    // whether vacuum running or not
         },
         eviction: {
           enabled: false,   // eviction enabled or not
@@ -39,6 +38,9 @@ exports = module.exports = function(iParam) {
           outOfLimit: 0,    // time stamp for last out of limit
           eviction: 0       // eviction process
         }
+      },
+      gTimers       = {
+        vacuum: null        // timer for vacuum
       },
 
       avlbEntry,    // available space in entry - function
@@ -72,7 +74,7 @@ exports = module.exports = function(iParam) {
 
   // Check and init the vacuum timer.
   if(gCacheOpt.vacuum.ival < 1) gCacheOpt.vacuum.ival = 30; // Do not allowed <= 0
-  gCacheOpt.vacuum.timer = setInterval(function() {
+  gTimers.vacuum = setInterval(function() {
     if(!gCacheOpt.vacuum.running) vacuum({all: true});
   }, gCacheOpt.vacuum.ival*1000);
 
