@@ -26,7 +26,11 @@ exports = module.exports = function(iParam) {
         limitInEntry: 0,    // cache limit in number of entry
         keyLIC: 64,         // key limit in char
         valLIC: 256,        // val limit in char
-        vacuumIval: 30,     // vacuum interval in seconds
+        vacuum: {
+          ival: 30,         // vacuum interval in seconds
+          running: false,   // whether vacuum running or not
+          timer: null       // timer for vacuum
+        },
         eviction: {
           enabled: false,   // eviction enabled or not
           limitInEntry: 0,  // limit in number of entry
@@ -37,11 +41,10 @@ exports = module.exports = function(iParam) {
         }
       },
 
+      avlbEntry,    // available space in entry - function
       stats,        // stats - function
       dump,         // dump - function
       vacuum,       // vacuum - function
-      vacuumTimer,  // timer for vacuum
-      avlbEntry,    // available space in entry - function
 
       get,          // get - function
       set,          // set - function
@@ -55,7 +58,7 @@ exports = module.exports = function(iParam) {
   // Check params
   if(iParam && iParam.isDebug === true)   gConfig.isDebug             = true;
   if(iParam && !isNaN(iParam.limitInKB))  gCacheOpt.limitInKB         = iParam.limitInKB;
-  if(iParam && !isNaN(iParam.vacuumIval)) gCacheOpt.vacuumIval        = iParam.vacuumIval;
+  if(iParam && !isNaN(iParam.vacuumIval)) gCacheOpt.vacuum.ival       = iParam.vacuumIval;
   if(iParam && iParam.eviction === true)  gCacheOpt.eviction.enabled  = true;
 
   // Calculate the entry limit.
@@ -68,8 +71,16 @@ exports = module.exports = function(iParam) {
   gCacheOpt.eviction.limitInEntry = Math.floor((gCacheOpt.limitInEntry*2)/100); // 2%
 
   // Check and init the vacuum timer.
-  if(gCacheOpt.vacuumIval < 1) gCacheOpt.vacuumIval = 30; // Do not allowed <= 0
-  vacuumTimer = setInterval(function() { vacuum({all: true}); }, gCacheOpt.vacuumIval*1000);
+  if(gCacheOpt.vacuum.ival < 1) gCacheOpt.vacuum.ival = 30; // Do not allowed <= 0
+  gCacheOpt.vacuum.timer = setInterval(function() {
+    if(!gCacheOpt.vacuum.running) vacuum({all: true});
+  }, gCacheOpt.vacuum.ival*1000);
+
+  // Returns available space in entry.
+  avlbEntry = function avlbEntry() {
+    return (gCacheOpt.limitInEntry-gDataLen);
+  };
+
 
   // Returns the stats.
   stats = function stats() {
@@ -81,11 +92,6 @@ exports = module.exports = function(iParam) {
     };
   };
 
-  // Returns available space in entry.
-  avlbEntry = function avlbEntry() {
-    return (gCacheOpt.limitInEntry-gDataLen);
-  };
-
   // Dump the cached data.
   // This is not an export process. It is for small data sets.
   dump = function stats() {
@@ -94,6 +100,8 @@ exports = module.exports = function(iParam) {
 
   // Vacuum the data by the given options.
   vacuum = function vacuum(iParam) {
+
+    gCacheOpt.vacuum.running = true;
 
     // Init vars
     var result    = {},
@@ -166,6 +174,8 @@ exports = module.exports = function(iParam) {
 
     tsList.total  = (new Date().getTime())-tsVarT;
     result.timeMS = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
+
+    gCacheOpt.vacuum.running = false;
 
     return result;
   };
