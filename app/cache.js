@@ -84,7 +84,6 @@ exports = module.exports = function(iParam) {
     return (gCacheOpt.limitInEntry-gDataLen);
   };
 
-
   // Returns the stats.
   stats = function stats() {
     return {
