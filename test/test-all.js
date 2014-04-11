@@ -7,10 +7,20 @@ var mUtilex = require('utilex'),
 ;
 
 // Init vars
-var gTestList = {
+var gConfig   = {isHeapdump: false},
+    gArgs     = mUtilex.tidyArgs(),
+    gTestList = {
       SET: true
     }
 ;
+
+// Check args
+if(typeof gArgs['heapdump'] !== 'undefined') gConfig.isHeapdump = true;
+
+// Check config
+if(gConfig.isHeapdump === true) {
+  var mHeapdump = require('heapdump');
+}
 
 // Tests
 mUtilex.tidyLog('test-all.js');
@@ -49,13 +59,15 @@ if(gTestList.SET === true) {
   for(var i = 0; i < setAryLen; i++) {
     cache.set(setAry[i][0], setAry[i][1], setAry[i][2]);
   }
-  mUtilex.tidyLog('Caching with expiration and eviction is DONE! (' + ((new Date().getTime())-tsS) + 'ms)');
+  mUtilex.tidyLog('Caching ' + setAryLen + ' entries with expiration and eviction is DONE! (' + ((new Date().getTime())-tsS) + 'ms)');
+  mUtilex.tidyLog('Vacuuming expired entries...');
+  mUtilex.tidyLog(cache.vacuum({exp: true}));
+  mUtilex.tidyLog('Stats:');
   mUtilex.tidyLog(cache.stats(), 'JSONT');
 
-  mUtilex.tidyLog('Waiting 3 seconds for entries which will be expired...');
-  setTimeout(function() {
-    mUtilex.tidyLog('Vacuuming expired entries...');
-    mUtilex.tidyLog(cache.vacuum({exp: true}));
-    process.exit(0);
-  }, 3000);
+  if(gConfig.isHeapdump === true) {
+    mHeapdump.writeSnapshot(__dirname + '/dump-' + Date.now() + '.heapsnapshot');
+  }
+
+  process.exit(0);
 }
