@@ -78,9 +78,10 @@ function cmdIactive() {
         mUtilex.tidyLog('[memching.cmdIactive]: ' + cp.cmd + ' ' + cp.cmdArgs.join(' '));
         mUtilex.tidyLog(cp.cmdRes, 'JSONT');
       }
-      if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
-
-      if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
+      if(cp.cmdRes) {
+        if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
+        if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
+      }
 
       rl.prompt();
       return;
