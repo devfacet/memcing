@@ -42,6 +42,7 @@ node memcing.js -help
     -cache-limit   : Cache limit in KB. Default; 16384 kilobytes
     -vacuum-ival   : Interval for vacuum. Default; 30 seconds
     -eviction      : Eviction mode. Default; false
+    -listen-http   : Listen http requests. Example; hostname[:port]
     -help          : Display help and exit.
 
   Commands:
@@ -78,8 +79,13 @@ It stops running while loading the file if there is an error.
 #### Implementations
 
 * [x] Interactive mode
-* [ ] HTTP back-end
-      - [ ] get
+* [ ] RESTful
+      - [ ] GET
+        - [ ] Collection
+        - [x] Element
+      - [ ] PUT
+      - [ ] POST
+      - [ ] DELETE
 
 ### Changelog
 

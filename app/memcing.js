@@ -10,13 +10,28 @@
 
 var mFS       = require('fs'),
     mReadline = require('readline'),
+    mHTTP     = require('http'),
+    mURL      = require('url'),
     mUtilex   = require('utilex'),
     mQ        = require('q'),
     mCache    = require('./cache')
 ;
 
 // Init vars
-var gConfig   = {isDebug: false, isHelp: false, isIactive: false, loadFile: null, cache: {}},
+var gConfig   = {
+      isDebug: false,
+      isHelp: false,
+      isIactive: false,
+      loadFile: null,
+      listen: {
+        http: {
+          isEnabled: false,
+          hostname: null,
+          port: null
+        }
+      },
+      cache: {}
+    },
     gCache,
     gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'vacuum', 'stats', 'dump', 'exit'],
     gRegex    = {
@@ -36,23 +51,30 @@ if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) cmdHelp();
 // Init cache
 gCache = mCache(gConfig.cache);
 
+// Load file
 if(gConfig.loadFile) {
-  // Load file
   cmdLoadFile(gConfig.loadFile).then(function() {
-    // Interactive mode
-    if(gConfig.isIactive === true) {
-      cmdIactive();
+
+    // Check config
+    if(gConfig.isIactive || gConfig.listen.http.isEnabled) {
+
+      if(gConfig.listen.http.isEnabled) cmdListen();  // listen
+      if(gConfig.isIactive)             cmdIactive(); // Interactive mode
+
     } else {
-      // Nothing else to do
-      process.exit(0);
+      process.exit(0); // Nothing else to do
     }
   }, function(err) {
     mUtilex.tidyLog('Error on ' + gConfig.loadFile + ' (' + err + ')');
     process.exit(0);
   });
-} else if(gConfig.isIactive === true) {
-  // Interactive mode
-  cmdIactive();
+} else if(gConfig.isIactive) {
+
+  if(gConfig.listen.http.isEnabled) cmdListen(); // listen
+  cmdIactive(); // Interactive mode
+
+} else {
+  process.exit(0); // Nothing else to do
 }
 
 // Executes interactive mode command.
@@ -188,6 +210,114 @@ function cmdLoadFile(iPath) {
   return deferred.promise;
 }
 
+// Execute listen commands.
+function cmdListen() {
+
+  // Init vars
+  var hostname  = gConfig.listen.http.hostname || null,
+      port      = gConfig.listen.http.port || 12080,
+      resHdr    = {'Content-Type': 'application/json'}
+  ;
+
+  // Init http
+  if(gConfig.listen.http.isEnabled) {
+    var server = mHTTP.createServer(function(req, res) {
+      var up = mURL.parse(req.url, true, false);
+      //console.log(up); // for debug
+
+      if(up && up.pathname) {
+        var pathAry = up.pathname.split('/');
+        if(pathAry[1] == 'entries') {
+          if(pathAry[2]) {
+            var cg = gCache.get(pathAry[2]);
+            if(cg) {
+              res.writeHead(200, resHdr);
+              res.end(JSON.stringify(cg));
+            } else {
+              res.writeHead(404, resHdr);
+              res.end(JSON.stringify({code: '404', message: 'Not Found'}));
+            }
+          } else {
+            res.writeHead(400, resHdr);
+            res.end(JSON.stringify({code: '400', message: 'Bad Request'}));
+          }
+        } else if(pathAry[1]) {
+          res.writeHead(501, resHdr);
+          res.end(JSON.stringify({code: '501', message: 'Not Implemented'}));
+        } else {
+          res.writeHead(200, resHdr);
+          res.end('{}');
+        }
+      }
+    }).listen(port, hostname, function() {
+      mUtilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
+    });
+  }
+}
+
+// Parses the command arguments.
+function cmdArgParse() {
+
+  // Init vars
+  var args = mUtilex.tidyArgs();
+
+  // Check args
+  
+  // global config
+  if(typeof args['debug'] !== 'undefined')        gConfig.isDebug           = true;
+  if(typeof args['help'] !== 'undefined')         gConfig.isHelp            = true;
+  if(typeof args['i'] !== 'undefined')            gConfig.isIactive         = true;
+  if(args['load-file'])                           gConfig.loadFile          = args['load-file'];
+
+  // cache
+  if(typeof args['debug'] !== 'undefined')        gConfig.cache.isDebug     = true;
+  if(typeof args['cache-limit'] !== 'undefined')  gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
+  if(typeof args['vacuum-ival'] !== 'undefined')  gConfig.cache.vacuumIval  = parseInt(args['vacuum-ival'], 10);
+  if(typeof args['eviction'] !== 'undefined')     gConfig.cache.eviction    = true;
+
+  // listen-http
+  if(typeof args['listen-http'] !== 'undefined') {
+    var tAry = ('' + args['listen-http']).split(':', 2);
+
+    if(tAry[0]) {
+      gConfig.listen.http.isEnabled = true;
+      gConfig.listen.http.hostname  = tAry[0].trim();
+      gConfig.listen.http.port      = (tAry[1] || null);
+    }
+  }
+
+  return true;
+}
+
+// Executes the help command.
+function cmdHelp() {
+
+  console.log("Usage: node memching.js [OPTION]...\n");
+  console.log("Memcing is an application for simple memory caching.\n");
+  console.log("  Options:");
+  console.log("    -i             : Interactive mode.");
+  console.log("    -load-file     : Load a command file.");
+  console.log("    -cache-limit   : Cache limit in KB. Default; 16384 kilobytes");
+  console.log("    -vacuum-ival   : Interval for vacuum. Default; 30 seconds");
+  console.log("    -eviction      : Eviction mode. Default; false");
+  console.log("    -listen-http   : Listen and serve with http. Example; hostname[:port]");
+  console.log("    -help          : Display help and exit.\n");
+  console.log("  Commands:");
+  console.log("    get key");
+  console.log("    set key value [expire = 0]");
+  console.log("    add key value [expire = 0]");
+  console.log("    increment key [amount = 1]");
+  console.log("    decrement key [amount = 1]");
+  console.log("    delete key");
+  console.log("    vacuum");
+  console.log("    stats");
+  console.log("    dump");
+  console.log("    exit\n");
+  console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
+
+  process.exit(0);
+}
+
 // Parses and executes the given cache command.
 function cacheCmd(iCmd) {
 
@@ -255,52 +385,4 @@ function cacheCmd(iCmd) {
   }
 
   return result;
-}
-
-// Parses the command arguments.
-function cmdArgParse() {
-
-  // Init vars
-  var args = mUtilex.tidyArgs();
-
-  // Check args
-  if(typeof args['debug'] !== 'undefined')        gConfig.isDebug           = true;
-  if(typeof args['help'] !== 'undefined')         gConfig.isHelp            = true;
-  if(typeof args['i'] !== 'undefined')            gConfig.isIactive         = true;
-  if(args['load-file'])                           gConfig.loadFile          = args['load-file'];
-
-  if(typeof args['debug'] !== 'undefined')        gConfig.cache.isDebug     = true;
-  if(typeof args['cache-limit'] !== 'undefined')  gConfig.cache.limitInKB   = parseInt(args['cache-limit'], 10);
-  if(typeof args['vacuum-ival'] !== 'undefined')  gConfig.cache.vacuumIval  = parseInt(args['vacuum-ival'], 10);
-  if(typeof args['eviction'] !== 'undefined')     gConfig.cache.eviction    = true;
-
-  return true;
-}
-
-// Executes the help command.
-function cmdHelp() {
-
-  console.log("Usage: node memching.js [OPTION]...\n");
-  console.log("Memcing is an application for simple memory caching.\n");
-  console.log("  Options:");
-  console.log("    -i             : Interactive mode.");
-  console.log("    -load-file     : Load a command file.");
-  console.log("    -cache-limit   : Cache limit in KB. Default; 16384 kilobytes");
-  console.log("    -vacuum-ival   : Interval for vacuum. Default; 30 seconds");
-  console.log("    -eviction      : Eviction mode. Default; false");
-  console.log("    -help          : Display help and exit.\n");
-  console.log("  Commands:");
-  console.log("    get key");
-  console.log("    set key value [expire = 0]");
-  console.log("    add key value [expire = 0]");
-  console.log("    increment key [amount = 1]");
-  console.log("    decrement key [amount = 1]");
-  console.log("    delete key");
-  console.log("    vacuum");
-  console.log("    stats");
-  console.log("    dump");
-  console.log("    exit\n");
-  console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
-
-  process.exit(0);
 }
