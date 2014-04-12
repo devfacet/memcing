@@ -23,7 +23,7 @@
   "contributors": [],
   "main": "./app/memcing.js",
   "scripts": {
-    "start": "node ./app/memcing.js -i",
+    "start": "node ./app/memcing.js -i -listen-http localhost:12080",
     "test": "node ./test/test-all.js"
   },
   "engines": [

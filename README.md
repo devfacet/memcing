@@ -30,6 +30,7 @@ npm test
 ```
 npm start
 ```
+Add an entry (`add hello world`) and see `http://localhost:12080/entries/hello`
 
 #### Help
 ```
@@ -59,20 +60,25 @@ node memcing.js -help
 ```
 
 #### Examples
+
+Interactive mode and RESTful can be used in same time.
+```
+node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http localhost:12080
+```
+Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
+then switch to interactive mode and listen http requests. The cached data will be available for 
+interactive mode and RESTful (`http://localhost:12080/entries/KEY`) requests.  
+
+For performance result; `ab -n 10000 -c 100 http://localhost:12080/entries/hello`
+
+-
+
+Commands can be pass via stdin.
 ```
 node memcing.js -i < ../test/cmds-im.txt
 ```
 Reads commands from [cmds-im.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-im.txt)
 and display result.
-
--
-
-```
-node memcing.js -i -load-file ../test/cmds-lf.txt
-```
-Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
-and switch to interactive mode. The cached data will be available in interactive mode.
-It stops running while loading the file if there is an error.
 
 ### Notes
 
