@@ -69,7 +69,7 @@ Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master
 then switch to interactive mode and listen http requests. The cached data will be available for 
 interactive mode and RESTful (`http://localhost:12080/entries/KEY`) requests.  
 
-For performance result; `ab -n 10000 -c 100 http://localhost:12080/entries/hello`
+For RESTful performance; `ab -n 10000 -c 100 http://localhost:12080/entries/hello`
 
 -
 
