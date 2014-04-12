@@ -1,6 +1,6 @@
 {
   "name": "memcing",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Memcing is an application for simple memory caching.",
   "keywords": [
     "memory",
