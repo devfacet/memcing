@@ -90,6 +90,14 @@ You can create a postal code service with two lines of command.
 node memcing.js -cache-limit 65536 -listen-http 0.0.0.0:12080 -load-file ./cmds-postal-codes.txt
 ```
 See `http://localhost:12080/entries/78729`
+```JSON
+{
+  "key": 78729,
+  "val": "['US','Austin','Texas','TX','Williamson','30.4521','-97.7688']",
+  "ts": 1397288286856,
+  "expTS": 0
+}
+```
 
 If you want to include other countries see http://download.geonames.org/export/zip/
 and change the part (`US.zip` and `US.txt`) of the command at above. 
