@@ -36,6 +36,7 @@ var gConfig   = {
     gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'vacuum', 'stats', 'dump', 'exit'],
     gRegex    = {
       command:    new RegExp('^\\b(' + gCommands.join('|') + ')\\b', 'i'),
+      // TODO: It should support escape chars. Currently \" doesn't work.
       args:       new RegExp('("[^"]*")|([^\\s]+)', 'g'),
       number:     new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g'),
       trimQuotes: new RegExp('^"|"$', 'g')
