@@ -16,7 +16,7 @@ npm install memcing
 For HEAD
 ```
 git clone https://github.com/cmfatih/memcing.git
-npm install
+cd memcing/ && npm install
 ```
 
 ### Usage
@@ -79,6 +79,21 @@ node memcing.js -i < ../test/cmds-im.txt
 ```
 Reads commands from [cmds-im.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-im.txt)
 and display result.
+
+-
+
+##### Postal Code Service Example
+
+You can create a postal code service with two lines of command.
+```
+([ -f zip.zip ] || wget -qO zip.zip http://download.geonames.org/export/zip/US.zip) && unzip -p zip.zip US.txt | cat | awk -v sq="'" -F"\\t" '{ print "set \""$2"\" \"["sq$1sq","sq$3sq","sq$4sq","sq$5sq","sq$6sq","sq$10sq","sq$11sq"]\""}' > cmds-postal-codes.txt
+node memcing.js -cache-limit 65536 -listen-http 0.0.0.0:12080 -load-file ./cmds-postal-codes.txt
+```
+See `http://localhost:12080/entries/78729`
+
+If you want to include other countries see http://download.geonames.org/export/zip/
+and change the part (`US.zip` and `US.txt`) of the command at above. 
+
 
 ### Notes
 
