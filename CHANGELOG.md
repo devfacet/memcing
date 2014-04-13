@@ -3,13 +3,13 @@
 ### HEAD
 
 ```
-* Adding RESTful (GET - collection)
+* Add RESTful (GET - collection)
 ```
 
 ### 0.1.3 (2014-04-12)
 
-* Adding RESTful (GET - element)
-* Adding heapsnapshot for tests
+* Add RESTful (GET - element)
+* Add heapsnapshot for tests
 * Changes on min eviction limit
 * Improvement for vacuuming
 
