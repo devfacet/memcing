@@ -43,20 +43,20 @@ exports = module.exports = function(iParam) {
         vacuum: null        // timer for vacuum
       },
 
-      avlbEntry,    // available space in entry - function
-      numOfEntry,   // number of entry - function
+      numOfAvlbEntry, // number of available entry - function
+      numOfEntry,     // number of entry - function
 
-      stats,        // stats - function
-      dump,         // dump - function
-      vacuum,       // vacuum - function
+      stats,          // stats - function
+      dump,           // dump - function
+      vacuum,         // vacuum - function
 
-      get,          // get - function
-      set,          // set - function
-      add,          // add - function
-      del,          // delete - function
-      incdec,       // increment or decrement value - function 
-      increment,    // increment value - function
-      decrement     // decrement value - function
+      get,            // get - function
+      set,            // set - function
+      add,            // add - function
+      del,            // delete - function
+      incdec,         // increment or decrement value - function 
+      increment,      // increment value - function
+      decrement       // decrement value - function
   ;
 
   // Check params
@@ -82,7 +82,7 @@ exports = module.exports = function(iParam) {
   }, gCacheOpt.vacuum.ival*1000);
 
   // Returns available space in entry.
-  avlbEntry = function avlbEntry() {
+  numOfAvlbEntry = function numOfAvlbEntry() {
     return (gCacheOpt.limitInEntry-gDataLen);
   };
 
@@ -96,7 +96,7 @@ exports = module.exports = function(iParam) {
     return {
       options: gCacheOpt,
       numberOfEntry: numOfEntry(),
-      numberOfAvlbEntry: avlbEntry(),
+      numberOfAvlbEntry: numOfAvlbEntry(),
       usageInPercent: Math.floor((gDataLen*100)/gCacheOpt.limitInEntry)
     };
   };
@@ -155,7 +155,7 @@ exports = module.exports = function(iParam) {
       tCntr   = 0;
 
       if(pEvictLIE === 0) {
-        pEvictLIE = (avlbEntry() < gCacheOpt.eviction.limitInEntry) ? (gCacheOpt.eviction.limitInEntry-avlbEntry()) : 0;
+        pEvictLIE = (numOfAvlbEntry() < gCacheOpt.eviction.limitInEntry) ? (gCacheOpt.eviction.limitInEntry-numOfAvlbEntry()) : 0;
       }
 
       if(pEvictLIE > 0) {
@@ -232,7 +232,7 @@ exports = module.exports = function(iParam) {
     var cData = get(pKey);
 
     // Check the memory
-    if(!cData && avlbEntry() < 1) { // no more available space
+    if(!cData && numOfAvlbEntry() < 1) { // no more available space
 
       if(gConfig.isDebug) mUtilex.tidyLog('[cache.set]: Out of entry limit. (' + gDataLen + ')');
 
@@ -241,7 +241,7 @@ exports = module.exports = function(iParam) {
       // Cleanup expired entries
       vacuum({exp: true});
 
-      if(gCacheOpt.eviction.enabled === true && avlbEntry() < 2) { // last space
+      if(gCacheOpt.eviction.enabled === true && numOfAvlbEntry() < 2) { // last space
         // Cleanup for enough space
         var tLIE = gCacheOpt.eviction.limitInEntry;
 
@@ -342,6 +342,7 @@ exports = module.exports = function(iParam) {
   // Return
   return {
     numOfEntry: numOfEntry,
+    numOfAvlbEntry: numOfAvlbEntry,
 
     stats: stats,
     dump: dump,
