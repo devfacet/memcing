@@ -53,9 +53,9 @@ node memcing.js -help
     increment key [amount = 1]
     decrement key [amount = 1]
     delete key
-    vacuum
-    stats
     dump
+    stats
+    vacuum
     exit
 ```
 

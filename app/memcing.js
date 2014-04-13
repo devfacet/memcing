@@ -33,7 +33,7 @@ var gConfig   = {
       cache: {}
     },
     gCache,
-    gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'vacuum', 'stats', 'dump', 'exit'],
+    gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit'],
     gRegex    = {
       command:    new RegExp('^\\b(' + gCommands.join('|') + ')\\b', 'i'),
       // TODO: It should support escape chars. Currently \" doesn't work.
@@ -125,8 +125,25 @@ function cmdIactive() {
       case 'decrement':
         console.log((cp.cmdRes.error) ? 'ERROR' : cp.cmdRes.val);
         break;
-      case 'stats':
       case 'dump':
+        if(gCache.numOfEntry() > 0) {
+          var cd    = cp.cmdRes,
+              cdLen = gCache.numOfEntry(),
+              cdCnt = 0,
+              cc    = ''
+          ;
+          console.log('[');
+          for(var key in cd) {
+            cdCnt++
+            cc = (cdCnt < cdLen) ? ',' : '';
+            console.log(JSON.stringify(cd[key]) + cc);
+          }
+          console.log(']');
+        } else {
+          console.log('[]');
+        }
+        break;
+      case 'stats':
       case 'vacuum':
         console.log(cp.cmdRes);
         break;
@@ -248,7 +265,7 @@ function cmdListen() {
             res.writeHead(200, resHdr);
 
             if(gCache.numOfEntry() > 0) {
-              var cd = gCache.dump(),
+              var cd = gCache.dataSet(),
                   cc = ''
               ;
               res.write('[');
@@ -331,9 +348,9 @@ function cmdHelp() {
   console.log("    increment key [amount = 1]");
   console.log("    decrement key [amount = 1]");
   console.log("    delete key");
-  console.log("    vacuum");
-  console.log("    stats");
   console.log("    dump");
+  console.log("    stats");
+  console.log("    vacuum");
   console.log("    exit\n");
   console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
 
@@ -390,14 +407,14 @@ function cacheCmd(iCmd) {
     case 'decrement':
       result.cmdRes = gCache.decrement(result.cmdArgs[0], result.cmdArgs[1]);
       break;
-    case 'vacuum':
-      result.cmdRes = gCache.vacuum({all: true});
+    case 'dump':
+      result.cmdRes = gCache.dataSet();
       break;
     case 'stats':
       result.cmdRes = gCache.stats();
       break;
-    case 'dump':
-      result.cmdRes = gCache.dump();
+    case 'vacuum':
+      result.cmdRes = gCache.vacuum({all: true});
       break;
     case 'exit':
       result.cmdRes = {exit: true};
