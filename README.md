@@ -16,8 +16,6 @@ npm install memcing
 For HEAD
 ```
 git clone https://github.com/cmfatih/memcing.git
-cd memcing/
-npm install
 ```
 
 ### Usage
