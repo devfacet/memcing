@@ -109,9 +109,9 @@ and change the part (`US.zip` and `US.txt`) of the command at above.
 
 * [x] Interactive mode
 * [ ] RESTful
-      - [ ] GET
-        - [ ] Collection
-        - [x] Element
+      - [x] GET
+        - [x] Collection (`/entries`)
+        - [x] Element (`/entries/KEY`)
       - [ ] PUT
       - [ ] POST
       - [ ] DELETE

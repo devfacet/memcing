@@ -44,6 +44,8 @@ exports = module.exports = function(iParam) {
       },
 
       avlbEntry,    // available space in entry - function
+      numOfEntry,   // number of entry - function
+
       stats,        // stats - function
       dump,         // dump - function
       vacuum,       // vacuum - function
@@ -84,18 +86,23 @@ exports = module.exports = function(iParam) {
     return (gCacheOpt.limitInEntry-gDataLen);
   };
 
+  // Returns number of entry.
+  numOfEntry = function numOfEntry() {
+    return gDataLen;
+  };
+
   // Returns the stats.
   stats = function stats() {
     return {
       options: gCacheOpt,
-      numberOfEntry: gDataLen,
+      numberOfEntry: numOfEntry(),
       numberOfAvlbEntry: avlbEntry(),
       usageInPercent: Math.floor((gDataLen*100)/gCacheOpt.limitInEntry)
     };
   };
 
-  // Dump the cached data.
-  // This is not an export process. It is for small data sets.
+  // Returns the cached data var.
+  // This is not an export function.
   dump = function stats() {
     return gDataSet;
   };
@@ -334,9 +341,12 @@ exports = module.exports = function(iParam) {
 
   // Return
   return {
+    numOfEntry: numOfEntry,
+
     stats: stats,
     dump: dump,
     vacuum: vacuum,
+
     set: set,
     add: add,
     get: get,

@@ -222,14 +222,20 @@ function cmdListen() {
 
   // Init http
   if(gConfig.listen.http.isEnabled) {
+
     var server = mHTTP.createServer(function(req, res) {
+
       var up = mURL.parse(req.url, true, false);
       //console.log(up); // for debug
 
       if(up && up.pathname) {
+
         var pathAry = up.pathname.split('/');
+        //console.log(pathAry); // for debug
+
         if(pathAry[1] == 'entries') {
           if(pathAry[2]) {
+
             var cg = gCache.get(pathAry[2]);
             if(cg) {
               res.writeHead(200, resHdr);
@@ -239,8 +245,23 @@ function cmdListen() {
               res.end(JSON.stringify({code: '404', message: 'Not Found'}));
             }
           } else {
-            res.writeHead(400, resHdr);
-            res.end(JSON.stringify({code: '400', message: 'Bad Request'}));
+            res.writeHead(200, resHdr);
+
+            if(gCache.numOfEntry() > 0) {
+              var cd = gCache.dump(),
+                  cc = ''
+              ;
+              res.write('[');
+              for(var key in cd) {
+                res.write(cc + '\n' + JSON.stringify(cd[key]));
+                if(!cc) cc = ',';
+              }
+              res.write('\n]');
+            } else {
+              res.write('[]');
+            }
+
+            res.end();
           }
         } else if(pathAry[1]) {
           res.writeHead(501, resHdr);
