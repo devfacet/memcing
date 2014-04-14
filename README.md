@@ -101,17 +101,49 @@ See `http://localhost:12080/entries/78729`
 If you want to include other countries see http://download.geonames.org/export/zip/
 and change the part (`US.zip` and `US.txt`) of the command at above. 
 
+### REST API
+
+*REST API is still under development. These are currently implemented methods. For the full list 
+see [Implementations](#implementations)*
+
+**PUT entries**
+```
+/entries/{KEY}
+```
+```
+# Use `application/x-www-form-urlencoded`
+# `val` for value
+# `exp` for expiration.
+```
+```
+# Example:
+curl -X PUT -d "val=world" http://localhost:12080/entries/hello
+curl -X PUT -d "val=world&exp=10" http://localhost:12080/entries/bye
+```
+
+**Get entries**
+```
+/entries
+/entries/{KEY}
+```
+```
+# Examples: 
+curl http://localhost:12080/entries
+curl http://localhost:12080/entries/hello
+```
 
 ### Notes
 
 #### Implementations
 
 * [x] Interactive mode
-* [ ] RESTful
+* [ ] REST API
+      - [ ] PUT
+        - [] Collection (`/entries`)
+        - [x] Element (`/entries/{KEY}`)
       - [x] GET
         - [x] Collection (`/entries`)
-        - [x] Element (`/entries/KEY`)
-      - [ ] PUT
+        - [x] Element (`/entries/{KEY}`)
       - [ ] POST
       - [ ] DELETE
 

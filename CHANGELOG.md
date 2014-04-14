@@ -3,6 +3,7 @@
 ### HEAD
 
 ```
+* Add RESTful (PUT - element)
 * Add RESTful (GET - collection)
 ```
 
