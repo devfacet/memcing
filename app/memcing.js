@@ -14,7 +14,8 @@ var mFS       = require('fs'),
     mURL      = require('url'),
     mUtilex   = require('utilex'),
     mQ        = require('q'),
-    mCache    = require('./cache')
+    mCache    = require('./cache'),
+    mQS       = require('querystring')
 ;
 
 // Init vars
@@ -250,33 +251,99 @@ function cmdListen() {
         //console.log(pathAry); // for debug
 
         if(pathAry[1] == 'entries') {
+
           if(pathAry[2]) {
-            var cg = gCache.get(pathAry[2]);
-            if(cg) {
-              res.writeHead(200, resHdr);
-              res.end(JSON.stringify(cg));
+
+            // element
+
+            var tElem = (gRegex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
+
+            if(req.method == 'GET') {
+
+              // Init vars
+              var cg = gCache.get(tElem);
+
+              // Check the data
+              if(cg) {
+                res.writeHead(200, resHdr);
+                res.end(JSON.stringify(cg));
+              } else {
+                res.writeHead(404, resHdr);
+                res.end(JSON.stringify({code: '404', message: 'Not Found'}));
+              }
+            } else if(req.method == 'PUT') {
+
+              // Init vars
+              var bodyAry = [],
+                  dLen    = 0,
+                  dLmt    = gCache.sizeOfPerEntry()*2
+              ;
+
+              req.on('data', function(chunk) {
+                //console.log(chunk.length + ' - ' + dLen + ' - ' + dLmt); // for debug
+                if(dLen >= dLmt) {
+                  return false;
+                } else {
+                  dLen += chunk.length;
+                  bodyAry.push(chunk);
+                }
+              });
+
+              req.on('end', function() {
+                if(dLen >= dLmt) {
+                  res.writeHead(413, resHdr);
+                  res.end(JSON.stringify({code: '413', message: 'Request Entity Too Large'}));
+                } else {
+                  if(req.headers['content-type'] == 'application/x-www-form-urlencoded') {
+                    var qsp   = mQS.parse(bodyAry.join()),
+                        eVal  = (qsp && qsp.val && gRegex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
+                        eExp  = (qsp && qsp.exp) ? qsp.exp : null,
+                        cs    = gCache.set(tElem, eVal, eExp)
+                    ;
+
+                    if(!cs.error) {
+                      res.writeHead(200, resHdr);
+                      res.end(JSON.stringify(gCache.get(tElem)));
+                    } else {
+                      res.writeHead(400, resHdr);
+                      res.end(JSON.stringify({code: '400', message: cs.error}));
+                    }
+                  } else {
+                    res.writeHead(400, resHdr);
+                    res.end(JSON.stringify({code: '400', message: 'Bad Request (Use `application/x-www-form-urlencoded` for PUT/POST)'}));
+                  }
+                }
+              });
             } else {
-              res.writeHead(404, resHdr);
-              res.end(JSON.stringify({code: '404', message: 'Not Found'}));
+              res.writeHead(405, resHdr);
+              res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));
             }
           } else {
-            res.writeHead(200, resHdr);
 
-            if(gCache.numOfEntry() > 0) {
-              var cd = gCache.dataSet(),
-                  cc = ''
-              ;
-              res.write('[');
-              for(var key in cd) {
-                res.write(cc + '\n' + JSON.stringify(cd[key]));
-                if(!cc) cc = ',';
+            // collection
+            
+            if(req.method == 'GET') {
+              res.writeHead(200, resHdr);
+
+              if(gCache.numOfEntry() > 0) {
+                var cd = gCache.dataSet(),
+                    cc = ''
+                ;
+                res.write('[');
+                for(var key in cd) {
+                  res.write(cc + '\n' + JSON.stringify(cd[key]));
+                  if(!cc) cc = ',';
+                }
+                res.write('\n]');
+              } else {
+                res.write('[]');
               }
-              res.write('\n]');
-            } else {
-              res.write('[]');
-            }
 
-            res.end();
+              res.end();
+            } else {
+              res.writeHead(405, resHdr);
+              res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));
+            }
           }
         } else if(pathAry[1]) {
           res.writeHead(501, resHdr);
