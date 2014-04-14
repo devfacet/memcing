@@ -26,6 +26,7 @@ exports = module.exports = function(iParam) {
         limitInEntry: 0,    // cache limit in number of entry
         keyLIC: 64,         // key limit in char
         valLIC: 256,        // val limit in char
+        entryLIB: 0,        // per entry limit in byte
         vacuum: {
           ival: 30,         // vacuum interval in seconds
           running: false    // whether vacuum running or not
@@ -46,6 +47,7 @@ exports = module.exports = function(iParam) {
       dataSet,        // data - function
       numOfEntry,     // number of entry - function
       numOfAvlbEntry, // number of available entry - function
+      sizeOfPerEntry, // size of per entry - function
 
       stats,          // stats - function
       vacuum,         // vacuum - function
@@ -65,11 +67,12 @@ exports = module.exports = function(iParam) {
   if(iParam && !isNaN(iParam.vacuumIval)) gCacheOpt.vacuum.ival       = iParam.vacuumIval;
   if(iParam && iParam.eviction === true)  gCacheOpt.eviction.enabled  = true;
 
-  // Calculate the entry limit.
+  // Calculate the entry limits.
   // Empty space should be guaranteed for each key. Otherwise will fail on updates.
   // This calculation might be important for eviction policies.
   // Also UTF-8 considered for the calculation. (4 bytes for each char.)
-  gCacheOpt.limitInEntry = Math.floor((gCacheOpt.limitInKB*1024)/((gCacheOpt.keyLIC+gCacheOpt.valLIC)*4));
+  gCacheOpt.entryLIB      = ((gCacheOpt.keyLIC+gCacheOpt.valLIC)*4);
+  gCacheOpt.limitInEntry  = Math.floor((gCacheOpt.limitInKB*1024)/gCacheOpt.entryLIB);
 
   // Calculate the eviction limit.
   gCacheOpt.eviction.limitInEntry = Math.floor((gCacheOpt.limitInEntry*2)/100); // 2%
@@ -95,6 +98,11 @@ exports = module.exports = function(iParam) {
   // Returns available space in entry.
   numOfAvlbEntry = function numOfAvlbEntry() {
     return (gCacheOpt.limitInEntry-gDataLen);
+  };
+
+  // Returns size of an entry.
+  sizeOfPerEntry = function sizeOfPerEntry() {
+    return gCacheOpt.entryLIB;
   };
 
   // Returns the stats.
@@ -344,6 +352,7 @@ exports = module.exports = function(iParam) {
     dataSet: dataSet,
     numOfEntry: numOfEntry,
     numOfAvlbEntry: numOfAvlbEntry,
+    sizeOfPerEntry: sizeOfPerEntry,
 
     stats: stats,
     vacuum: vacuum,
