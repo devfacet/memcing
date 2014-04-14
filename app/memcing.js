@@ -134,7 +134,7 @@ function cmdIactive() {
           ;
           console.log('[');
           for(var key in cd) {
-            cdCnt++
+            cdCnt++;
             cc = (cdCnt < cdLen) ? ',' : '';
             console.log(JSON.stringify(cd[key]) + cc);
           }
@@ -232,7 +232,7 @@ function cmdLoadFile(iPath) {
 function cmdListen() {
 
   // Init vars
-  var hostname  = gConfig.listen.http.hostname || null,
+  var hostname  = gConfig.listen.http.hostname || 'localhost',
       port      = gConfig.listen.http.port || 12080,
       resHdr    = {'Content-Type': 'application/json'}
   ;
@@ -246,13 +246,11 @@ function cmdListen() {
       //console.log(up); // for debug
 
       if(up && up.pathname) {
-
         var pathAry = up.pathname.split('/');
         //console.log(pathAry); // for debug
 
         if(pathAry[1] == 'entries') {
           if(pathAry[2]) {
-
             var cg = gCache.get(pathAry[2]);
             if(cg) {
               res.writeHead(200, resHdr);
@@ -285,7 +283,7 @@ function cmdListen() {
           res.end(JSON.stringify({code: '501', message: 'Not Implemented'}));
         } else {
           res.writeHead(200, resHdr);
-          res.end('{}');
+          res.end();
         }
       }
     }).listen(port, hostname, function() {
