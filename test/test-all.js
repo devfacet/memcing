@@ -17,10 +17,8 @@ var gConfig   = {isHeapdump: false},
 // Check args
 if(typeof gArgs['heapdump'] !== 'undefined') gConfig.isHeapdump = true;
 
-// Check config
-if(gConfig.isHeapdump === true) {
-  var mHeapdump = require('heapdump');
-}
+// heapdump
+if(gConfig.isHeapdump === true) var mHeapdump = require('heapdump');
 
 // Tests
 mUtilex.tidyLog('test-all.js');
@@ -65,9 +63,8 @@ if(gTestList.SET === true) {
   mUtilex.tidyLog('Stats:');
   mUtilex.tidyLog(cache.stats(), 'JSONT');
 
-  if(gConfig.isHeapdump === true) {
-    mHeapdump.writeSnapshot(__dirname + '/dump-' + Date.now() + '.heapsnapshot');
-  }
+  // heapdump
+  if(gConfig.isHeapdump === true) mHeapdump.writeSnapshot(__dirname + '/dump-' + Date.now() + '.heapsnapshot');
 
   process.exit(0);
 }
