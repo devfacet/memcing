@@ -264,17 +264,12 @@ function cmdListen() {
         if(pathAry[1] == 'entries') {
 
           if(pathAry[2]) {
-
             // element
 
             var tElem = (gRegex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
 
             if(req.method == 'GET') {
-
-              // Init vars
               var cg = gCache.get(tElem);
-
-              // Check the data
               if(cg) {
                 res.writeHead(200, resHdr);
                 res.end(JSON.stringify(cg));
@@ -283,8 +278,6 @@ function cmdListen() {
                 res.end(JSON.stringify({code: '404', message: 'Not Found'}));
               }
             } else if(req.method == 'PUT' || req.method == 'POST') {
-
-              // Init vars
               var bodyAry = [],
                   dLen    = 0,
                   dLmt    = gCache.sizeOfPerEntry()*2
@@ -314,7 +307,6 @@ function cmdListen() {
 
                     if(req.method == 'POST') {
                       var cg = gCache.get(tElem);
-
                       if(cg) {
                         res.writeHead(409, resHdr);
                         res.end(JSON.stringify({code: '409', message: 'Conflict', entry: cg}));
@@ -324,7 +316,6 @@ function cmdListen() {
 
                     if(setTrig === true) {
                       var cs = gCache.set(tElem, eVal, eExp);
-
                       if(!cs.error) {
                         res.writeHead(200, resHdr);
                         res.end(JSON.stringify(gCache.get(tElem)));
@@ -339,12 +330,15 @@ function cmdListen() {
                   }
                 }
               });
+            } else if(req.method == 'DELETE') {
+              gCache.del(tElem);
+              res.writeHead(200, resHdr);
+              res.end();
             } else {
               res.writeHead(405, resHdr);
               res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));
             }
           } else {
-
             // collection
             
             if(req.method == 'GET') {

@@ -150,6 +150,18 @@ curl http://localhost:12080/entries
 curl http://localhost:12080/entries/hello
 ```
 
+**DELETE**
+
+```
+/entries/{KEY}
+```
+DELETE method represent the `delete` command.
+
+Examples:
+```
+curl -X DELETE http://localhost:12080/entries/hello
+```
+
 ### Notes
 
 #### Implementations
@@ -160,12 +172,14 @@ curl http://localhost:12080/entries/hello
         - [x] Collection (`/entries`)
         - [x] Element (`/entries/{KEY}`)
       - [ ] PUT
-        - [] Collection (`/entries`)
+        - [ ] Collection (`/entries`)
         - [x] Element (`/entries/{KEY}`)
       - [ ] POST
-        - [] Collection (`/entries`)
+        - [ ] Collection (`/entries`)
         - [x] Element (`/entries/{KEY}`)
       - [ ] DELETE
+        - [ ] Collection (`/entries`)
+        - [x] Element (`/entries/{KEY}`)
 
 ### Changelog
 
