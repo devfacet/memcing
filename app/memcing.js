@@ -362,6 +362,10 @@ function cmdListen() {
               }
 
               res.end();
+            } else if(req.method == 'DELETE') {
+              gCache.drop();
+              res.writeHead(200, resHdr);
+              res.end();
             } else {
               res.writeHead(405, resHdr);
               res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));

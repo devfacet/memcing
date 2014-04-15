@@ -154,13 +154,15 @@ curl http://localhost:12080/entries/hello
 **DELETE**
 
 ```
+/entries
 /entries/{KEY}
 ```
-DELETE method represent the `delete` command.
+DELETE method represent the `delete` or `drop` command.
 
 Examples:
 ```
 curl -X DELETE http://localhost:12080/entries/hello
+curl -X DELETE http://localhost:12080/entries
 ```
 
 ### Notes
@@ -178,8 +180,8 @@ curl -X DELETE http://localhost:12080/entries/hello
       - [ ] POST
         - [ ] Collection (`/entries`)
         - [x] Element (`/entries/{KEY}`)
-      - [ ] DELETE
-        - [ ] Collection (`/entries`)
+      - [x] DELETE
+        - [x] Collection (`/entries`)
         - [x] Element (`/entries/{KEY}`)
 
 ### Changelog
