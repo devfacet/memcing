@@ -271,7 +271,7 @@ function cmdListen() {
                 res.writeHead(404, resHdr);
                 res.end(JSON.stringify({code: '404', message: 'Not Found'}));
               }
-            } else if(req.method == 'PUT') {
+            } else if(req.method == 'PUT' || req.method == 'POST') {
 
               // Init vars
               var bodyAry = [],
@@ -295,18 +295,32 @@ function cmdListen() {
                   res.end(JSON.stringify({code: '413', message: 'Request Entity Too Large'}));
                 } else {
                   if(req.headers['content-type'] == 'application/x-www-form-urlencoded') {
-                    var qsp   = mQS.parse(bodyAry.join()),
-                        eVal  = (qsp && qsp.val && gRegex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
-                        eExp  = (qsp && qsp.exp) ? qsp.exp : null,
-                        cs    = gCache.set(tElem, eVal, eExp)
+                    var qsp     = mQS.parse(bodyAry.join()),
+                        eVal    = (qsp && qsp.val && gRegex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
+                        eExp    = (qsp && qsp.exp) ? qsp.exp : null,
+                        setTrig = true
                     ;
 
-                    if(!cs.error) {
-                      res.writeHead(200, resHdr);
-                      res.end(JSON.stringify(gCache.get(tElem)));
-                    } else {
-                      res.writeHead(400, resHdr);
-                      res.end(JSON.stringify({code: '400', message: cs.error}));
+                    if(req.method == 'POST') {
+                      var cg = gCache.get(tElem);
+
+                      if(cg) {
+                        res.writeHead(409, resHdr);
+                        res.end(JSON.stringify({code: '409', message: 'Conflict', entry: cg}));
+                        setTrig = false;
+                      }
+                    }
+
+                    if(setTrig === true) {
+                      var cs = gCache.set(tElem, eVal, eExp);
+
+                      if(!cs.error) {
+                        res.writeHead(200, resHdr);
+                        res.end(JSON.stringify(gCache.get(tElem)));
+                      } else {
+                        res.writeHead(400, resHdr);
+                        res.end(JSON.stringify({code: '400', message: cs.error}));
+                      }
                     }
                   } else {
                     res.writeHead(400, resHdr);

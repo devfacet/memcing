@@ -3,13 +3,14 @@
 ### HEAD
 
 ```
-* Add RESTful (PUT - element)
-* Add RESTful (GET - collection)
+* Add REST method (POST - element)
+* Add REST method (PUT - element)
+* Add REST method (GET - collection)
 ```
 
 ### 0.1.3 (2014-04-12)
 
-* Add RESTful (GET - element)
+* Add REST method (GET - element)
 * Add heapsnapshot for tests
 * Changes on min eviction limit
 * Improvement for vacuuming

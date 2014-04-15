@@ -103,8 +103,13 @@ and change the part (`US.zip` and `US.txt`) of the command at above.
 
 ### REST API
 
-*REST API is still under development. These are currently implemented methods. For the full list 
-see [Implementations](#implementations)*
+*REST API is still under development. For the current implementations 
+See [Implementations](#implementations)*  
+
+**Notes**
+* Use `application/x-www-form-urlencoded` for request method.
+* Use `val` query parameter for value.
+* Use `exp` query parameter for expiration.
 
 **PUT**
 
@@ -113,14 +118,22 @@ see [Implementations](#implementations)*
 ```
 PUT method represent the `set` command.
 
-* Use `application/x-www-form-urlencoded` for request method.
-* `val` for value
-* `exp` for expiration.
-
 Examples:
 ```
 curl -X PUT -d "val=world" http://localhost:12080/entries/hello
 curl -X PUT -d "val=world&exp=10" http://localhost:12080/entries/bye
+```
+
+**POST**
+
+```
+/entries/{KEY}
+```
+POST method represent the `add` command.
+
+Examples:
+```
+curl -X POST -d "val=1" http://localhost:12080/entries/counter
 ```
 
 **GET**
@@ -150,6 +163,8 @@ curl http://localhost:12080/entries/hello
         - [] Collection (`/entries`)
         - [x] Element (`/entries/{KEY}`)
       - [ ] POST
+        - [] Collection (`/entries`)
+        - [x] Element (`/entries/{KEY}`)
       - [ ] DELETE
 
 ### Changelog
