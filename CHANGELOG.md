@@ -3,13 +3,16 @@
 ### HEAD
 
 ```
+```
+
+### 0.1.4 (2014-04-15)
+
 * drop command
 * Add REST method (DELETE - collection)
 * Add REST method (DELETE - element)
 * Add REST method (POST - element)
 * Add REST method (PUT - element)
 * Add REST method (GET - collection)
-```
 
 ### 0.1.3 (2014-04-12)
 

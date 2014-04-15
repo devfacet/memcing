@@ -1,10 +1,11 @@
 {
   "name": "memcing",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Memcing is an application for simple memory caching.",
   "keywords": [
     "memory",
-    "cache"
+    "cache",
+    "caching"
   ],
   "homepage": "http://github.com/cmfatih/memcing",
   "repository": {
