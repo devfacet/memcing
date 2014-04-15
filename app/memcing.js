@@ -55,14 +55,18 @@ gCache = mCache(gConfig.cache);
 
 // Load file
 if(gConfig.loadFile) {
-  cmdLoadFile(gConfig.loadFile).then(function() {
-
-    // Check config
-    if(gConfig.isIactive || gConfig.listen.http.isEnabled) {
-
-      if(gConfig.listen.http.isEnabled) cmdListen();  // listen
-      if(gConfig.isIactive)             cmdIactive(); // Interactive mode
-
+  cmdLoadFile(gConfig.loadFile).then(function() { // load file
+    if(gConfig.listen.http.isEnabled || gConfig.isIactive) {
+      if(gConfig.listen.http.isEnabled) { // listen
+        cmdListen().then(function() {
+          if(gConfig.isIactive) cmdIactive(); // interactive mode
+        }, function(err) {
+          mUtilex.tidyLog(err);
+          process.exit(0);
+        });
+      } else if(gConfig.isIactive) {
+        cmdIactive(); // interactive mode
+      }
     } else {
       process.exit(0); // Nothing else to do
     }
@@ -71,10 +75,16 @@ if(gConfig.loadFile) {
     process.exit(0);
   });
 } else if(gConfig.isIactive) {
-
-  if(gConfig.listen.http.isEnabled) cmdListen(); // listen
-  cmdIactive(); // Interactive mode
-
+  if(gConfig.listen.http.isEnabled) { // listen
+    cmdListen().then(function() {
+      cmdIactive(); // interactive mode
+    }, function(err) {
+      mUtilex.tidyLog(err);
+      process.exit(0);
+    });
+  } else {
+    cmdIactive(); // interactive mode
+  }
 } else {
   process.exit(0); // Nothing else to do
 }
@@ -233,7 +243,8 @@ function cmdLoadFile(iPath) {
 function cmdListen() {
 
   // Init vars
-  var hostname  = gConfig.listen.http.hostname || 'localhost',
+  var deferred  = mQ.defer(),
+      hostname  = gConfig.listen.http.hostname || 'localhost',
       port      = gConfig.listen.http.port || 12080,
       resHdr    = {'Content-Type': 'application/json'}
   ;
@@ -369,8 +380,15 @@ function cmdListen() {
       }
     }).listen(port, hostname, function() {
       mUtilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
+      deferred.resolve();
+    });
+
+    server.on('error', function (e) {
+      deferred.reject(e);
     });
   }
+
+  return deferred.promise;
 }
 
 // Parses the command arguments.
