@@ -56,6 +56,7 @@ exports = module.exports = function(iParam) {
       set,            // set - function
       add,            // add - function
       del,            // delete - function
+      drop,           // drop data set - function
       incdec,         // increment or decrement value - function 
       increment,      // increment value - function
       decrement       // decrement value - function
@@ -305,6 +306,14 @@ exports = module.exports = function(iParam) {
     return false;
   };
 
+  // Drops the data set.
+  drop = function delAll() {
+    gDataSet = {};
+    gDataLen = 0;
+
+    return true;
+  };
+
   // Checks and increments or decrements the value of the given key.
   incdec = function incdec(iKey, iAmnt, iFlag) {
 
@@ -361,6 +370,7 @@ exports = module.exports = function(iParam) {
     add: add,
     get: get,
     del: del,
+    drop: drop,
     increment: increment,
     decrement: decrement
   };

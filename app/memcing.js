@@ -34,7 +34,7 @@ var gConfig   = {
       cache: {}
     },
     gCache,
-    gCommands = ['get', 'set', 'add', 'delete', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit'],
+    gCommands = ['get', 'set', 'add', 'delete', 'drop', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit'],
     gRegex    = {
       command:    new RegExp('^\\b(' + gCommands.join('|') + ')\\b', 'i'),
       // TODO: It should support escape chars. Currently \" doesn't work.
@@ -131,6 +131,9 @@ function cmdIactive() {
         break;
       case 'delete':
         console.log((cp.cmdRes) ? 'DELETED' : 'ERROR');
+        break;
+      case 'drop':
+        console.log((cp.cmdRes) ? 'DROPPED' : 'ERROR');
         break;
       case 'increment':
       case 'decrement':
@@ -439,6 +442,7 @@ function cmdHelp() {
   console.log("    increment key [amount = 1]");
   console.log("    decrement key [amount = 1]");
   console.log("    delete key");
+  console.log("    drop");
   console.log("    dump");
   console.log("    stats");
   console.log("    vacuum");
@@ -492,6 +496,9 @@ function cacheCmd(iCmd) {
     case 'delete':
       result.cmdRes = gCache.del(result.cmdArgs[0]);
       break;
+    case 'drop':
+      result.cmdRes = gCache.drop();
+      break;
     case 'increment':
       result.cmdRes = gCache.increment(result.cmdArgs[0], result.cmdArgs[1]);
       break;
@@ -511,7 +518,7 @@ function cacheCmd(iCmd) {
       result.cmdRes = {exit: true};
       break;
     default:
-      result.cmdRes = {error: 'Invalid command. (Possible commands: ' + gCommands.join(', ') + ')'};
+      result.cmdRes = {error: 'Invalid command: ' + result.cmd + ' (Possible commands: ' + gCommands.join(', ') + ')'};
   }
 
   return result;

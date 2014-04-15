@@ -3,6 +3,7 @@
 ### HEAD
 
 ```
+* drop command
 * Add REST method (DELETE - element)
 * Add REST method (POST - element)
 * Add REST method (PUT - element)
