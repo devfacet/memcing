@@ -1,6 +1,6 @@
 ## Memcing
 
-[memcing](http://github.com/cmfatih/memcing) is an application for simple memory caching.  
+[memcing](http://github.com/cmfatih/memcing) is an application for in-memory caching.  
 
 memcing on [npm registry](http://npmjs.org/package/memcing)  
 
@@ -168,8 +168,8 @@ curl -X DELETE http://localhost:12080/entries
 
 ### Notes
 
-* memcing is developed for an interview exam. The requirements were; 
-non-persistent, non-durable and supporting eviction.
+* memcing is 'originally' developed for an interview exam. The requirements were; 
+non-persistent, non-durable and supporting eviction. But later I have decided to continue...
 
 #### Implementations
 
