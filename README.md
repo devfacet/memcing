@@ -4,8 +4,6 @@
 
 memcing on [npm registry](http://npmjs.org/package/memcing)  
 
-**memcing is developed for an interview exam so do not expect too much at the moment.**  
-
 ### Installation
 
 For latest release
@@ -37,13 +35,14 @@ node memcing.js -help
 ```
 ```
   Options:
-    -i             : Interactive mode.
-    -load-file     : Load a command file.
-    -cache-limit   : Cache limit in KB. Default; 16384 kilobytes
-    -vacuum-ival   : Interval for vacuum. Default; 30 seconds
-    -eviction      : Eviction mode. Default; false
-    -listen-http   : Listen http requests. Example; hostname[:port]
-    -help          : Display help and exit.
+    -i              : Enable interactive mode.
+    -load-file      : Load a command file.
+    -cache-limit    : Cache limit in KB. Default; 16384 kilobytes
+    -vacuum-ival    : Interval in seconds for vacuum. Default; 30
+    -eviction       : Enable eviction mode.
+    -listen-http    : Listen HTTP requests for REST API.
+                      Default; localhost:12080
+    -help           : Display help and exit.
 
   Commands:
     get key
@@ -67,9 +66,11 @@ node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http localhost:12080
 ```
 Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
 then switch to interactive mode and listen http requests. The cached data will be available for 
-interactive mode and RESTful (`http://localhost:12080/entries/KEY`) requests.  
+REPL and REST API.  
 
-For RESTful performance test; `ab -n 10000 http://localhost:12080/entries/hello`
+For REST API performance tests;  
+`ab -n 10000 http://localhost:12080/entries/hello`  
+`ab -n 10000 -c 100 http://localhost:12080/entries/hello`
 
 -
 
@@ -157,7 +158,7 @@ curl http://localhost:12080/entries/hello
 /entries
 /entries/{KEY}
 ```
-DELETE method represent the `delete` or `drop` command.
+DELETE method represent the `delete` or the `drop` command.
 
 Examples:
 ```
@@ -166,6 +167,9 @@ curl -X DELETE http://localhost:12080/entries
 ```
 
 ### Notes
+
+* memcing is developed for an interview exam. The requirements were; 
+non-persistent, non-durable and supporting eviction.
 
 #### Implementations
 
