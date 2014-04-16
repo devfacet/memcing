@@ -430,15 +430,19 @@ function cmdArgParse() {
 function cmdHelp() {
 
   console.log("Usage: node memching.js [OPTION]...\n");
+
   console.log("Memcing is an application for simple memory caching.\n");
+
   console.log("  Options:");
-  console.log("    -i             : Interactive mode.");
-  console.log("    -load-file     : Load a command file.");
-  console.log("    -cache-limit   : Cache limit in KB. Default; 16384 kilobytes");
-  console.log("    -vacuum-ival   : Interval for vacuum. Default; 30 seconds");
-  console.log("    -eviction      : Eviction mode. Default; false");
-  console.log("    -listen-http   : Listen and serve with http. Example; hostname[:port]");
-  console.log("    -help          : Display help and exit.\n");
+  console.log("    -i              : Enable interactive mode.");
+  console.log("    -load-file      : Load a command file.");
+  console.log("    -cache-limit    : Cache limit in KB. Default; 16384 kilobytes");
+  console.log("    -vacuum-ival    : Interval in seconds for vacuum. Default; 30");
+  console.log("    -eviction       : Enable eviction mode.");
+  console.log("    -listen-http    : Listen HTTP requests for REST API.");
+  console.log("                      Default; localhost:12080");
+  console.log("    -help           : Display help and exit.\n");
+
   console.log("  Commands:");
   console.log("    get key");
   console.log("    set key value [expire = 0]");
@@ -451,6 +455,15 @@ function cmdHelp() {
   console.log("    stats");
   console.log("    vacuum");
   console.log("    exit\n");
+
+  console.log("  Examples:");
+  console.log("    node memcing.js -i");
+  console.log("    node memcing.js -i -load-file /path/file");
+  console.log("    node memcing.js -load-file /path/file -listen-http localhost:12080");
+  console.log("    node memcing.js -listen-http localhost:12080 -eviction\n");
+
+  
+
   console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
 
   process.exit(0);
