@@ -3,6 +3,7 @@
 ### HEAD
 
 ```
+* Refactoring help (help module)
 ```
 
 ### 0.1.4 (2014-04-15)
