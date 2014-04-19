@@ -13,7 +13,7 @@
 var mUtilex = require('utilex');
 
 // Init the module
-exports = module.exports = function(iParam) {
+exports = module.exports = function(iConfig) {
 
   // Init vars
   var gConfig       = {isDebug: false},
@@ -63,10 +63,10 @@ exports = module.exports = function(iParam) {
   ;
 
   // Check params
-  if(iParam && iParam.isDebug === true)   gConfig.isDebug             = true;
-  if(iParam && !isNaN(iParam.limitInKB))  gCacheOpt.limitInKB         = iParam.limitInKB;
-  if(iParam && !isNaN(iParam.vacuumIval)) gCacheOpt.vacuum.ival       = iParam.vacuumIval;
-  if(iParam && iParam.eviction === true)  gCacheOpt.eviction.enabled  = true;
+  if(iConfig && iConfig.isDebug === true)   gConfig.isDebug             = true;
+  if(iConfig && !isNaN(iConfig.limitInKB))  gCacheOpt.limitInKB         = iConfig.limitInKB;
+  if(iConfig && !isNaN(iConfig.vacuumIval)) gCacheOpt.vacuum.ival       = iConfig.vacuumIval;
+  if(iConfig && iConfig.eviction === true)  gCacheOpt.eviction.enabled  = true;
 
   // Calculate the entry limits.
   // Empty space should be guaranteed for each key. Otherwise will fail on updates.
