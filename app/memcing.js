@@ -23,15 +23,11 @@ var mFS       = require('fs'),
 
 // Init vars
 var gConfig   = mConfig().get(),
-    gCache,
-    gCommands = ['get', 'set', 'add', 'delete', 'drop', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit']
+    gCache    = mCache(gConfig.cache)
 ;
 
 // Check whether help or not
 if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) mHelp.helpForShell();
-
-// Init cache
-gCache = mCache(gConfig.cache);
 
 // Load file
 if(gConfig.loadFile) {
@@ -84,7 +80,7 @@ function cmdIactive() {
     if(!iLine.trim()) { rl.prompt(); return; }
 
     // Execute the command
-    var cp = cacheCmd(iLine);
+    var cp = gCache.execCmd(iLine);
 
     // for debug
     if(gConfig.isDebug === true) {
@@ -203,7 +199,7 @@ function cmdLoadFile(iPath) {
     if(!iLine.trim()) { return; }
 
     // Execute the command
-    var cp = cacheCmd(iLine);
+    var cp = gCache.execCmd(iLine);
     if(cp.cmdRes && cp.cmdRes.error) {
       lineErr = cp.cmdRes.error + ' - line #' + lineCntr + ': ' + iLine;
       rl.close();
@@ -326,7 +322,7 @@ function cmdListen() {
             res.writeHead(200, resHdr);
 
             if(gCache.numOfEntry() > 0) {
-              var cd = gCache.dataSet(),
+              var cd = gCache.entries(),
                   cc = ''
               ;
               res.write('[');
@@ -368,76 +364,4 @@ function cmdListen() {
 
 
   return deferred.promise;
-}
-
-// Parses and executes the given cache command.
-function cacheCmd(iCmd) {
-
-  // Init vars
-  var result  = {cmd: null, cmdArgs: null, cmdRes: null},
-      pCmd    = ('' + iCmd).trim()
-  ;
-
-  // Check vars
-  if(!pCmd) return result;
-
-  // Parse the command
-  var cmdMatch    = pCmd.match(mRegex.command),
-      cmdArgs     = pCmd.match(mRegex.args)
-  ;
-
-  result.cmd      = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
-  if(cmdArgs instanceof Array) cmdArgs.shift();
-  result.cmdArgs  = (cmdArgs instanceof Array) ? cmdArgs : null;
-
-  // Cleanup args
-  if(result.cmdArgs) {
-    for(var i = 0; i < result.cmdArgs.length; i++) {
-      result.cmdArgs[i] = result.cmdArgs[i].replace(mRegex.trimQuotes, ''); // quotes
-      if(mRegex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
-        result.cmdArgs[i] = result.cmdArgs[i]/1; // number
-      }
-    }
-  }
-
-  // Execute command
-  switch(result.cmd) {
-    case 'get':
-      result.cmdRes = gCache.get(result.cmdArgs[0]);
-      break;
-    case 'set':
-      result.cmdRes = gCache.set(result.cmdArgs[0], result.cmdArgs[1], result.cmdArgs[2]);
-      break;
-    case 'add':
-      result.cmdRes = gCache.add(result.cmdArgs[0], result.cmdArgs[1], result.cmdArgs[2]);
-      break;
-    case 'delete':
-      result.cmdRes = gCache.del(result.cmdArgs[0]);
-      break;
-    case 'drop':
-      result.cmdRes = gCache.drop();
-      break;
-    case 'increment':
-      result.cmdRes = gCache.increment(result.cmdArgs[0], result.cmdArgs[1]);
-      break;
-    case 'decrement':
-      result.cmdRes = gCache.decrement(result.cmdArgs[0], result.cmdArgs[1]);
-      break;
-    case 'dump':
-      result.cmdRes = gCache.dataSet();
-      break;
-    case 'stats':
-      result.cmdRes = gCache.stats();
-      break;
-    case 'vacuum':
-      result.cmdRes = gCache.vacuum({all: true});
-      break;
-    case 'exit':
-      result.cmdRes = {exit: true};
-      break;
-    default:
-      result.cmdRes = {error: 'Invalid command: ' + result.cmd + ' (Possible commands: ' + gCommands.join(', ') + ')'};
-  }
-
-  return result;
 }

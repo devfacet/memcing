@@ -10,18 +10,22 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex = require('utilex');
+var mUtilex = require('utilex'),
+    mRegex  = require('./regex')
+;
 
 // Init the module
 exports = module.exports = function(iConfig) {
 
   // Init vars
-  var gConfig       = {isDebug: false},
+  var config          = {isDebug: false},
 
-      gDataSet      = {},
-      gDataLen      = 0,
+      cacheData       = {
+        entries: {},
+        len: 0
+      },
 
-      gCacheOpt     = {
+      cacheOpt        = {
         limitInKB: 16384,   // cache limit in kilobytes
         limitInEntry: 0,    // cache limit in number of entry
         keyLIC: 64,         // key limit in char
@@ -40,11 +44,24 @@ exports = module.exports = function(iConfig) {
           eviction: 0       // eviction process
         }
       },
-      gTimers       = {
+      cacheCmds       = [
+        'get', 
+        'set', 
+        'add', 
+        'delete', 
+        'drop', 
+        'increment', 
+        'decrement', 
+        'dump', 
+        'stats', 
+        'vacuum', 
+        'exit'
+      ],
+      timers          = {
         vacuum: null        // timer for vacuum
       },
 
-      dataSet,        // data - function
+      entries,        // entries - function
       numOfEntry,     // number of entry - function
       numOfAvlbEntry, // number of available entry - function
       sizeOfPerEntry, // size of per entry - function
@@ -59,67 +76,69 @@ exports = module.exports = function(iConfig) {
       drop,           // drop data set - function
       incdec,         // increment or decrement value - function 
       increment,      // increment value - function
-      decrement       // decrement value - function
+      decrement,      // decrement value - function
+
+      execCmd         // execute command - function
   ;
 
   // Check params
-  if(iConfig && iConfig.isDebug === true)   gConfig.isDebug             = true;
-  if(iConfig && !isNaN(iConfig.limitInKB))  gCacheOpt.limitInKB         = iConfig.limitInKB;
-  if(iConfig && !isNaN(iConfig.vacuumIval)) gCacheOpt.vacuum.ival       = iConfig.vacuumIval;
-  if(iConfig && iConfig.eviction === true)  gCacheOpt.eviction.enabled  = true;
+  if(iConfig && iConfig.isDebug === true)   config.isDebug            = true;
+  if(iConfig && !isNaN(iConfig.limitInKB))  cacheOpt.limitInKB        = iConfig.limitInKB;
+  if(iConfig && !isNaN(iConfig.vacuumIval)) cacheOpt.vacuum.ival      = iConfig.vacuumIval;
+  if(iConfig && iConfig.eviction === true)  cacheOpt.eviction.enabled = true;
 
   // Calculate the entry limits.
   // Empty space should be guaranteed for each key. Otherwise will fail on updates.
   // This calculation might be important for eviction policies.
   // Also UTF-8 considered for the calculation. (4 bytes for each char.)
-  gCacheOpt.entryLIB      = ((gCacheOpt.keyLIC+gCacheOpt.valLIC)*4);
-  gCacheOpt.limitInEntry  = Math.floor((gCacheOpt.limitInKB*1024)/gCacheOpt.entryLIB);
+  cacheOpt.entryLIB     = ((cacheOpt.keyLIC+cacheOpt.valLIC)*4);
+  cacheOpt.limitInEntry = Math.floor((cacheOpt.limitInKB*1024)/cacheOpt.entryLIB);
 
   // Calculate the eviction limit.
-  gCacheOpt.eviction.limitInEntry = Math.floor((gCacheOpt.limitInEntry*2)/100); // 2%
-  if(gCacheOpt.eviction.limitInEntry < 1) gCacheOpt.eviction.limitInEntry = 1;
+  cacheOpt.eviction.limitInEntry = Math.floor((cacheOpt.limitInEntry*2)/100); // 2%
+  if(cacheOpt.eviction.limitInEntry < 1) cacheOpt.eviction.limitInEntry = 1;
 
   // Check and init the vacuum timer.
-  if(gCacheOpt.vacuum.ival < 1) gCacheOpt.vacuum.ival = 30; // Do not allowed <= 0
-  gTimers.vacuum = setInterval(function() {
-    if(!gCacheOpt.vacuum.running) vacuum({all: true});
-  }, gCacheOpt.vacuum.ival*1000);
+  if(cacheOpt.vacuum.ival < 1) cacheOpt.vacuum.ival = 30; // Do not allowed <= 0
+  timers.vacuum = setInterval(function() {
+    if(!cacheOpt.vacuum.running) vacuum({all: true});
+  }, cacheOpt.vacuum.ival*1000);
 
-  // Returns the cached data var.
+  // Returns the entries.
   // This is not an export function.
-  dataSet = function dataSet() {
-    return gDataSet;
+  entries = function entries() {
+    return cacheData.entries;
   };
 
   // Returns number of entry.
   numOfEntry = function numOfEntry() {
-    return gDataLen;
+    return cacheData.len;
   };
 
   // Returns available space in entry.
   numOfAvlbEntry = function numOfAvlbEntry() {
-    return (gCacheOpt.limitInEntry-gDataLen);
+    return (cacheOpt.limitInEntry-cacheData.len);
   };
 
   // Returns size of an entry.
   sizeOfPerEntry = function sizeOfPerEntry() {
-    return gCacheOpt.entryLIB;
+    return cacheOpt.entryLIB;
   };
 
   // Returns the stats.
   stats = function stats() {
     return {
-      options: gCacheOpt,
+      options: cacheOpt,
       numberOfEntry: numOfEntry(),
       numberOfAvlbEntry: numOfAvlbEntry(),
-      usageInPercent: Math.floor((gDataLen*100)/gCacheOpt.limitInEntry)
+      usageInPercent: Math.floor((cacheData.len*100)/cacheOpt.limitInEntry)
     };
   };
 
   // Vacuum the data by the given options.
   vacuum = function vacuum(iParam) {
 
-    gCacheOpt.vacuum.running = true;
+    cacheOpt.vacuum.running = true;
 
     // Init vars
     var result    = {},
@@ -137,7 +156,7 @@ exports = module.exports = function(iConfig) {
     // Check vars
     if(pAll === true) {
       pExp    = true;
-      pEvict  = (gCacheOpt.eviction.enabled === true) ? true : false;
+      pEvict  = (cacheOpt.eviction.enabled === true) ? true : false;
     }
 
     // Check the data for expired entries
@@ -145,8 +164,8 @@ exports = module.exports = function(iConfig) {
       tsVarI  = new Date().getTime();
       tCntr   = 0;
 
-      for(var key in gDataSet) {
-        if(gDataSet[key].expTS > 0 && gDataSet[key].expTS < (new Date().getTime())) {
+      for(var key in cacheData.entries) {
+        if(cacheData.entries[key].expTS > 0 && cacheData.entries[key].expTS < (new Date().getTime())) {
           del(key);
           tCntr++;
 
@@ -155,7 +174,7 @@ exports = module.exports = function(iConfig) {
       }
 
       tsList.exp = (new Date().getTime())-tsVarI;
-      if(gConfig.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + tCntr + ' entry / ' + tsList.exp + 'ms)');
+      if(config.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + tCntr + ' entry / ' + tsList.exp + 'ms)');
     }
 
     // Check the data for eviction
@@ -164,7 +183,7 @@ exports = module.exports = function(iConfig) {
       tCntr   = 0;
 
       if(pEvictLIE === 0) {
-        pEvictLIE = (numOfAvlbEntry() < gCacheOpt.eviction.limitInEntry) ? (gCacheOpt.eviction.limitInEntry-numOfAvlbEntry()) : 0;
+        pEvictLIE = (numOfAvlbEntry() < cacheOpt.eviction.limitInEntry) ? (cacheOpt.eviction.limitInEntry-numOfAvlbEntry()) : 0;
       }
 
       if(pEvictLIE > 0) {
@@ -173,7 +192,7 @@ exports = module.exports = function(iConfig) {
             tArySort  = function(a, b) { return a[1] - b[1]; }
         ;
 
-        for(var key2 in gDataSet) tAry.push([key2, gDataSet[key2].ts]);
+        for(var key2 in cacheData.entries) tAry.push([key2, cacheData.entries[key2].ts]);
         tAry.sort(tArySort);
         tAryLen = tAry.length;
         for(var i = 0; i < tAryLen; i++) {
@@ -183,17 +202,17 @@ exports = module.exports = function(iConfig) {
           if(tCntr >= pEvictLIE) break;
         }
 
-        gCacheOpt.ts.eviction = tsVarI;
+        cacheOpt.ts.eviction = tsVarI;
       }
 
       tsList.eviction = (new Date().getTime())-tsVarI;
-      if(gConfig.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + tCntr + ' entry / ' +  tsList.eviction + 'ms)');
+      if(config.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + tCntr + ' entry / ' +  tsList.eviction + 'ms)');
     }
 
     tsList.total  = (new Date().getTime())-tsVarT;
     result.timeMS = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
 
-    gCacheOpt.vacuum.running = false;
+    cacheOpt.vacuum.running = false;
 
     return result;
   };
@@ -202,7 +221,7 @@ exports = module.exports = function(iConfig) {
   get = function get(iKey) {
     
     // Init vars
-    var cData = gDataSet[iKey];
+    var cData = cacheData.entries[iKey];
 
     // Check the data
     if(cData && (cData.expTS === 0 || cData.expTS > (new Date().getTime()))) {
@@ -229,10 +248,10 @@ exports = module.exports = function(iConfig) {
     // Check vars
     if(!pKey) {
       return {error: 'Missing key.'};
-    } else if(pKey.length > gCacheOpt.keyLIC) {
-      return {error: 'Key is so long. (' + pKey.length + '/' + gCacheOpt.keyLIC + ')'};
-    } else if(pVal && pVal.length > gCacheOpt.valLIC) {
-      return {error: 'Value is so long. (' + pVal.length + '/' + gCacheOpt.valLIC + ')'};
+    } else if(pKey.length > cacheOpt.keyLIC) {
+      return {error: 'Key is so long. (' + pKey.length + '/' + cacheOpt.keyLIC + ')'};
+    } else if(pVal && pVal.length > cacheOpt.valLIC) {
+      return {error: 'Value is so long. (' + pVal.length + '/' + cacheOpt.valLIC + ')'};
     } else if(isNaN(pExp)) {
       return {error: 'Invalid expire value. (' + pExp + ')'};
     }
@@ -243,46 +262,46 @@ exports = module.exports = function(iConfig) {
     // Check the memory
     if(!cData && numOfAvlbEntry() < 1) { // no more available space
 
-      if(gConfig.isDebug) mUtilex.tidyLog('[cache.set]: Out of entry limit. (' + gDataLen + ')');
+      if(config.isDebug) mUtilex.tidyLog('[cache.set]: Out of entry limit. (' + cacheData.len + ')');
 
       var tDGT = new Date().getTime();
 
       // Cleanup expired entries
       vacuum({exp: true});
 
-      if(gCacheOpt.eviction.enabled === true && numOfAvlbEntry() < 2) { // last space
+      if(cacheOpt.eviction.enabled === true && numOfAvlbEntry() < 2) { // last space
         // Cleanup for enough space
-        var tLIE = gCacheOpt.eviction.limitInEntry;
+        var tLIE = cacheOpt.eviction.limitInEntry;
 
         // Overwrite the limit for preventing bottlenecks.
         // Note: This rule should be base on memory size.
         // Also consider an entry / per minute calculation.
-        if(gCacheOpt.ts.outOfLimit && gCacheOpt.ts.outOfLimit+5000 > tDGT) {
-          tLIE = tLIE*(5-(Math.ceil((tDGT-gCacheOpt.ts.outOfLimit)/1000)));
+        if(cacheOpt.ts.outOfLimit && cacheOpt.ts.outOfLimit+5000 > tDGT) {
+          tLIE = tLIE*(5-(Math.ceil((tDGT-cacheOpt.ts.outOfLimit)/1000)));
         }
 
         // Evict entries
         vacuum({eviction: true, evictionLIE: tLIE});
       }
 
-      gCacheOpt.ts.outOfLimit = tDGT;
+      cacheOpt.ts.outOfLimit = tDGT;
 
-      if(gDataLen >= gCacheOpt.limitInEntry) {
-        result.error = 'Out of entry limit. (' + gDataLen + '/' + gCacheOpt.limitInEntry + ')';
+      if(cacheData.len >= cacheOpt.limitInEntry) {
+        result.error = 'Out of entry limit. (' + cacheData.len + '/' + cacheOpt.limitInEntry + ')';
         return result;
       }
     }
 
     // Set data
-    if(!cData) gDataLen++;
+    if(!cData) cacheData.len++;
 
     var ts    = new Date().getTime(),
         tsExp = (pExp) ? (ts+(pExp*1000)) : 0
     ;
     
-    gDataSet[pKey] = {key: pKey, val: pVal, ts: ts, expTS: tsExp};
+    cacheData.entries[pKey] = {key: pKey, val: pVal, ts: ts, expTS: tsExp};
 
-    result = gDataSet[pKey];
+    result = cacheData.entries[pKey];
 
     return result;
   };
@@ -298,8 +317,8 @@ exports = module.exports = function(iConfig) {
 
   // Deletes the given key.
   del = function del(iKey) {
-    if(iKey && gDataSet[iKey] && delete gDataSet[iKey]) {
-      gDataLen--;
+    if(iKey && cacheData.entries[iKey] && delete cacheData.entries[iKey]) {
+      cacheData.len--;
       return true;
     }
 
@@ -308,8 +327,8 @@ exports = module.exports = function(iConfig) {
 
   // Drops the data set.
   drop = function delAll() {
-    gDataSet = {};
-    gDataLen = 0;
+    cacheData.entries = {};
+    cacheData.len = 0;
 
     return true;
   };
@@ -356,9 +375,81 @@ exports = module.exports = function(iConfig) {
     return incdec(iKey, iAmnt, 'dec');
   };
 
+  // Executes the given command.
+  execCmd = function execCmd(iCmd) {
+
+    // Init vars
+    var result  = {cmd: null, cmdArgs: null, cmdRes: null},
+        pCmd    = ('' + iCmd).trim()
+    ;
+
+    // Check vars
+    if(!pCmd) return result;
+
+    // Parse the command
+    var cmdMatch    = pCmd.match(mRegex.command),
+        cmdArgs     = pCmd.match(mRegex.args)
+    ;
+
+    result.cmd      = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
+    if(cmdArgs instanceof Array) cmdArgs.shift();
+    result.cmdArgs  = (cmdArgs instanceof Array) ? cmdArgs : null;
+
+    // Cleanup args
+    if(result.cmdArgs) {
+      for(var i = 0; i < result.cmdArgs.length; i++) {
+        result.cmdArgs[i] = result.cmdArgs[i].replace(mRegex.trimQuotes, ''); // quotes
+        if(mRegex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
+          result.cmdArgs[i] = result.cmdArgs[i]/1; // number
+        }
+      }
+    }
+
+    // Execute command
+    switch(result.cmd) {
+      case 'get':
+        result.cmdRes = get(result.cmdArgs[0]);
+        break;
+      case 'set':
+        result.cmdRes = set(result.cmdArgs[0], result.cmdArgs[1], result.cmdArgs[2]);
+        break;
+      case 'add':
+        result.cmdRes = add(result.cmdArgs[0], result.cmdArgs[1], result.cmdArgs[2]);
+        break;
+      case 'delete':
+        result.cmdRes = del(result.cmdArgs[0]);
+        break;
+      case 'drop':
+        result.cmdRes = drop();
+        break;
+      case 'increment':
+        result.cmdRes = increment(result.cmdArgs[0], result.cmdArgs[1]);
+        break;
+      case 'decrement':
+        result.cmdRes = decrement(result.cmdArgs[0], result.cmdArgs[1]);
+        break;
+      case 'dump':
+        result.cmdRes = entries();
+        break;
+      case 'stats':
+        result.cmdRes = stats();
+        break;
+      case 'vacuum':
+        result.cmdRes = vacuum({all: true});
+        break;
+      case 'exit':
+        result.cmdRes = {exit: true};
+        break;
+      default:
+        result.cmdRes = {error: 'Invalid command: ' + result.cmd + ' (Possible commands: ' + cacheCmds.join(', ') + ')'};
+    }
+
+    return result;
+  };
+
   // Return
   return {
-    dataSet: dataSet,
+    entries: entries,
     numOfEntry: numOfEntry,
     numOfAvlbEntry: numOfAvlbEntry,
     sizeOfPerEntry: sizeOfPerEntry,
@@ -372,6 +463,8 @@ exports = module.exports = function(iConfig) {
     del: del,
     drop: drop,
     increment: increment,
-    decrement: decrement
+    decrement: decrement,
+
+    execCmd: execCmd
   };
 };
