@@ -21,20 +21,7 @@ var mFS       = require('fs'),
 ;
 
 // Init vars
-var gConfig   = {
-      isDebug: false,
-      isHelp: false,
-      isIactive: false,
-      loadFile: null,
-      listen: {
-        http: {
-          isEnabled: false,
-          hostname: null,
-          port: null
-        }
-      },
-      cache: {}
-    },
+var gConfig   = mConfig().get(),
     gCache,
     gCommands = ['get', 'set', 'add', 'delete', 'drop', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit'],
     gRegex    = {
@@ -45,9 +32,6 @@ var gConfig   = {
       trimQuotes: new RegExp('^"|"$', 'g')
     }
 ;
-
-// Init args
-mConfig.argParse(gConfig);
 
 // Check whether help or not
 if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) mHelp.helpForShell();
