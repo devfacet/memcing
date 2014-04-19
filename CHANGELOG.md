@@ -3,6 +3,7 @@
 ### HEAD
 
 ```
+* regex module
 * config module
 * Refactoring help (help module)
 ```

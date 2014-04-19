@@ -17,20 +17,14 @@ var mFS       = require('fs'),
     mCache    = require('./cache'),
     mHelp     = require('./help'),
     mConfig   = require('./config'),
+    mRegex    = require('./regex'),
     mQS       = require('querystring')
 ;
 
 // Init vars
 var gConfig   = mConfig().get(),
     gCache,
-    gCommands = ['get', 'set', 'add', 'delete', 'drop', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit'],
-    gRegex    = {
-      command:    new RegExp('^\\b(' + gCommands.join('|') + ')\\b', 'i'),
-      // TODO: It should support escape chars. Currently \" doesn't work.
-      args:       new RegExp('("[^"]*")|([^\\s]+)', 'g'),
-      number:     new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g'),
-      trimQuotes: new RegExp('^"|"$', 'g')
-    }
+    gCommands = ['get', 'set', 'add', 'delete', 'drop', 'increment', 'decrement', 'dump', 'stats', 'vacuum', 'exit']
 ;
 
 // Check whether help or not
@@ -253,7 +247,7 @@ function cmdListen() {
         if(pathAry[2]) {
           // element
 
-          var tElem = (gRegex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
+          var tElem = (mRegex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
 
           if(req.method == 'GET') {
             var cg = gCache.get(tElem);
@@ -287,7 +281,7 @@ function cmdListen() {
               } else {
                 if(req.headers['content-type'] == 'application/x-www-form-urlencoded') {
                   var qsp     = mQS.parse(bodyAry.join()),
-                      eVal    = (qsp && qsp.val && gRegex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
+                      eVal    = (qsp && qsp.val && mRegex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
                       eExp    = (qsp && qsp.exp) ? qsp.exp : null,
                       setTrig = true
                   ;
@@ -388,8 +382,8 @@ function cacheCmd(iCmd) {
   if(!pCmd) return result;
 
   // Parse the command
-  var cmdMatch    = pCmd.match(gRegex.command),
-      cmdArgs     = pCmd.match(gRegex.args)
+  var cmdMatch    = pCmd.match(mRegex.command),
+      cmdArgs     = pCmd.match(mRegex.args)
   ;
 
   result.cmd      = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
@@ -399,8 +393,8 @@ function cacheCmd(iCmd) {
   // Cleanup args
   if(result.cmdArgs) {
     for(var i = 0; i < result.cmdArgs.length; i++) {
-      result.cmdArgs[i] = result.cmdArgs[i].replace(gRegex.trimQuotes, ''); // quotes
-      if(gRegex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
+      result.cmdArgs[i] = result.cmdArgs[i].replace(mRegex.trimQuotes, ''); // quotes
+      if(mRegex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
         result.cmdArgs[i] = result.cmdArgs[i]/1; // number
       }
     }
