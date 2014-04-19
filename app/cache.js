@@ -10,38 +10,31 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex = require('utilex'),
-    mRegex  = require('./regex')
-;
+var mUtilex = require('utilex');
 
 // Init the module
 exports = module.exports = function(iConfig) {
 
   // Init vars
   var config          = {isDebug: false},
-
-      cacheData       = {
-        entries: {},
-        len: 0
-      },
-
+      cacheData       = {entries: {}, len: 0},
       cacheOpt        = {
-        limitInKB: 16384,   // cache limit in kilobytes
-        limitInEntry: 0,    // cache limit in number of entry
-        keyLIC: 64,         // key limit in char
-        valLIC: 256,        // val limit in char
-        entryLIB: 0,        // per entry limit in byte
+        limitInKB:    16384,  // cache limit in kilobytes
+        limitInEntry: 0,      // cache limit in number of entry
+        keyLIC:       64,     // key limit in char
+        valLIC:       256,    // val limit in char
+        entryLIB:     0,      // per entry limit in byte
         vacuum: {
-          ival: 30,         // vacuum interval in seconds
-          running: false    // whether vacuum running or not
+          ival:       30,     // vacuum interval in seconds
+          running:    false   // whether vacuum running or not
         },
         eviction: {
-          enabled: false,   // eviction enabled or not
-          limitInEntry: 0,  // limit in number of entry
+          enabled:    false,  // eviction enabled or not
+          limitInEntry: 0,    // limit in number of entry
         },
         ts: {
-          outOfLimit: 0,    // time stamp for last out of limit
-          eviction: 0       // eviction process
+          outOfLimit: 0,      // time stamp for last out of limit
+          eviction:   0       // eviction process
         }
       },
       cacheCmds       = [
@@ -57,8 +50,15 @@ exports = module.exports = function(iConfig) {
         'vacuum', 
         'exit'
       ],
+
       timers          = {
-        vacuum: null        // timer for vacuum
+        vacuum: null  // timer for vacuum
+      },
+      regex           = {
+        number:       new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g'),
+        trimQuotes:   new RegExp('^"|"$', 'g'),
+        command:      new RegExp('^\\b(' + cacheCmds.join('|') + ')\\b', 'i'),
+        args:         new RegExp('("[^"]*")|([^\\s]+)', 'g') // TODO: It should support escape chars. Currently \" doesn't work.
       },
 
       entries,        // entries - function
@@ -77,7 +77,6 @@ exports = module.exports = function(iConfig) {
       incdec,         // increment or decrement value - function 
       increment,      // increment value - function
       decrement,      // decrement value - function
-
       execCmd         // execute command - function
   ;
 
@@ -387,8 +386,8 @@ exports = module.exports = function(iConfig) {
     if(!pCmd) return result;
 
     // Parse the command
-    var cmdMatch    = pCmd.match(mRegex.command),
-        cmdArgs     = pCmd.match(mRegex.args)
+    var cmdMatch    = pCmd.match(regex.command),
+        cmdArgs     = pCmd.match(regex.args)
     ;
 
     result.cmd      = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
@@ -398,8 +397,8 @@ exports = module.exports = function(iConfig) {
     // Cleanup args
     if(result.cmdArgs) {
       for(var i = 0; i < result.cmdArgs.length; i++) {
-        result.cmdArgs[i] = result.cmdArgs[i].replace(mRegex.trimQuotes, ''); // quotes
-        if(mRegex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
+        result.cmdArgs[i] = result.cmdArgs[i].replace(regex.trimQuotes, ''); // quotes
+        if(regex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
           result.cmdArgs[i] = result.cmdArgs[i]/1; // number
         }
       }
