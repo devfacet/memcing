@@ -10,8 +10,7 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex = require('utilex'),
-    mQ      = require('q'),
+var mQ      = require('q'),
     mHTTP   = require('http'),
     mURL    = require('url'),
     mQS     = require('querystring')
@@ -54,7 +53,6 @@ exports = module.exports = function(iConfig, iCache) {
     var up      = mURL.parse(req.url, true, false),
         resHdr  = {'Content-Type': 'application/json'}
     ;
-
     //console.log(up); // for debug
 
     if(up && up.pathname) {
@@ -62,9 +60,7 @@ exports = module.exports = function(iConfig, iCache) {
       //console.log(pathAry); // for debug
 
       if(pathAry[1] == 'entries') {
-
-        if(pathAry[2]) {
-          // element
+        if(pathAry[2]) { // element
           var tElem = (regex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
 
           if(req.method == 'GET') {
@@ -137,8 +133,7 @@ exports = module.exports = function(iConfig, iCache) {
             res.writeHead(405, resHdr);
             res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));
           }
-        } else {
-          // collection
+        } else { // collection
           if(req.method == 'GET') {
             res.writeHead(200, resHdr);
 
@@ -173,7 +168,10 @@ exports = module.exports = function(iConfig, iCache) {
         res.writeHead(200, resHdr);
         res.end();
       }
-    }    
+    } else {
+      res.writeHead(500, resHdr);
+      res.end(JSON.stringify({code: '500', message: 'Internal Server Error'}));      
+    }
   };
 
   // Listens for HTTP requests.
@@ -188,8 +186,7 @@ exports = module.exports = function(iConfig, iCache) {
 
     // listen
     server.listen(port, hostname, function() {
-      mUtilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
-      deferred.resolve();
+      deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
     });
 
     // error

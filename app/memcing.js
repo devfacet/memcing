@@ -30,7 +30,8 @@ if(gConfig.loadFile) {
   gCache.loadFile(gConfig.loadFile).then(function() { // load file
     if(gConfig.listen.http.isEnabled || gConfig.isIactive) {
       if(gConfig.listen.http.isEnabled) { // listen
-        gRest.listen().then(function() {
+        gRest.listen().then(function(res) {
+          mUtilex.tidyLog(res);
           if(gConfig.isIactive) cmdIactive(); // interactive mode
         }, function(err) {
           mUtilex.tidyLog(err);
@@ -48,7 +49,8 @@ if(gConfig.loadFile) {
   });
 } else if(gConfig.isIactive) {
   if(gConfig.listen.http.isEnabled) { // listen
-    gRest.listen().then(function() {
+    gRest.listen().then(function(res) {
+      mUtilex.tidyLog(res);
       cmdIactive(); // interactive mode
     }, function(err) {
       mUtilex.tidyLog(err);
