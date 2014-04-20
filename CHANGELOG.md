@@ -3,10 +3,11 @@
 ### HEAD
 
 ```
-* Refactoring cache module
+* repl module
 * rest module
 * config module
 * help module
+* Refactoring cache module
 ```
 
 ### 0.1.4 (2014-04-15)
