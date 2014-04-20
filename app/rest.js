@@ -32,8 +32,8 @@ exports = module.exports = function(iConfig, iCache) {
         number:     new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')
       },
 
-      reqListener,  // request listener - function
-      listen        // listen - function
+      listen,       // listen - function
+      listenReq     // request listener - function
   ;
 
   // Check params
@@ -46,8 +46,31 @@ exports = module.exports = function(iConfig, iCache) {
     if(!isNaN(iConfig.http.port))        listenOpt.http.port       = iConfig.http.port;
   }
 
-  // Request listener function for HTTP requests.
-  reqListener = function reqListener(req, res) {
+  // Listens for HTTP requests.
+  listen = function listen() {
+
+    // Init vars
+    var deferred  = mQ.defer(),
+        hostname  = listenOpt.http.hostname,
+        port      = listenOpt.http.port,
+        server    = mHTTP.createServer(listenReq)
+    ;
+
+    // listen
+    server.listen(port, hostname, function() {
+      deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
+    });
+
+    // error
+    server.on('error', function(e) {
+      deferred.reject(e);
+    });
+
+    return deferred.promise;
+  };
+
+  // Request listener function HTTP server.
+  listenReq = function reqListener(req, res) {
 
     // Init vars
     var up      = mURL.parse(req.url, true, false),
@@ -172,29 +195,6 @@ exports = module.exports = function(iConfig, iCache) {
       res.writeHead(500, resHdr);
       res.end(JSON.stringify({code: '500', message: 'Internal Server Error'}));      
     }
-  };
-
-  // Listens for HTTP requests.
-  listen = function listen() {
-
-    // Init vars
-    var deferred  = mQ.defer(),
-        hostname  = listenOpt.http.hostname,
-        port      = listenOpt.http.port,
-        server    = mHTTP.createServer(reqListener)
-    ;
-
-    // listen
-    server.listen(port, hostname, function() {
-      deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
-    });
-
-    // error
-    server.on('error', function(e) {
-      deferred.reject(e);
-    });
-
-    return deferred.promise;
   };
 
   // Return
