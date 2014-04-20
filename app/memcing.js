@@ -31,7 +31,7 @@ if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) mHelp.helpForShe
 
 // Load file
 if(gConfig.loadFile) {
-  cmdLoadFile(gConfig.loadFile).then(function() { // load file
+  gCache.loadFile(gConfig.loadFile).then(function() { // load file
     if(gConfig.listen.http.isEnabled || gConfig.isIactive) {
       if(gConfig.listen.http.isEnabled) { // listen
         cmdListen().then(function() {
@@ -168,54 +168,6 @@ function cmdIactive() {
       }
     });
   });
-}
-
-// Executes load file command.
-function cmdLoadFile(iPath) {
-
-  // Init vars
-  var deferred  = mQ.defer(),
-      pPath     = ('' + iPath),
-      pathSS    = (pPath && mFS.existsSync(pPath)) ? mFS.statSync(pPath) : null,
-      lineCntr  = 0,
-      lineErr   = null
-  ;
-
-  // Check the file
-  if(!pathSS || !pathSS.isFile()) {
-    deferred.reject('Invalid file! (' + pPath + ')');
-    return deferred.promise;
-  }
-
-  // Init the pipe
-  var rl = mReadline.createInterface({input: mFS.createReadStream(pPath), terminal: false});
-  rl.setPrompt('');
-
-  // line event
-  rl.on('line', function(iLine) {
-
-    // Check the line
-    lineCntr++;
-    if(!iLine.trim()) { return; }
-
-    // Execute the command
-    var cp = gCache.execCmd(iLine);
-    if(cp.cmdRes && cp.cmdRes.error) {
-      lineErr = cp.cmdRes.error + ' - line #' + lineCntr + ': ' + iLine;
-      rl.close();
-    }
-  });
-
-  // close event
-  rl.on('close', function() {
-    if(lineErr) {
-      deferred.reject(lineErr);
-    } else {
-      deferred.resolve();
-    }
-  });
-
-  return deferred.promise;
 }
 
 // Execute listen commands.

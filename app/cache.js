@@ -10,7 +10,11 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex = require('utilex');
+var mUtilex   = require('utilex'),
+    mQ        = require('q'),
+    mFS       = require('fs'),
+    mReadline = require('readline')
+;
 
 // Init the module
 exports = module.exports = function(iConfig) {
@@ -65,10 +69,8 @@ exports = module.exports = function(iConfig) {
       numOfEntry,     // number of entry - function
       numOfAvlbEntry, // number of available entry - function
       sizeOfPerEntry, // size of per entry - function
-
       stats,          // stats - function
       vacuum,         // vacuum - function
-
       get,            // get - function
       set,            // set - function
       add,            // add - function
@@ -77,7 +79,8 @@ exports = module.exports = function(iConfig) {
       incdec,         // increment or decrement value - function 
       increment,      // increment value - function
       decrement,      // decrement value - function
-      execCmd         // execute command - function
+      execCmd,        // execute command - function
+      loadFile        // load file - function
   ;
 
   // Check params
@@ -446,6 +449,54 @@ exports = module.exports = function(iConfig) {
     return result;
   };
 
+  // Loads the given file.
+  loadFile = function loadFile(iPath) {
+
+    // Init vars
+    var deferred  = mQ.defer(),
+        pPath     = ('' + iPath),
+        pathSS    = (pPath && mFS.existsSync(pPath)) ? mFS.statSync(pPath) : null,
+        lineCntr  = 0,
+        lineErr   = null
+    ;
+
+    // Check the file
+    if(!pathSS || !pathSS.isFile()) {
+      deferred.reject('Invalid file! (' + pPath + ')');
+      return deferred.promise;
+    }
+
+    // Init the pipe
+    var rl = mReadline.createInterface({input: mFS.createReadStream(pPath), terminal: false});
+    rl.setPrompt('');
+
+    // line event
+    rl.on('line', function(iLine) {
+
+      // Check the line
+      lineCntr++;
+      if(!iLine.trim()) { return; }
+
+      // Execute the command
+      var cp = execCmd(iLine);
+      if(cp.cmdRes && cp.cmdRes.error) {
+        lineErr = cp.cmdRes.error + ' - line #' + lineCntr + ': ' + iLine;
+        rl.close();
+      }
+    });
+
+    // close event
+    rl.on('close', function() {
+      if(lineErr) {
+        deferred.reject(lineErr);
+      } else {
+        deferred.resolve();
+      }
+    });
+
+    return deferred.promise;
+  };
+
   // Return
   return {
     entries: entries,
@@ -455,7 +506,6 @@ exports = module.exports = function(iConfig) {
 
     stats: stats,
     vacuum: vacuum,
-
     set: set,
     add: add,
     get: get,
@@ -464,6 +514,7 @@ exports = module.exports = function(iConfig) {
     increment: increment,
     decrement: decrement,
 
-    execCmd: execCmd
+    execCmd: execCmd,
+    loadFile: loadFile
   };
 };
