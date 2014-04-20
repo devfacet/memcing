@@ -3,9 +3,10 @@
 ### HEAD
 
 ```
-* regex module
+* Refactoring cache module
+* rest module
 * config module
-* Refactoring help (help module)
+* help module
 ```
 
 ### 0.1.4 (2014-04-15)
