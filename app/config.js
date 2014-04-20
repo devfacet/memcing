@@ -18,15 +18,15 @@ exports = module.exports = function(iConfig) {
   // Init vars
   var args    = mUtilex.tidyArgs(),
       config  = {
-        isDebug: false,
-        isHelp: false,
-        isIactive: false,
-        loadFile: null,
+        isDebug:    false,
+        isHelp:     false,
+        isIactive:  false,
+        loadFile:   null,
         listen: {
           http: {
-            isEnabled: false,
-            hostname: null,
-            port: null
+            isEnabled:  false,
+            hostname:   null,
+            port:       null
           }
         },
         cache: {}
