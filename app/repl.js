@@ -48,7 +48,8 @@ exports = module.exports = function(iConfig, iCache) {
       // for debug
       if(config.isDebug === true) {
         if(cp.cmd) {
-          console.log(cp);
+          console.log({cmd: cp.cmd, cmdArgs: cp.cmdArgs});
+          console.log(cp.cmdRes);
         }
         if(cp.cmdRes) {
           if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
