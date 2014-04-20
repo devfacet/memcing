@@ -17,7 +17,7 @@ var mReadline = require('readline'),
 ;
 
 // Init vars
-var gConfig   = mConfig().get(),
+var gConfig   = mConfig(),
     gCache    = mCache(gConfig.cache),
     gRest     = mRest(gConfig.listen, gCache)
 ;

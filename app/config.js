@@ -30,14 +30,15 @@ exports = module.exports = function(iConfig) {
           }
         },
         cache: {}
-      },
-
-      get     // get config - function
+      }
   ;
 
-  // Merge configs
-  for(var key in iConfig) {
-    if(iConfig.hasOwnProperty(key) === true) config[key] = iConfig[key];
+  // Check params
+  if(iConfig) {
+    // Merge configs
+    for(var key in iConfig) {
+      if(iConfig.hasOwnProperty(key) === true) config[key] = iConfig[key];
+    }
   }
   
   // global config
@@ -63,13 +64,6 @@ exports = module.exports = function(iConfig) {
     }
   }
 
-  // Returns the config
-  get = function get() {
-    return config;
-  };
-
   // Return
-  return {
-    get: get
-  };
+  return config;
 };
