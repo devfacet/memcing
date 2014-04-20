@@ -84,10 +84,12 @@ exports = module.exports = function(iConfig) {
   ;
 
   // Check params
-  if(iConfig && iConfig.isDebug === true)   config.isDebug            = true;
-  if(iConfig && !isNaN(iConfig.limitInKB))  cacheOpt.limitInKB        = iConfig.limitInKB;
-  if(iConfig && !isNaN(iConfig.vacuumIval)) cacheOpt.vacuum.ival      = iConfig.vacuumIval;
-  if(iConfig && iConfig.eviction === true)  cacheOpt.eviction.enabled = true;
+  if(iConfig) {
+    if(iConfig.isDebug === true)   config.isDebug            = true;
+    if(!isNaN(iConfig.limitInKB))  cacheOpt.limitInKB        = iConfig.limitInKB;
+    if(!isNaN(iConfig.vacuumIval)) cacheOpt.vacuum.ival      = iConfig.vacuumIval;
+    if(iConfig.eviction === true)  cacheOpt.eviction.enabled = true;
+  }
 
   // Calculate the entry limits.
   // Empty space should be guaranteed for each key. Otherwise will fail on updates.
