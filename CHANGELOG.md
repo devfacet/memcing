@@ -3,10 +3,9 @@
 ### HEAD
 
 ```
+* Changes for coding style
 * repl module
 * rest module
-* config module
-* help module
 * Refactoring cache module
 ```
 

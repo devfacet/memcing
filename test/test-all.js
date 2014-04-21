@@ -2,43 +2,40 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex = require('utilex'),
-    mCache  = require('../app/cache')
+var utilex = require('utilex'),
+    cache  = require('../app/cache')
 ;
 
 // Init vars
-var gConfig   = {isHeapdump: false},
-    gArgs     = mUtilex.tidyArgs(),
-    gTestList = {
-      SET: true
-    }
+var appArgs   = utilex.tidyArgs(),
+    appConfig = {isHeapdump: false},
+    appCache  = cache({isDebug: true, limitInKB: 131072, eviction: true}), // 128MB
+    testList  = {SET: true}
 ;
 
-// Check args
-if(typeof gArgs['heapdump'] !== 'undefined') gConfig.isHeapdump = true;
+// config
+if(typeof appArgs['heapdump'] !== 'undefined') appConfig.isHeapdump = true;
 
 // heapdump
-if(gConfig.isHeapdump === true) var mHeapdump = require('heapdump');
+if(appConfig.isHeapdump === true) var heapdump = require('heapdump');
 
 // Tests
-mUtilex.tidyLog('test-all.js');
+utilex.tidyLog('test-all.js');
 
 // Test for set command
-if(gTestList.SET === true) {
-
-  mUtilex.tidyLog('SET:');
+if(testList.SET === true) {
+  utilex.tidyLog('SET:');
 
   // Init vars
   var setAry    = [],
       setLimit  = 115000,
       expLimit1 = 90000,
-
-      rndKey,
-      rndVal,
-      rndNum
+      rndKey,   // random key
+      rndVal,   // random val
+      rndNum    // random number
   ;
 
-  mUtilex.tidyLog('Preparing ' + setLimit + ' entries...');
+  utilex.tidyLog('Preparing ' + setLimit + ' entries...');
 
   for(var i = 0; i < setLimit; i++) {
     rndKey = (Math.random() + 1).toString(36).substring(2);
@@ -48,23 +45,22 @@ if(gTestList.SET === true) {
     setAry.push([rndKey, rndVal, rndNum]);
   }
 
-  var cache     = mCache({isDebug: true, limitInKB: 131072, eviction: true}), // 128MB
-      setAryLen = setAry.length,
+  var setAryLen = setAry.length,
       tsS       = new Date().getTime()
   ;
 
-  mUtilex.tidyLog('Caching ' + setAryLen + ' entries with eviction mode...');
+  utilex.tidyLog('Caching ' + setAryLen + ' entries with eviction mode...');
   for(var i = 0; i < setAryLen; i++) {
-    cache.set(setAry[i][0], setAry[i][1], setAry[i][2]);
+    appCache.set(setAry[i][0], setAry[i][1], setAry[i][2]);
   }
-  mUtilex.tidyLog('Caching ' + setAryLen + ' entries with expiration and eviction is DONE! (' + ((new Date().getTime())-tsS) + 'ms)');
-  mUtilex.tidyLog('Vacuuming expired entries...');
-  mUtilex.tidyLog(cache.vacuum({exp: true}));
-  mUtilex.tidyLog('Stats:');
-  mUtilex.tidyLog(cache.stats(), 'JSONT');
+  utilex.tidyLog('Caching ' + setAryLen + ' entries with expiration and eviction is DONE! (' + ((new Date().getTime())-tsS) + 'ms)');
+  utilex.tidyLog('Vacuuming expired entries...');
+  utilex.tidyLog(appCache.vacuum({exp: true}));
+  utilex.tidyLog('Stats:');
+  utilex.tidyLog(appCache.stats(), 'JSONT');
 
   // heapdump
-  if(gConfig.isHeapdump === true) mHeapdump.writeSnapshot(__dirname + '/dump-' + Date.now() + '.heapsnapshot');
+  if(appConfig.isHeapdump === true) heapdump.writeSnapshot(__dirname + '/dump-' + Date.now() + '.heapsnapshot');
 
   process.exit(0);
 }

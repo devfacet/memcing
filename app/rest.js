@@ -4,56 +4,56 @@
  * For the full copyright and license information, please view the LICENSE.txt file.
  */
 
-// rest module implements REST API related functions.
+// rest module implements REST API.
 
 // Init reqs
 /* jslint node: true */
 'use strict';
 
-var mQ      = require('q'),
-    mHTTP   = require('http'),
-    mURL    = require('url'),
-    mQS     = require('querystring')
+var q      = require('q'),
+    http   = require('http'),
+    url    = require('url'),
+    qs     = require('querystring')
 ;
 
 // Init the module
-exports = module.exports = function(iConfig, iCache) {
+exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config        = {isDebug: false},
-      listenOpt     = {
+  var config    = {isDebug: false},
+      listenOpt = {
         http: {
-          isEnabled:  false,
-          hostname:   'localhost',
+          isEnabled:  false, 
+          hostname:   'localhost', 
           port:       12080
         }
       },
-      regex         = {
-        number:     new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')
+      regex     = {
+        number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')
       },
 
-      listen,       // listen - function
-      listenReq     // request listener - function
+      listen,   // listen - function
+      listenReq // request listener - function
   ;
 
   // Check params
-  if(typeof iCache !== 'object') throw new Error('Invalid cache object!');
+  if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
-  if(iConfig) {
-    if(iConfig.isDebug === true)         config.isDebug            = true;
-    if(iConfig.http.isEnabled === true)  listenOpt.http.isEnabled  = true;
-    if(!iConfig.http.hostname)           listenOpt.http.hostname   = ('' + iConfig.http.hostname);
-    if(!isNaN(iConfig.http.port))        listenOpt.http.port       = iConfig.http.port;
+  if(options) {
+    if(options.isDebug === true)        config.isDebug            = true;
+    if(options.http.isEnabled === true) listenOpt.http.isEnabled  = true;
+    if(!options.http.hostname)          listenOpt.http.hostname   = ('' + options.http.hostname);
+    if(!isNaN(options.http.port))       listenOpt.http.port       = options.http.port;
   }
 
-  // Listens for HTTP requests.
+  // Starts HTTP server.
   listen = function listen() {
 
     // Init vars
-    var deferred  = mQ.defer(),
+    var deferred  = q.defer(),
         hostname  = listenOpt.http.hostname,
         port      = listenOpt.http.port,
-        server    = mHTTP.createServer(listenReq)
+        server    = http.createServer(listenReq)
     ;
 
     // listen
@@ -73,21 +73,19 @@ exports = module.exports = function(iConfig, iCache) {
   listenReq = function reqListener(req, res) {
 
     // Init vars
-    var up      = mURL.parse(req.url, true, false),
-        resHdr  = {'Content-Type': 'application/json'}
+    var urlParse  = url.parse(req.url, true, false),
+        resHdr    = {'Content-Type': 'application/json'}
     ;
-    //console.log(up); // for debug
 
-    if(up && up.pathname) {
-      var pathAry = up.pathname.split('/');
-      //console.log(pathAry); // for debug
+    if(urlParse && urlParse.pathname) {
+      var pathAry = urlParse.pathname.split('/');
 
       if(pathAry[1] == 'entries') {
         if(pathAry[2]) { // element
-          var tElem = (regex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
+          var element = (regex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
 
           if(req.method == 'GET') {
-            var cg = iCache.get(tElem);
+            var cg = cacheInstance.get(element);
             if(cg) {
               res.writeHead(200, resHdr);
               res.end(JSON.stringify(cg));
@@ -97,34 +95,34 @@ exports = module.exports = function(iConfig, iCache) {
             }
           } else if(req.method == 'PUT' || req.method == 'POST') {
             var bodyAry = [],
-                dLen    = 0,
-                dLmt    = iCache.sizeOfPerEntry()*2
+                dataLen = 0,
+                dataLmt = cacheInstance.sizeOfPerEntry()*2
             ;
 
             req.on('data', function(chunk) {
-              //console.log(chunk.length + ' - ' + dLen + ' - ' + dLmt); // for debug
-              if(dLen >= dLmt) {
+              //console.log(chunk.length + ' - ' + dataLen + ' - ' + dataLmt); // for debug
+              if(dataLen >= dataLmt) {
                 return false;
               } else {
-                dLen += chunk.length;
+                dataLen += chunk.length;
                 bodyAry.push(chunk);
               }
             });
 
             req.on('end', function() {
-              if(dLen >= dLmt) {
+              if(dataLen >= dataLmt) {
                 res.writeHead(413, resHdr);
                 res.end(JSON.stringify({code: '413', message: 'Request Entity Too Large'}));
               } else {
                 if(req.headers['content-type'] == 'application/x-www-form-urlencoded') {
-                  var qsp     = mQS.parse(bodyAry.join()),
-                      eVal    = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
-                      eExp    = (qsp && qsp.exp) ? qsp.exp : null,
-                      setTrig = true
+                  var qsp       = qs.parse(bodyAry.join()),
+                      entryVal  = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
+                      entryExp  = (qsp && qsp.exp) ? qsp.exp : null,
+                      setTrig   = true
                   ;
 
                   if(req.method == 'POST') {
-                    var cg = iCache.get(tElem);
+                    var cg = cacheInstance.get(element);
                     if(cg) {
                       res.writeHead(409, resHdr);
                       res.end(JSON.stringify({code: '409', message: 'Conflict', entry: cg}));
@@ -133,10 +131,10 @@ exports = module.exports = function(iConfig, iCache) {
                   }
 
                   if(setTrig === true) {
-                    var cs = iCache.set(tElem, eVal, eExp);
+                    var cs = cacheInstance.set(element, entryVal, entryExp);
                     if(!cs.error) {
                       res.writeHead(200, resHdr);
-                      res.end(JSON.stringify(iCache.get(tElem)));
+                      res.end(JSON.stringify(cacheInstance.get(element)));
                     } else {
                       res.writeHead(400, resHdr);
                       res.end(JSON.stringify({code: '400', message: cs.error}));
@@ -149,7 +147,7 @@ exports = module.exports = function(iConfig, iCache) {
               }
             });
           } else if(req.method == 'DELETE') {
-            iCache.del(tElem);
+            cacheInstance.del(element);
             res.writeHead(200, resHdr);
             res.end();
           } else {
@@ -160,14 +158,14 @@ exports = module.exports = function(iConfig, iCache) {
           if(req.method == 'GET') {
             res.writeHead(200, resHdr);
 
-            if(iCache.numOfEntry() > 0) {
-              var cd = iCache.entries(),
-                  cc = ''
+            if(cacheInstance.numOfEntry() > 0) {
+              var cData = cacheInstance.entries(),
+                  cChar = ''
               ;
               res.write('[');
-              for(var key in cd) {
-                res.write(cc + '\n' + JSON.stringify(cd[key]));
-                if(!cc) cc = ',';
+              for(var key in cData) {
+                res.write(cChar + '\n' + JSON.stringify(cData[key]));
+                if(!cChar) cChar = ',';
               }
               res.write('\n]');
             } else {
@@ -176,7 +174,7 @@ exports = module.exports = function(iConfig, iCache) {
 
             res.end();
           } else if(req.method == 'DELETE') {
-            iCache.drop();
+            cacheInstance.drop();
             res.writeHead(200, resHdr);
             res.end();
           } else {

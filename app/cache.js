@@ -10,14 +10,14 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex   = require('utilex'),
-    mQ        = require('q'),
-    mFS       = require('fs'),
-    mReadline = require('readline')
+var utilex    = require('utilex'),
+    q         = require('q'),
+    fs        = require('fs'),
+    readline  = require('readline')
 ;
 
 // Init the module
-exports = module.exports = function(iConfig) {
+exports = module.exports = function(options) {
 
   // Init vars
   var config          = {isDebug: false},
@@ -84,11 +84,11 @@ exports = module.exports = function(iConfig) {
   ;
 
   // Check params
-  if(iConfig) {
-    if(iConfig.isDebug === true)   config.isDebug            = true;
-    if(!isNaN(iConfig.limitInKB))  cacheOpt.limitInKB        = iConfig.limitInKB;
-    if(!isNaN(iConfig.vacuumIval)) cacheOpt.vacuum.ival      = iConfig.vacuumIval;
-    if(iConfig.eviction === true)  cacheOpt.eviction.enabled = true;
+  if(options) {
+    if(options.isDebug === true)    config.isDebug            = true;
+    if(!isNaN(options.limitInKB))   cacheOpt.limitInKB        = options.limitInKB;
+    if(!isNaN(options.vacuumIval))  cacheOpt.vacuum.ival      = options.vacuumIval;
+    if(options.eviction === true)   cacheOpt.eviction.enabled = true;
   }
 
   // Calculate the entry limits.
@@ -109,8 +109,8 @@ exports = module.exports = function(iConfig) {
   }, cacheOpt.vacuum.ival*1000);
 
   // Returns the entries.
-  // This is not an export function.
   entries = function entries() {
+    // This is not an export function.
     return cacheData.entries;
   };
 
@@ -132,88 +132,88 @@ exports = module.exports = function(iConfig) {
   // Returns the stats.
   stats = function stats() {
     return {
-      options: cacheOpt,
-      numberOfEntry: numOfEntry(),
-      numberOfAvlbEntry: numOfAvlbEntry(),
-      usageInPercent: Math.floor((cacheData.len*100)/cacheOpt.limitInEntry)
+      options:            cacheOpt,
+      numberOfEntry:      numOfEntry(),
+      numberOfAvlbEntry:  numOfAvlbEntry(),
+      usageInPercent:     Math.floor((cacheData.len*100)/cacheOpt.limitInEntry)
     };
   };
 
-  // Vacuum the data by the given options.
-  vacuum = function vacuum(iParam) {
+  // Vacuum the data.
+  vacuum = function vacuum(options) {
 
     cacheOpt.vacuum.running = true;
 
     // Init vars
-    var result    = {},
-        pAll      = (iParam && iParam.all === true)                     ? true                : false,
-        pExp      = (iParam && iParam.exp === true)                     ? true                : false,
-        pExpLIE   = (iParam && !isNaN(iParam.expLIE))                   ? iParam.expLIE       : 0,
-        pEvict    = (iParam && iParam.eviction === true)                ? true                : false,
-        pEvictLIE = (iParam.evictionLIE && !isNaN(iParam.evictionLIE))  ? iParam.evictionLIE  : 0,
-        tsList    = {total: 0, exp: 0, eviction: 0},
-        tsVarT    = new Date().getTime(),
-        tsVarI,
-        tCntr
+    var result      = {},
+
+        optAll      = (options && options.all === true)       ? true            : false,
+        optExp      = (options && options.exp === true)       ? true            : false,
+        optExpLIE   = (options && !isNaN(options.expLIE))     ? options.expLIE  : 0,
+        optEvict    = (options && options.eviction === true)  ? true            : false,
+        optEvictLIE = (options && options.evictionLIE && !isNaN(options.evictionLIE)) ? options.evictionLIE : 0,
+
+        tsList      = {total: 0, exp: 0, eviction: 0},  // timestamp list
+        tsBegin     = new Date().getTime(),             // begin timestamp
+        tsTemp,     // temporary timestamp
+        entryCntr   // entry counter
     ;
 
     // Check vars
-    if(pAll === true) {
-      pExp    = true;
-      pEvict  = (cacheOpt.eviction.enabled === true) ? true : false;
+    if(optAll === true) {
+      optExp    = true;
+      optEvict  = (cacheOpt.eviction.enabled === true) ? true : false;
     }
 
     // Check the data for expired entries
-    if(pExp === true) {
-      tsVarI  = new Date().getTime();
-      tCntr   = 0;
+    if(optExp === true) {
 
+      tsTemp    = new Date().getTime();
+      entryCntr = 0;
       for(var key in cacheData.entries) {
         if(cacheData.entries[key].expTS > 0 && cacheData.entries[key].expTS < (new Date().getTime())) {
           del(key);
-          tCntr++;
-
-          if(pExpLIE > 0 && tCntr >= pExpLIE) break;
+          entryCntr++;
+          if(optExpLIE > 0 && entryCntr >= optExpLIE) break;
         }
       }
-
-      tsList.exp = (new Date().getTime())-tsVarI;
-      if(config.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + tCntr + ' entry / ' + tsList.exp + 'ms)');
+      tsList.exp = (new Date().getTime())-tsTemp;
+      if(config.isDebug) utilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + entryCntr + ' entry / ' + tsList.exp + 'ms)');
     }
 
     // Check the data for eviction
-    if(pEvict === true) {
-      tsVarI  = new Date().getTime();
-      tCntr   = 0;
+    if(optEvict === true) {
 
-      if(pEvictLIE === 0) {
-        pEvictLIE = (numOfAvlbEntry() < cacheOpt.eviction.limitInEntry) ? (cacheOpt.eviction.limitInEntry-numOfAvlbEntry()) : 0;
+      tsTemp    = new Date().getTime();
+      entryCntr = 0;
+
+      if(optEvictLIE === 0) {
+        optEvictLIE = (numOfAvlbEntry() < cacheOpt.eviction.limitInEntry) ? (cacheOpt.eviction.limitInEntry-numOfAvlbEntry()) : 0;
       }
 
-      if(pEvictLIE > 0) {
-        var tAry      = [],
-            tAryLen   = 0,
-            tArySort  = function(a, b) { return a[1] - b[1]; }
+      if(optEvictLIE > 0) {
+        var entryList     = [],
+            entryListLen  = 0,
+            sortCB        = function(a, b) { return a[1] - b[1]; } // sort by timestamp
         ;
 
-        for(var key2 in cacheData.entries) tAry.push([key2, cacheData.entries[key2].ts]);
-        tAry.sort(tArySort);
-        tAryLen = tAry.length;
-        for(var i = 0; i < tAryLen; i++) {
-          del(tAry[i][0]);
-          tCntr++;
+        for(var key2 in cacheData.entries) entryList.push([key2, cacheData.entries[key2].ts]);
+        entryList.sort(sortCB);
+        entryListLen = entryList.length;
+        for(var i = 0; i < entryListLen; i++) {
+          del(entryList[i][0]);
+          entryCntr++;
 
-          if(tCntr >= pEvictLIE) break;
+          if(entryCntr >= optEvictLIE) break;
         }
-
-        cacheOpt.ts.eviction = tsVarI;
+        cacheOpt.ts.eviction = tsTemp;
       }
 
-      tsList.eviction = (new Date().getTime())-tsVarI;
-      if(config.isDebug) mUtilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + tCntr + ' entry / ' +  tsList.eviction + 'ms)');
+      tsList.eviction = (new Date().getTime())-tsTemp;
+      if(config.isDebug) utilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + entryCntr + ' entry / ' +  tsList.eviction + 'ms)');
     }
 
-    tsList.total  = (new Date().getTime())-tsVarT;
+    tsList.total  = (new Date().getTime())-tsBegin;
     result.timeMS = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
 
     cacheOpt.vacuum.running = false;
@@ -222,53 +222,49 @@ exports = module.exports = function(iConfig) {
   };
 
   // Returns the value of the given key.
-  get = function get(iKey) {
-    
-    // Init vars
-    var cData = cacheData.entries[iKey];
+  get = function get(key) {
+    var cData = cacheData.entries[key];
 
-    // Check the data
     if(cData && (cData.expTS === 0 || cData.expTS > (new Date().getTime()))) {
       return cData;
-
-      // Note: Do not delete the data here if it is expired. Let vacuum function do it.
     }
+    // Note: Do not delete the data here if it is expired. Let vacuum function do it.
 
     return;
   };
 
   // Sets the value of the given key.
-  set = function set(iKey, iVal, iExp) {
+  set = function set(key, val, exp) {
 
     // Init vars
     var result = {},
-        pKey   = iKey,
-        pVal   = (typeof iVal != 'undefined') ? iVal : null,
-        pExp   = (typeof iExp != 'undefined') ? iExp : 0
+        valF   = (typeof val != 'undefined') ? val : null,
+        expF   = (typeof exp != 'undefined') ? exp : 0
     ;
 
     // Note: Length checking is only for strings.
 
     // Check vars
-    if(!pKey) {
+    if(!key) {
       return {error: 'Missing key.'};
-    } else if(pKey.length > cacheOpt.keyLIC) {
-      return {error: 'Key is so long. (' + pKey.length + '/' + cacheOpt.keyLIC + ')'};
-    } else if(pVal && pVal.length > cacheOpt.valLIC) {
-      return {error: 'Value is so long. (' + pVal.length + '/' + cacheOpt.valLIC + ')'};
-    } else if(isNaN(pExp)) {
-      return {error: 'Invalid expire value. (' + pExp + ')'};
+    } else if(key.length > cacheOpt.keyLIC) {
+      return {error: 'Key is so long. (' + key.length + '/' + cacheOpt.keyLIC + ')'};
+    } else if(valF && valF.length > cacheOpt.valLIC) {
+      return {error: 'Value is so long. (' + valF.length + '/' + cacheOpt.valLIC + ')'};
+    } else if(isNaN(expF)) {
+      return {error: 'Invalid expire value. (' + expF + ')'};
     }
 
-    // Check data
-    var cData = get(pKey);
+    // Get data
+    var cData = get(key);
 
     // Check the memory
-    if(!cData && numOfAvlbEntry() < 1) { // no more available space
+    if(!cData && numOfAvlbEntry() < 1) {
+      // no more available space
 
-      if(config.isDebug) mUtilex.tidyLog('[cache.set]: Out of entry limit. (' + cacheData.len + ')');
+      var curTS = new Date().getTime();
 
-      var tDGT = new Date().getTime();
+      if(config.isDebug) utilex.tidyLog('[cache.set]: Out of entry limit. (' + cacheData.len + ')');
 
       // Cleanup expired entries
       vacuum({exp: true});
@@ -280,15 +276,15 @@ exports = module.exports = function(iConfig) {
         // Overwrite the limit for preventing bottlenecks.
         // Note: This rule should be base on memory size.
         // Also consider an entry / per minute calculation.
-        if(cacheOpt.ts.outOfLimit && cacheOpt.ts.outOfLimit+5000 > tDGT) {
-          tLIE = tLIE*(5-(Math.ceil((tDGT-cacheOpt.ts.outOfLimit)/1000)));
+        if(cacheOpt.ts.outOfLimit && cacheOpt.ts.outOfLimit+5000 > curTS) {
+          tLIE = tLIE*(5-(Math.ceil((curTS-cacheOpt.ts.outOfLimit)/1000)));
         }
 
         // Evict entries
         vacuum({eviction: true, evictionLIE: tLIE});
       }
 
-      cacheOpt.ts.outOfLimit = tDGT;
+      cacheOpt.ts.outOfLimit = curTS;
 
       if(cacheData.len >= cacheOpt.limitInEntry) {
         result.error = 'Out of entry limit. (' + cacheData.len + '/' + cacheOpt.limitInEntry + ')';
@@ -300,28 +296,28 @@ exports = module.exports = function(iConfig) {
     if(!cData) cacheData.len++;
 
     var ts    = new Date().getTime(),
-        tsExp = (pExp) ? (ts+(pExp*1000)) : 0
+        tsExp = (expF) ? (ts+(expF*1000)) : 0
     ;
     
-    cacheData.entries[pKey] = {key: pKey, val: pVal, ts: ts, expTS: tsExp};
+    cacheData.entries[key] = {key: key, val: valF, ts: ts, expTS: tsExp};
 
-    result = cacheData.entries[pKey];
+    result = cacheData.entries[key];
 
     return result;
   };
 
-  // Adds a data by the given key.
-  add = function add(iKey, iVal, iExp) {
-    if(get(iKey)) {
-      return {error: 'Key already exists. (' + iKey + ')'};
+  // Adds an entry.
+  add = function add(key, val, exp) {
+    if(get(key)) {
+      return {error: 'Key already exists. (' + key + ')'};
     }
 
-    return set(iKey, iVal, iExp);
+    return set(key, val, exp);
   };
 
-  // Deletes the given key.
-  del = function del(iKey) {
-    if(iKey && cacheData.entries[iKey] && delete cacheData.entries[iKey]) {
+  // Deletes an entry.
+  del = function del(key) {
+    if(key && cacheData.entries[key] && delete cacheData.entries[key]) {
       cacheData.len--;
       return true;
     }
@@ -338,30 +334,28 @@ exports = module.exports = function(iConfig) {
   };
 
   // Checks and increments or decrements the value of the given key.
-  incdec = function incdec(iKey, iAmnt, iFlag) {
+  incdec = function incdec(key, amount, flag) {
 
     // Init vars
-    var result = {},
-        pKey   = iKey,
-        pAmnt  = (typeof iAmnt != 'undefined') ? iAmnt : 1,
-        pFlag  = iFlag,
-        cData  = get(pKey)
+    var result  = {},
+        amntF   = (typeof amount != 'undefined') ? amount : 1,
+        cData   = get(key)
     ;
 
     // Check vars
     if(!cData) {
-      return {error: 'The key does not exist. (' + pKey + ')'};
+      return {error: 'The key does not exist. (' + key + ')'};
     } else if(typeof cData.val !== 'number' || cData.val % 1 !== 0) {
       return {error: 'The value is not an integer. (' + cData.val + ')'};
-    } else if(isNaN(pAmnt)) {
-      return {error: 'Invalid amount. (' + pAmnt + ')'};
+    } else if(isNaN(amntF)) {
+      return {error: 'Invalid amount. (' + amntF + ')'};
     }
 
     // Set data
-    if(pFlag == 'inc') {
-      cData.val = (cData.val+pAmnt);
-    } else if(pFlag == 'dec') {
-      cData.val = (cData.val-pAmnt);
+    if(flag == 1) {
+      cData.val = (cData.val+amntF);
+    } else if(flag == 2) {
+      cData.val = (cData.val-amntF);
     }
 
     result = set(cData.key, cData.val, cData.exp);
@@ -369,35 +363,35 @@ exports = module.exports = function(iConfig) {
     return result;
   };
 
-  // Increments the value of the given key.
-  increment = function increment(iKey, iAmnt) {
-    return incdec(iKey, iAmnt, 'inc');
+  // Increments the value of the entry.
+  increment = function increment(key, amount) {
+    return incdec(key, amount, 1);
   };
 
-  // Decrements the value of the given key.
-  decrement = function decrement(iKey, iAmnt) {
-    return incdec(iKey, iAmnt, 'dec');
+  // Decrements the value of the entry.
+  decrement = function decrement(key, amount) {
+    return incdec(key, amount, 2);
   };
 
   // Executes the given command.
-  execCmd = function execCmd(iCmd) {
+  execCmd = function execCmd(command) {
 
     // Init vars
     var result  = {cmd: null, cmdArgs: null, cmdRes: null},
-        pCmd    = ('' + iCmd).trim()
+        cmdF    = ('' + command).trim()
     ;
 
     // Check vars
-    if(!pCmd) return result;
+    if(!cmdF) return result;
 
     // Parse the command
-    var cmdMatch    = pCmd.match(regex.command),
-        cmdArgs     = pCmd.match(regex.args)
+    var cmdMatch  = cmdF.match(regex.command),
+        cmdArgs   = cmdF.match(regex.args)
     ;
 
-    result.cmd      = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
+    result.cmd = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
     if(cmdArgs instanceof Array) cmdArgs.shift();
-    result.cmdArgs  = (cmdArgs instanceof Array) ? cmdArgs : null;
+    result.cmdArgs = (cmdArgs instanceof Array) ? cmdArgs : null;
 
     // Cleanup args
     if(result.cmdArgs) {
@@ -409,7 +403,7 @@ exports = module.exports = function(iConfig) {
       }
     }
 
-    // Execute command
+    // Execute the command
     switch(result.cmd) {
       case 'get':
         result.cmdRes = get(result.cmdArgs[0]);
@@ -445,38 +439,38 @@ exports = module.exports = function(iConfig) {
         result.cmdRes = {exit: true};
         break;
       default:
-        result.cmdRes = {error: 'Invalid command: ' + result.cmd + ' (Possible commands: ' + cacheCmds.join(', ') + ')'};
+        result.cmdRes = {error: 'Invalid command! Possible commands: ' + cacheCmds.join(', ')};
     }
 
     return result;
   };
 
   // Loads the given file.
-  loadFile = function loadFile(iPath) {
+  loadFile = function loadFile(filePath) {
 
     // Init vars
-    var deferred  = mQ.defer(),
-        pPath     = ('' + iPath),
-        pathSS    = (pPath && mFS.existsSync(pPath)) ? mFS.statSync(pPath) : null,
+    var deferred  = q.defer(),
+        filePathF = ('' + filePath),
+        pathSS    = (filePathF && fs.existsSync(filePathF)) ? fs.statSync(filePathF) : null,
         lineCntr  = 0,
         lineErr   = null
     ;
 
     // Check the file
     if(!pathSS || !pathSS.isFile()) {
-      deferred.reject('Invalid file! (' + pPath + ')');
+      deferred.reject('Invalid file! (' + filePathF + ')');
       return deferred.promise;
     }
 
     // Init the pipe
-    var rl = mReadline.createInterface({input: mFS.createReadStream(pPath), terminal: false});
+    var rl = readline.createInterface({input: fs.createReadStream(filePathF), terminal: false});
     rl.setPrompt('');
 
     // line event
     rl.on('line', function(iLine) {
+      lineCntr++;
 
       // Check the line
-      lineCntr++;
       if(!iLine.trim()) { return; }
 
       // Execute the command

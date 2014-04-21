@@ -4,46 +4,45 @@
  * For the full copyright and license information, please view the LICENSE.txt file.
  */
 
-// repl module implements repl related functions.
+// repl module implements REPL.
 
 // Init reqs
 /* jslint node: true */
 'use strict';
 
-var mReadline = require('readline');
+var readline = require('readline');
 
 // Init the module
-exports = module.exports = function(iConfig, iCache) {
+exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
   var config = {isDebug: false},
-
       start  // listen - function
   ;
 
   // Check params
-  if(typeof iCache !== 'object') throw new Error('Invalid cache object!');
+  if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
-  if(iConfig) {
-    if(iConfig.isDebug === true) config.isDebug = true;
+  if(options) {
+    if(options.isDebug === true) config.isDebug = true;
   }
 
   // Starts repl
   start = function start() {
 
     // Init the pipe
-    var rl = mReadline.createInterface({input: process.stdin, output: process.stdout});
+    var rl = readline.createInterface({input: process.stdin, output: process.stdout});
     rl.setPrompt('> '); // set prompt
     rl.prompt();
 
     // line event
     rl.on('line', function(iLine) {
 
-      // Check the line
+      // Check the input
       if(!iLine.trim()) { rl.prompt(); return; }
 
       // Execute the command
-      var cp = iCache.execCmd(iLine);
+      var cp = cacheInstance.execCmd(iLine);
 
       // for debug
       if(config.isDebug === true) {
@@ -55,7 +54,6 @@ exports = module.exports = function(iConfig, iCache) {
           if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
           if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
         }
-
         rl.prompt();
         return;
       }
@@ -79,17 +77,17 @@ exports = module.exports = function(iConfig, iCache) {
           console.log((cp.cmdRes.error) ? 'ERROR' : cp.cmdRes.val);
           break;
         case 'dump':
-          if(iCache.numOfEntry() > 0) {
-            var cd    = cp.cmdRes,
-                cdLen = iCache.numOfEntry(),
-                cdCnt = 0,
-                cc    = ''
+          if(cacheInstance.numOfEntry() > 0) {
+            var cData     = cp.cmdRes,
+                cDataLen  = cacheInstance.numOfEntry(),
+                cDataCnt  = 0,
+                cChar     = ''
             ;
             console.log('[');
-            for(var key in cd) {
-              cdCnt++;
-              cc = (cdCnt < cdLen) ? ',' : '';
-              console.log(JSON.stringify(cd[key]) + cc);
+            for(var key in cData) {
+              cDataCnt++;
+              cChar = (cDataCnt < cDataLen) ? ',' : '';
+              console.log(JSON.stringify(cData[key]) + cChar);
             }
             console.log(']');
           } else {

@@ -8,55 +8,137 @@
 /* jslint node: true */
 'use strict';
 
-var mUtilex   = require('utilex'),
-    mCache    = require('./cache'),
-    mHelp     = require('./help'),
-    mConfig   = require('./config'),
-    mREST     = require('./rest'),
-    mREPL     = require('./repl')
+var utilex  = require('utilex'),
+    cache   = require('./cache'),
+    rest    = require('./rest'),
+    repl    = require('./repl')
 ;
 
 // Init vars
-var gConfig   = mConfig(),
-    gCache    = mCache(gConfig.cache),
-    gREST     = mREST(gConfig.listen, gCache),
-    gREPL     = mREPL(gConfig, gCache)
+var appArgs     = utilex.tidyArgs(),
+    appConfig   = {
+      isDebug:    false,
+      isIactive:  false,
+      loadFile:   null,
+      rest: {
+        http: {}
+      },
+      cache: {}
+    },
+    appCache,   // cache instance  
+    appREST,    // rest instance
+    appREPL     // repl instance
 ;
 
-// Check whether help or not
-if(gConfig.isHelp || (!gConfig.isIactive && !gConfig.loadFile)) mHelp.helpForShell();
+// Check for help
+if(typeof appArgs['help'] !== 'undefined')  cmdHelp();
 
-if(gConfig.loadFile) {
-  gCache.loadFile(gConfig.loadFile).then(function() { // load file
-    if(gConfig.listen.http.isEnabled) {
-      gREST.listen().then(function(res) { // listen
-        mUtilex.tidyLog(res);
-        if(gConfig.isIactive) gREPL.start(); // interactive mode
+// Config - global
+if(typeof appArgs['debug'] !== 'undefined') appConfig.isDebug   = true;
+if(typeof appArgs['i'] !== 'undefined')     appConfig.isIactive = true;
+if(appArgs['load-file'])                    appConfig.loadFile  = appArgs['load-file'];
+
+// Config - cache
+if(appConfig.isDebug === true) appConfig.cache.isDebug = true;
+if(typeof appArgs['cache-limit'] !== 'undefined') appConfig.cache.limitInKB   = parseInt(appArgs['cache-limit'], 10);
+if(typeof appArgs['vacuum-ival'] !== 'undefined') appConfig.cache.vacuumIval  = parseInt(appArgs['vacuum-ival'], 10);
+if(typeof appArgs['eviction'] !== 'undefined')    appConfig.cache.eviction    = true;
+
+// Config - rest
+if(appConfig.isDebug === true) appConfig.rest.isDebug = true;
+if(typeof appArgs['listen-http'] !== 'undefined') {
+  var httpAddr = ('' + appArgs['listen-http']).split(':', 2);
+  if(httpAddr[0]) {
+    appConfig.rest.http.isEnabled = true;
+    appConfig.rest.http.hostname  = httpAddr[0].trim();
+    appConfig.rest.http.port      = (httpAddr[1] || null);
+  }
+}
+
+var appCache = cache(appConfig.cache),
+    appREST  = rest(appConfig.rest, appCache),
+    appREPL  = repl(appConfig, appCache)
+;
+
+if(appConfig.loadFile) {
+  appCache.loadFile(appConfig.loadFile).then(function() {
+    if(appConfig.rest.http.isEnabled) {
+      appREST.listen().then(function(res) {
+        utilex.tidyLog(res);
+        if(appConfig.isIactive) appREPL.start();
       }, function(err) {
-        mUtilex.tidyLog(err);
+        utilex.tidyLog(err);
         process.exit(0);
       });
-    } else if(gConfig.isIactive) {
-      gREPL.start(); // interactive mode
+    } else if(appConfig.isIactive) {
+      appREPL.start();
     } else {
-      process.exit(0); // nothing else to do
+      process.exit(0);
     }
   }, function(err) {
-    mUtilex.tidyLog(err);
+    utilex.tidyLog(err);
     process.exit(0);
-  });
-} else if(gConfig.isIactive) {
-  if(gConfig.listen.http.isEnabled) {
-    gREST.listen().then(function(res) { // listen
-      mUtilex.tidyLog(res);
-      gREPL.start(); // interactive mode
+  });  
+} else if(appConfig.isIactive) {
+  if(appConfig.rest.http.isEnabled) {
+    appREST.listen().then(function(res) {
+      utilex.tidyLog(res);
+      appREPL.start();
     }, function(err) {
-      mUtilex.tidyLog(err);
+      utilex.tidyLog(err);
       process.exit(0);
     });
   } else {
-    gREPL.start(); // interactive mode
+    appREPL.start();
   }
+} else if(appConfig.rest.http.isEnabled) {
+  appREST.listen().then(function(res) {
+    utilex.tidyLog(res);
+  }, function(err) {
+    utilex.tidyLog(err);
+    process.exit(0);
+  });
 } else {
-  process.exit(0); // nothing else to do
+  cmdHelp();
 }
+
+// Displays help and exit.
+function cmdHelp() {
+
+  console.log("Usage: node memching.js [OPTION]...\n");
+
+  console.log("Memcing is an application for simple memory caching.\n");
+
+  console.log("  Options:");
+  console.log("    -i              : Enable interactive mode.");
+  console.log("    -load-file      : Load a command file.");
+  console.log("    -cache-limit    : Cache limit in KB. Default; 16384 kilobytes");
+  console.log("    -vacuum-ival    : Interval in seconds for vacuum. Default; 30");
+  console.log("    -eviction       : Enable eviction mode.");
+  console.log("    -listen-http    : Listen HTTP requests for REST API.");
+  console.log("                      Default; localhost:12080");
+  console.log("    -help           : Display help and exit.\n");
+
+  console.log("  Commands:");
+  console.log("    get key");
+  console.log("    set key value [expire = 0]");
+  console.log("    add key value [expire = 0]");
+  console.log("    increment key [amount = 1]");
+  console.log("    decrement key [amount = 1]");
+  console.log("    delete key");
+  console.log("    drop");
+  console.log("    dump");
+  console.log("    stats");
+  console.log("    vacuum");
+  console.log("    exit\n");
+
+  console.log("  Examples:");
+  console.log("    node memcing.js -i");
+  console.log("    node memcing.js -i -load-file /path/file");
+  console.log("    node memcing.js -load-file /path/file -listen-http localhost:12080");
+  console.log("    node memcing.js -listen-http localhost:12080 -eviction\n");
+
+  console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
+
+  process.exit(0);
+};
