@@ -47,9 +47,10 @@ if(typeof appArgs['eviction'] !== 'undefined')    appConfig.cache.eviction    = 
 // Config - rest
 if(appConfig.isDebug === true) appConfig.rest.isDebug = true;
 if(typeof appArgs['listen-http'] !== 'undefined') {
+  appConfig.rest.http.isEnabled = true;
+
   var httpAddr = ('' + appArgs['listen-http']).split(':', 2);
   if(httpAddr[0]) {
-    appConfig.rest.http.isEnabled = true;
     appConfig.rest.http.hostname  = httpAddr[0].trim();
     appConfig.rest.http.port      = (httpAddr[1] || null);
   }
@@ -141,4 +142,4 @@ function cmdHelp() {
   console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
 
   process.exit(0);
-};
+}
