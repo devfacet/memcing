@@ -1,6 +1,7 @@
 ## Memcing
 
-[memcing](http://github.com/cmfatih/memcing) is an application for in-memory caching.  
+[memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application 
+with REST API feature.
 
 memcing on [npm registry](http://npmjs.org/package/memcing)  
 
