@@ -49,6 +49,8 @@ exports = module.exports = function(options, cacheInstance) {
         if(cp.cmd) {
           console.log({cmd: cp.cmd, cmdArgs: cp.cmdArgs});
           console.log(cp.cmdRes);
+
+          // NOTE: Do not vacuum here for dump command.
         }
         if(cp.cmdRes) {
           if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
@@ -77,6 +79,10 @@ exports = module.exports = function(options, cacheInstance) {
           console.log((cp.cmdRes.error) ? 'ERROR' : cp.cmdRes.val);
           break;
         case 'dump':
+
+          // Cleanup expired entries
+          cacheInstance.vacuum({exp: true});
+
           if(cacheInstance.numOfEntry() > 0) {
             var cData     = cp.cmdRes,
                 cDataLen  = cacheInstance.numOfEntry(),
