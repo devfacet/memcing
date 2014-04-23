@@ -10,7 +10,8 @@
 /* jslint node: true */
 'use strict';
 
-var q      = require('q'),
+var utilex = require('utilex'),
+    q      = require('q'),
     http   = require('http'),
     url    = require('url'),
     qs     = require('querystring')
@@ -79,10 +80,13 @@ exports = module.exports = function(options, cacheInstance) {
 
     if(urlParse && urlParse.pathname) {
       var pathAry = urlParse.pathname.split('/');
+      pathAry.shift(); // remove first element
 
-      if(pathAry[1] == 'entries') {
-        if(pathAry[2]) { // element
-          var element = (regex.number.test(pathAry[2]) && !isNaN(pathAry[2]/1)) ? pathAry[2]/1 : pathAry[2];
+      if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.pathAry]: ' + JSON.stringify(pathAry));
+
+      if(pathAry[0] == 'entries') {
+        if(pathAry[1]) { // element
+          var element = (regex.number.test(pathAry[1]) && !isNaN(pathAry[1]/1)) ? pathAry[1]/1 : pathAry[1];
 
           if(req.method == 'GET') {
             var cg = cacheInstance.get(element);
@@ -100,7 +104,9 @@ exports = module.exports = function(options, cacheInstance) {
             ;
 
             req.on('data', function(chunk) {
-              //console.log(chunk.length + ' - ' + dataLen + ' - ' + dataLmt); // for debug
+              //if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
+
+              // NOTE: Ignore rest of the data and give 413 error at end of the request.
               if(dataLen >= dataLmt) {
                 return false;
               } else {
@@ -114,6 +120,9 @@ exports = module.exports = function(options, cacheInstance) {
                 res.writeHead(413, resHdr);
                 res.end(JSON.stringify({code: '413', message: 'Request Entity Too Large'}));
               } else {
+                
+                if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.req.end]: ' + bodyAry.join());
+
                 if(req.headers['content-type'] == 'application/x-www-form-urlencoded') {
                   var qsp       = qs.parse(bodyAry.join()),
                       entryVal  = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
@@ -158,6 +167,9 @@ exports = module.exports = function(options, cacheInstance) {
           if(req.method == 'GET') {
             res.writeHead(200, resHdr);
 
+            // Cleanup expired entries
+            cacheInstance.vacuum({exp: true});
+
             if(cacheInstance.numOfEntry() > 0) {
               var cData = cacheInstance.entries(),
                   cChar = ''
@@ -182,7 +194,7 @@ exports = module.exports = function(options, cacheInstance) {
             res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));
           }
         }
-      } else if(pathAry[1]) {
+      } else if(pathAry[0]) {
         res.writeHead(501, resHdr);
         res.end(JSON.stringify({code: '501', message: 'Not Implemented'}));
       } else {
