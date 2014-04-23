@@ -228,7 +228,7 @@ exports = module.exports = function(options) {
     if(cData && (cData.expTS === 0 || cData.expTS > (new Date().getTime()))) {
       return cData;
     }
-    // Note: Do not delete the data here if it is expired. Let vacuum function do it.
+    // NOTE: Do not delete the data here if it is expired. Let vacuum function do it.
 
     return;
   };
@@ -242,7 +242,7 @@ exports = module.exports = function(options) {
         expF   = (typeof exp != 'undefined') ? exp : 0
     ;
 
-    // Note: Length checking is only for strings.
+    // NOTE: Length checking is only for strings.
 
     // Check vars
     if(!key) {
@@ -274,7 +274,7 @@ exports = module.exports = function(options) {
         var tLIE = cacheOpt.eviction.limitInEntry;
 
         // Overwrite the limit for preventing bottlenecks.
-        // Note: This rule should be base on memory size.
+        // NOTE: This rule should be base on memory size.
         // Also consider an entry / per minute calculation.
         if(cacheOpt.ts.outOfLimit && cacheOpt.ts.outOfLimit+5000 > curTS) {
           tLIE = tLIE*(5-(Math.ceil((curTS-cacheOpt.ts.outOfLimit)/1000)));
