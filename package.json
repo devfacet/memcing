@@ -33,6 +33,11 @@
   ],
   "dependencies": {
     "utilex": "0.2.x",
-    "q": "1.x.x"
+    "q": "1.x"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "request": "2.x"
   }
 }
