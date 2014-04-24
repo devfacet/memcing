@@ -21,20 +21,22 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config    = {isDebug: false},
-      listenOpt = {
+  var config          = {isDebug: false},
+      listenOpt       = {
         http: {
           isEnabled:  false, 
           hostname:   'localhost', 
           port:       12080
         }
       },
-      regex     = {
-        number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')
+      regex           = {
+        number:       new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')
       },
 
-      listen,   // listen - function
-      listenReq // request listener - function
+      listen,         // listen - function
+      listenReq,      // request listener - function
+
+      addrOf          // address - function
   ;
 
   // Check params
@@ -46,6 +48,15 @@ exports = module.exports = function(options, cacheInstance) {
     if(options.http.hostname)           listenOpt.http.hostname   = ('' + options.http.hostname);
     if(!isNaN(options.http.port))       listenOpt.http.port       = options.http.port;
   }
+
+  // Returns the address of the given kind
+  addrOf = function addrOf(kind) {
+    if(kind == 'http') {
+      return listenOpt.http.hostname + ':' + listenOpt.http.port;
+    }
+
+    return;
+  };
 
   // Starts HTTP server.
   listen = function listen() {
@@ -59,6 +70,8 @@ exports = module.exports = function(options, cacheInstance) {
 
     // listen
     server.listen(port, hostname, function() {
+      listenOpt.http.hostname = server.address().address;
+      listenOpt.http.port     = server.address().port;
       deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
     });
 
@@ -209,6 +222,7 @@ exports = module.exports = function(options, cacheInstance) {
 
   // Return
   return {
-    listen: listen
+    listen: listen,
+    addrOf: addrOf
   };
 };
