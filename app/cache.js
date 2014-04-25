@@ -75,10 +75,10 @@ exports = module.exports = function(options) {
       set,            // set - function
       add,            // add - function
       del,            // delete - function
-      drop,           // drop data set - function
       incdec,         // increment or decrement value - function 
       increment,      // increment value - function
       decrement,      // decrement value - function
+      drop,           // drop data set - function
       execCmd,        // execute command - function
       loadFile        // load file - function
   ;
@@ -308,8 +308,9 @@ exports = module.exports = function(options) {
 
   // Adds an entry.
   add = function add(key, val, exp) {
-    if(get(key)) {
-      return {error: 'Key already exists. (' + key + ')'};
+    var cg = get(key);
+    if(cg) {
+      return {error: 'Key already exists. (' + key + ')', entry: cg};
     }
 
     return set(key, val, exp);
@@ -323,14 +324,6 @@ exports = module.exports = function(options) {
     }
 
     return false;
-  };
-
-  // Drops the data set.
-  drop = function delAll() {
-    cacheData.entries = {};
-    cacheData.len = 0;
-
-    return true;
   };
 
   // Checks and increments or decrements the value of the given key.
@@ -371,6 +364,14 @@ exports = module.exports = function(options) {
   // Decrements the value of the entry.
   decrement = function decrement(key, amount) {
     return incdec(key, amount, 2);
+  };
+
+  // Drops the data set.
+  drop = function delAll() {
+    cacheData.entries = {};
+    cacheData.len = 0;
+
+    return true;
   };
 
   // Executes the given command.
@@ -499,16 +500,16 @@ exports = module.exports = function(options) {
     numOfEntry: numOfEntry,
     numOfAvlbEntry: numOfAvlbEntry,
     sizeOfPerEntry: sizeOfPerEntry,
-
     stats: stats,
     vacuum: vacuum,
+
     set: set,
     add: add,
     get: get,
     del: del,
-    drop: drop,
     increment: increment,
     decrement: decrement,
+    drop: drop,
 
     execCmd: execCmd,
     loadFile: loadFile
