@@ -5,6 +5,8 @@ with REST API feature.
 
 memcing on [npm registry](http://npmjs.org/package/memcing)  
 
+[![Build Status](https://travis-ci.org/cmfatih/memcing.svg?branch=master)](https://travis-ci.org/cmfatih/memcing)  
+
 ### Installation
 
 For latest release
