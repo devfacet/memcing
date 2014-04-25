@@ -3,6 +3,11 @@
 ### HEAD
 
 ```
+* Add test for cache module
+* Add test for rest module
+* Add addrOf - rest module
+* Fix hostname option
+* Behavior changes for --listen-http
 ```
 
 ### 0.1.5 (2014-04-22)
