@@ -3,9 +3,8 @@
 [memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application 
 with REST API feature.
 
-memcing on [npm registry](http://npmjs.org/package/memcing)  
-
-[![Build Status](https://travis-ci.org/cmfatih/memcing.svg?branch=master)](https://travis-ci.org/cmfatih/memcing)  
+memcing on [npm registry](http://npmjs.org/package/memcing)   
+[![NPM](https://nodei.co/npm/memcing.png?compact=true)](https://nodei.co/npm/memcing/)
 
 ### Installation
 
@@ -18,6 +17,7 @@ For HEAD
 ```
 git clone https://github.com/cmfatih/memcing.git
 ```
+[![Build Status](https://travis-ci.org/cmfatih/memcing.svg?branch=master)](https://travis-ci.org/cmfatih/memcing)
 
 ### Usage
 
