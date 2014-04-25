@@ -33,7 +33,7 @@ describe('appREST', function() {
   });
 
   // addrOf
-  describe('addrOf(\'http\')', function() {
+  describe("addrOf('http')", function() {
     it('should run without any error', function(done) {
       appREST.addrOf('http');
       done();
@@ -42,7 +42,7 @@ describe('appREST', function() {
 });
 
 // Test for HTTP requests
-describe('request', function() {
+describe('REST API request', function() {
 
   // Init vars
   var reqHeaders = {'Content-Type': 'application/x-www-form-urlencoded'};
@@ -92,12 +92,11 @@ describe('request', function() {
 
   describe('PUT ' + urlBye, function() {
     it('should set `bye` entry with expiration time', function(done) {
-      var ts = new Date().getTime();
       request({
         method: 'PUT',
         uri : urlBye,
         headers: reqHeaders,
-        body: 'val=world&exp=10'
+        body: 'val=world&exp=60'
       }, function (err, res, body) {
         if(!err) {
           var resData = JSON.parse(body);
@@ -105,7 +104,7 @@ describe('request', function() {
           expect(resData).to.have.property('key', 'bye');
           expect(resData).to.have.property('val', 'world');
           expect(resData).to.have.property('ts').to.be.above(0);
-          expect(resData).to.have.property('expTS').to.be.above(ts);
+          expect(resData).to.have.property('expTS').to.be.above(new Date().getTime());
           done();
         } else {
           done(err);
@@ -130,8 +129,7 @@ describe('request', function() {
           expect(res.statusCode).to.equal(200);
           expect(resData).to.have.property('key', 'counter');
           expect(resData).to.have.property('val', 1);
-          expect(resData).to.have.property('ts').to.be.above(0);
-          expect(resData).to.have.property('expTS', 0);
+          expect(resData.val).to.be.a('number');
           done();
         } else {
           done(err);
@@ -154,11 +152,9 @@ describe('request', function() {
           expect(res.statusCode).to.equal(409);
           expect(resData.entry).to.have.property('key', 'counter');
           expect(resData.entry).to.have.property('val', 1);
-          expect(resData.entry).to.have.property('ts').to.be.above(0);
-          expect(resData.entry).to.have.property('expTS', 0);
           done();
         } else {
-          done(err);
+          done('No error!');
         }
       });
     });
@@ -170,7 +166,7 @@ describe('request', function() {
       request({
         method: 'DELETE',
         uri : urlCounter
-      }, function (err, res, body) {
+      }, function (err, res) {
         if(!err) {
           expect(res.statusCode).to.equal(200);
           done();
@@ -181,9 +177,26 @@ describe('request', function() {
     });
   });
 
-  // DELETE entries
+  // GET entries
   var urlEntries = appRESTUrl + '/entries';
 
+  describe('GET ' + urlEntries, function() {
+    it('should get all entries', function(done) {
+      request(urlEntries, function (err, res, body) {
+        if(!err) {
+          var resData = JSON.parse(body);
+          expect(res.statusCode).to.equal(200);
+          expect(resData).to.be.a('array');
+          expect(resData).to.have.length(2); // entry `bye` still exists
+          done();
+        } else {
+          done(err);
+        }
+      });
+    });
+  });
+
+  // DELETE entries
   describe('DELETE ' + urlEntries, function() {
     it('should delete all entries', function(done) {
       request({
