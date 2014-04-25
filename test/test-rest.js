@@ -39,10 +39,6 @@ describe('appREST', function() {
       done();
     });
   });
-});
-
-// Test for HTTP requests
-describe('REST API request', function() {
 
   // Init vars
   var reqHeaders = {'Content-Type': 'application/x-www-form-urlencoded'};
