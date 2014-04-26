@@ -25,8 +25,8 @@
   "contributors": [],
   "main": "./app/memcing.js",
   "scripts": {
-    "start": "node ./app/memcing.js -i -listen-http localhost:12080",
-    "test": "node ./node_modules/mocha/bin/mocha --reporter list test/test-cache.js test/test-rest.js"
+    "start": "node app/memcing.js -i -listen-http localhost:12080",
+    "test": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js test/test-rest.js"
   },
   "engines": [
     "node >= 0.10.21"
