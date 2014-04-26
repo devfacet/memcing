@@ -9,7 +9,6 @@
 
 * Add npm badge
 * Add Build Status
-* Add Build Status
 * Add .travis.yml
 * Add test for cache module
 * Add test for rest module
