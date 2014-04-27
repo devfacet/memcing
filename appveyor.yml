@@ -31,4 +31,4 @@ test_script:
   - node --version
   - npm --version
   - ps: npm test --no-color
-  - cmd: grunt test --no-color
+  - cmd: npm test --no-color
