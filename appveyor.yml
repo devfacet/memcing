@@ -30,5 +30,5 @@ build: off
 test_script:
   - node --version
   - npm --version
-  - ps: npm test --no-color
-  - cmd: npm test --no-color
+  - ps: npm test
+  - cmd: npm test
