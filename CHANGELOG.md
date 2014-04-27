@@ -4,7 +4,6 @@
 
 ```
 * Add Dependency Status
-* Add Build Status for Win
 * Add appveyor.yml
 ```
 

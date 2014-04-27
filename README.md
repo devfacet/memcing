@@ -5,8 +5,8 @@ with REST API feature.
 
 memcing on [npm registry](http://npmjs.org/package/memcing)   
 
-[![NPM][npm-image]][npm-url] | [![Build Status][travis-image]][travis-url] | [![Build Status][appveyor-image]][appveyor-url] | [![Dependency Status][depstatus-image]][depstatus-url]
----------- | ---------- | ---------- | ---------- |
+[![NPM][npm-image]][npm-url] | [![Build Status][travis-image]][travis-url] | [![Dependency Status][depstatus-image]][depstatus-url]
+---------- | ---------- | ---------- |
 
 
 ### Installation
