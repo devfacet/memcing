@@ -10,19 +10,25 @@ branches:
 # build version format
 version: "{build}"
 
+# fix lineendings in Windows
+init:
+  - git config --global core.autocrlf input
+
 # what combinations to test
 environment:
   matrix:
     - nodejs_version: 0.10
 
-# Get the latest stable version of Node 0.STABLE.latest
+# get the latest stable version of Node 0.STABLE.latest
 install:
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version)
   - npm install
 
 build: off
 
+# tests
 test_script:
   - node --version
   - npm --version
   - ps: npm test --no-color
+  - cmd: grunt test --no-color
