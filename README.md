@@ -17,7 +17,9 @@ For HEAD
 ```
 git clone https://github.com/cmfatih/memcing.git
 ```
-[![Build Status](https://travis-ci.org/cmfatih/memcing.svg?branch=master)](https://travis-ci.org/cmfatih/memcing)
+Unix-like        | Windows
+---------------- | ----------------
+[![Build Status](https://travis-ci.org/cmfatih/memcing.svg?branch=master)](https://travis-ci.org/cmfatih/memcing) | [![Build status](https://ci.appveyor.com/api/projects/status/811fxhv7iok8x5u6)](https://ci.appveyor.com/project/cmfatih/memcing)
 
 ### Usage
 
