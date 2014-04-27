@@ -4,7 +4,10 @@
 with REST API feature.
 
 memcing on [npm registry](http://npmjs.org/package/memcing)   
-[![NPM](https://nodei.co/npm/memcing.png?compact=true)](https://nodei.co/npm/memcing/)
+
+[![NPM][npm-image]][npm-url] | [![Build Status][travis-image]][travis-url] | [![Build Status][appveyor-image]][appveyor-url] | [![Dependency Status][depstatus-image]][depstatus-url]
+---------- | ---------- | ---------- | ---------- |
+
 
 ### Installation
 
@@ -17,9 +20,6 @@ For HEAD
 ```
 git clone https://github.com/cmfatih/memcing.git
 ```
-Unix-like        | Windows
----------------- | ----------------
-[![Build Status](https://travis-ci.org/cmfatih/memcing.svg?branch=master)](https://travis-ci.org/cmfatih/memcing) | [![Build status](https://ci.appveyor.com/api/projects/status/811fxhv7iok8x5u6)](https://ci.appveyor.com/project/cmfatih/memcing)
 
 ### Usage
 
@@ -204,3 +204,15 @@ For all notable changes see [CHANGELOG.md](https://github.com/cmfatih/memcing/bl
 Copyright (c) 2014 Fatih Cetinkaya (http://github.com/cmfatih/memcing)  
 Licensed under The MIT License (MIT)  
 For the full copyright and license information, please view the LICENSE.txt file.
+
+[npm-url]: http://npmjs.org/package/memcing
+[npm-image]: https://nodei.co/npm/memcing.png?compact=true
+
+[travis-url]: https://travis-ci.org/cmfatih/memcing
+[travis-image]: https://travis-ci.org/cmfatih/memcing.svg?branch=master
+
+[appveyor-url]: https://ci.appveyor.com/project/cmfatih/memcing
+[appveyor-image]: https://ci.appveyor.com/api/projects/status/811fxhv7iok8x5u6
+
+[depstatus-url]: https://david-dm.org/cmfatih/memcing
+[depstatus-image]: https://david-dm.org/cmfatih/memcing.png
