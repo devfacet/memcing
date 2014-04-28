@@ -176,7 +176,7 @@ exports = module.exports = function(options) {
   // Returns number of evict-able entry
   numOfEvictEntry = function numOfEvictEntry() {
     return cacheOpt.eviction.numOfEntry;
-  }
+  };
 
   // Returns max size for an entry.
   entryMaxSize = function entryMaxSize() {
@@ -196,7 +196,7 @@ exports = module.exports = function(options) {
         totalInP:   (cacheOpt.limit.glob.inEntry) ? Math.floor((cacheData.len*100)/cacheOpt.limit.glob.inEntry) : 0
       },
       operations:   cacheOps
-    }
+    };
   };
 
   // Vacuum the data. available
@@ -205,24 +205,37 @@ exports = module.exports = function(options) {
     cacheOpt.vacuum.running = true;
 
     // Init vars
-    var result      = {},
+    var result        = {},
 
-        optAll      = (options && options.all === true)       ? true            : false,
-        optExp      = (options && options.exp === true)       ? true            : false,
-        optExpLIE   = (options && !isNaN(options.expLIE))     ? options.expLIE  : 0,
-        optEvict    = (options && options.eviction === true)  ? true            : false,
-        optEvictLIE = (options && options.evictionLIE && !isNaN(options.evictionLIE)) ? options.evictionLIE : 0,
+        optAll        = false,
+        optExp        = false,
+        optExpLIE     = 0,      // expiration limit in entry
+        optEvict      = false,
+        optEvictLIE   = 0,      // eviction limit in entry
 
-        tsList      = {total: 0, exp: 0, eviction: 0},  // timestamps list
-        tsBegin     = new Date().getTime(),             // begin timestamps
-        tsTemp,     // temporary timestamps
-        entryCntr   // entry counter
+        tsList        = {       // timestamps list
+          total:      0,
+          expiration: 0,
+          eviction:   0
+        },
+        tsBegin       = new Date().getTime(), // begin timestamps
+        tsTemp,       // temporary timestamps
+        entryCntr     // entry counter
     ;
+
+    // Check options
+    if(options) {
+      if(options.all === true)        optAll      = true;
+      if(options.exp === true)        optExp      = true;
+      if(options.eviction === true)   optEvict    = true;
+      if(!isNaN(options.expLIE))      optExpLIE   = options.expLIE;
+      if(!isNaN(options.evictionLIE)) optEvictLIE = options.evictionLIE;
+    }
 
     // Check vars
     if(optAll === true) {
-      optExp    = true;
-      optEvict  = (cacheOpt.eviction.enabled === true) ? true : false;
+      optExp   = true;
+      optEvict = (cacheOpt.eviction.enabled === true) ? true : false;
     }
 
     // Check the data for expired entries
@@ -240,8 +253,8 @@ exports = module.exports = function(options) {
 
       cacheOps.ts.expiration = tsTemp;
 
-      tsList.exp = (new Date().getTime())-tsTemp;
-      if(config.isDebug) utilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + entryCntr + ' entry / ' + tsList.exp + 'ms)');
+      tsList.expiration = (new Date().getTime())-tsTemp;
+      if(config.isDebug) utilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + entryCntr + ' entry / ' + tsList.expiration + 'ms)');
     }
 
     // Check the data for eviction
@@ -279,7 +292,7 @@ exports = module.exports = function(options) {
     cacheOps.ts.vacuum = new Date().getTime();
 
     tsList.total  = cacheOps.ts.vacuum-tsBegin;
-    result.timeMs = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
+    result.timeMs = {total: tsList.total, exp: tsList.expiration, eviction: tsList.eviction};
 
     cacheOpt.vacuum.running = false;
 
