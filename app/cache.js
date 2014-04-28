@@ -92,7 +92,7 @@ exports = module.exports = function(options) {
   }
 
   // Calculate the entry limits.
-  // Empty space should be guaranteed for each key. Otherwise will fail on updates.
+  // Empty space should be guaranteed for each key. Otherwise will fail cache limit.
   // This calculation might be important for eviction policies.
   // Also UTF-8 considered for the calculation. (4 bytes for each char.)
   cacheOpt.entryLIB     = ((cacheOpt.keyLIC+cacheOpt.valLIC)*4);
