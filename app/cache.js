@@ -20,28 +20,57 @@ var utilex    = require('utilex'),
 exports = module.exports = function(options) {
 
   // Init vars
-  var config          = {isDebug: false},
-      cacheData       = {entries: {}, len: 0},
-      cacheOpt        = {
-        limitInKB:    16384,  // cache limit in kilobytes
-        limitInEntry: 0,      // cache limit in number of entry
-        keyLIC:       64,     // key limit in char
-        valLIC:       256,    // val limit in char
-        entryLIB:     0,      // per entry limit in byte
-        vacuum: {
-          ival:       30,     // vacuum interval in seconds
-          running:    false   // whether vacuum running or not
+  var config    = {isDebug: false},
+
+      // cache data
+      cacheData = {entries: {}, len: 0},
+
+      // cache options
+      cacheOpt  = {
+
+        // limit
+        limit: {
+
+          // global limits
+          glob : {
+            inByte:   16777216, // cache limit in bytes
+            inEntry:  0,        // cache limit in number of entry
+          },
+
+          // entry limits
+          entry: {
+            inByte :  1024,   // entry size limit in bytes
+            inChar :  1024/4  // THIS BLOCK IS TEMP AND WILL BE GONE
+          }
         },
+
+        // vacuum options
+        vacuum: {           
+          delay:    30,     // vacuum interval in seconds
+          running:  false   // whether vacuum running or not
+        },
+
+        // eviction options
         eviction: {
-          enabled:    false,  // eviction enabled or not
-          limitInEntry: 0,    // limit in number of entry
-        },
-        ts: {
-          outOfLimit: 0,      // time stamp for last out of limit
-          eviction:   0       // eviction process
+          enabled:  false,  // eviction enabled or not
+          numOfEntry: 0,    // number of entry that will be evicted
         }
       },
-      cacheCmds       = [
+
+      // cache operations
+      cacheOps      = {
+
+        // timestamps
+        ts: {
+          vacuum:     0, // timestamps for last vacuum process
+          expiration: 0, // timestamps for last expiration process
+          eviction:   0, // timestamps for last eviction process
+          outOfLimit: 0  // timestamps for last out of limit event
+        }
+      },
+
+      // cache commands
+      cacheCmds     = [
         'get', 
         'set', 
         'add', 
@@ -55,58 +84,78 @@ exports = module.exports = function(options) {
         'exit'
       ],
 
-      timers          = {
-        vacuum: null  // timer for vacuum
-      },
-      regex           = {
-        number:       new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g'),
-        trimQuotes:   new RegExp('^"|"$', 'g'),
-        command:      new RegExp('^\\b(' + cacheCmds.join('|') + ')\\b', 'i'),
-        args:         new RegExp('("[^"]*")|([^\\s]+)', 'g') // TODO: It should support escape chars. Currently \" doesn't work.
+      // timers
+      timers        = {
+        vacuum: null
       },
 
-      entries,        // entries - function
-      numOfEntry,     // number of entry - function
-      numOfAvlbEntry, // number of available entry - function
-      sizeOfPerEntry, // size of per entry - function
-      stats,          // stats - function
-      vacuum,         // vacuum - function
-      get,            // get - function
-      set,            // set - function
-      add,            // add - function
-      del,            // delete - function
-      incdec,         // increment or decrement value - function 
-      increment,      // increment value - function
-      decrement,      // decrement value - function
-      drop,           // drop data set - function
-      execCmd,        // execute command - function
-      loadFile        // load file - function
+      // regex
+      regex         = {
+        number:     new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g'),
+        trimQuotes: new RegExp('^"|"$', 'g'),
+        command:    new RegExp('^\\b(' + cacheCmds.join('|') + ')\\b', 'i'),
+        args:       new RegExp('("[^"]*")|([^\\s]+)', 'g') // TODO: It should support escape chars. Currently \" doesn't work.
+      },
+
+      // functions
+      stats,            // stats - function
+      vacuum,           // vacuum - function
+      get,              // get - function
+      set,              // set - function
+      add,              // add - function
+      del,              // delete - function
+      incdec,           // increment or decrement value - function 
+      increment,        // increment value - function
+      decrement,        // decrement value - function
+      drop,             // drop data set - function
+
+      entries,          // entries - function
+      execCmd,          // execute command - function
+      loadFile,         // load file - function
+
+      numOfEntry,       // number of entry - function
+      numOfAvlbEntry,   // number of available entry - function
+      numOfEvictEntry,  // number of evict-able entry - function
+      entryMaxSize      // max size of entry - function
   ;
 
-  // Check params
+  // Check options
   if(options) {
-    if(options.isDebug === true)    config.isDebug            = true;
-    if(!isNaN(options.limitInKB))   cacheOpt.limitInKB        = options.limitInKB;
-    if(!isNaN(options.vacuumIval))  cacheOpt.vacuum.ival      = options.vacuumIval;
-    if(options.eviction === true)   cacheOpt.eviction.enabled = true;
+    if(options.isDebug === true) config.isDebug = true;
+
+    if(!isNaN(options.globLimit) && options.globLimit > 0) {
+      cacheOpt.limit.glob.inByte = options.globLimit;
+    }
+
+    if(!isNaN(options.entryLimit) && options.entryLimit > 0) {
+      cacheOpt.limit.entry.inByte = options.entryLimit;
+      cacheOpt.limit.entry.inChar = Math.floor(cacheOpt.limit.entry.inByte/4);
+    }
+
+    if(!isNaN(options.vacuumDelay) && options.vacuumDelay > 0) {
+      cacheOpt.vacuum.delay = options.vacuumDelay;
+    }
+
+    if(options.eviction === true) cacheOpt.eviction.enabled = true;
   }
 
   // Calculate the entry limits.
-  // Empty space should be guaranteed for each key. Otherwise will fail cache limit.
-  // This calculation might be important for eviction policies.
-  // Also UTF-8 considered for the calculation. (4 bytes for each char.)
-  cacheOpt.entryLIB     = ((cacheOpt.keyLIC+cacheOpt.valLIC)*4);
-  cacheOpt.limitInEntry = Math.floor((cacheOpt.limitInKB*1024)/cacheOpt.entryLIB);
+  if(cacheOpt.limit.entry.inByte > cacheOpt.limit.glob.inByte) {
+    cacheOpt.limit.entry.inByte = cacheOpt.limit.glob.inByte;
+    cacheOpt.limit.entry.inChar = Math.floor(cacheOpt.limit.entry.inByte/4);
+  }
+  // Empty space should be guaranteed for each key. Otherwise will fail due cache limit.
+  cacheOpt.limit.glob.inEntry = Math.floor(cacheOpt.limit.glob.inByte/cacheOpt.limit.entry.inByte);
 
   // Calculate the eviction limit.
-  cacheOpt.eviction.limitInEntry = Math.floor((cacheOpt.limitInEntry*2)/100); // 2%
-  if(cacheOpt.eviction.limitInEntry < 1) cacheOpt.eviction.limitInEntry = 1;
+  // This calculation needs better approach. Currently it calculates %2 of total entry limit.
+  cacheOpt.eviction.numOfEntry = Math.floor((cacheOpt.limit.glob.inEntry*2)/100);
+  if(cacheOpt.eviction.numOfEntry < 1) cacheOpt.eviction.numOfEntry = 1;
 
-  // Check and init the vacuum timer.
-  if(cacheOpt.vacuum.ival < 1) cacheOpt.vacuum.ival = 30; // Do not allowed <= 0
+  // Check and initialize the vacuum timer.
   timers.vacuum = setInterval(function() {
     if(!cacheOpt.vacuum.running) vacuum({all: true});
-  }, cacheOpt.vacuum.ival*1000);
+  }, cacheOpt.vacuum.delay*1000);
 
   // Returns the entries.
   entries = function entries() {
@@ -119,27 +168,38 @@ exports = module.exports = function(options) {
     return cacheData.len;
   };
 
-  // Returns available space in entry.
+  // Returns number of available entry.
   numOfAvlbEntry = function numOfAvlbEntry() {
-    return (cacheOpt.limitInEntry-cacheData.len);
+    return (cacheOpt.limit.glob.inEntry-cacheData.len);
   };
 
-  // Returns size of an entry.
-  sizeOfPerEntry = function sizeOfPerEntry() {
-    return cacheOpt.entryLIB;
+  // Returns number of evict-able entry
+  numOfEvictEntry = function numOfEvictEntry() {
+    return cacheOpt.eviction.numOfEntry;
+  }
+
+  // Returns max size for an entry.
+  entryMaxSize = function entryMaxSize() {
+    return cacheOpt.limit.entry.inByte;
   };
 
   // Returns the stats.
   stats = function stats() {
     return {
-      options:            cacheOpt,
-      numberOfEntry:      numOfEntry(),
-      numberOfAvlbEntry:  numOfAvlbEntry(),
-      usageInPercent:     Math.floor((cacheData.len*100)/cacheOpt.limitInEntry)
-    };
+      options:      cacheOpt,
+      entries: {
+        current:    numOfEntry(),
+        available:  numOfAvlbEntry(),
+        evictable:  numOfEvictEntry()
+      },
+      usage: {
+        totalInP:   (cacheOpt.limit.glob.inEntry) ? Math.floor((cacheData.len*100)/cacheOpt.limit.glob.inEntry) : 0
+      },
+      operations:   cacheOps
+    }
   };
 
-  // Vacuum the data.
+  // Vacuum the data. available
   vacuum = function vacuum(options) {
 
     cacheOpt.vacuum.running = true;
@@ -153,9 +213,9 @@ exports = module.exports = function(options) {
         optEvict    = (options && options.eviction === true)  ? true            : false,
         optEvictLIE = (options && options.evictionLIE && !isNaN(options.evictionLIE)) ? options.evictionLIE : 0,
 
-        tsList      = {total: 0, exp: 0, eviction: 0},  // timestamp list
-        tsBegin     = new Date().getTime(),             // begin timestamp
-        tsTemp,     // temporary timestamp
+        tsList      = {total: 0, exp: 0, eviction: 0},  // timestamps list
+        tsBegin     = new Date().getTime(),             // begin timestamps
+        tsTemp,     // temporary timestamps
         entryCntr   // entry counter
     ;
 
@@ -177,6 +237,9 @@ exports = module.exports = function(options) {
           if(optExpLIE > 0 && entryCntr >= optExpLIE) break;
         }
       }
+
+      cacheOps.ts.expiration = tsTemp;
+
       tsList.exp = (new Date().getTime())-tsTemp;
       if(config.isDebug) utilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + entryCntr + ' entry / ' + tsList.exp + 'ms)');
     }
@@ -188,13 +251,13 @@ exports = module.exports = function(options) {
       entryCntr = 0;
 
       if(optEvictLIE === 0) {
-        optEvictLIE = (numOfAvlbEntry() < cacheOpt.eviction.limitInEntry) ? (cacheOpt.eviction.limitInEntry-numOfAvlbEntry()) : 0;
+        optEvictLIE = (numOfAvlbEntry() < numOfEvictEntry()) ? (numOfEvictEntry()-numOfAvlbEntry()) : 0;
       }
 
       if(optEvictLIE > 0) {
         var entryList     = [],
             entryListLen  = 0,
-            sortCB        = function(a, b) { return a[1] - b[1]; } // sort by timestamp
+            sortCB        = function(a, b) { return a[1] - b[1]; } // sort by timestamps
         ;
 
         for(var key2 in cacheData.entries) entryList.push([key2, cacheData.entries[key2].ts]);
@@ -206,15 +269,17 @@ exports = module.exports = function(options) {
 
           if(entryCntr >= optEvictLIE) break;
         }
-        cacheOpt.ts.eviction = tsTemp;
+        cacheOps.ts.eviction = tsTemp;
       }
 
       tsList.eviction = (new Date().getTime())-tsTemp;
       if(config.isDebug) utilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + entryCntr + ' entry / ' +  tsList.eviction + 'ms)');
     }
 
-    tsList.total  = (new Date().getTime())-tsBegin;
-    result.timeMS = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
+    cacheOps.ts.vacuum = new Date().getTime();
+
+    tsList.total  = cacheOps.ts.vacuum-tsBegin;
+    result.timeMs = {total: tsList.total, exp: tsList.exp, eviction: tsList.eviction};
 
     cacheOpt.vacuum.running = false;
 
@@ -247,10 +312,8 @@ exports = module.exports = function(options) {
     // Check vars
     if(!key) {
       return {error: 'Missing key.'};
-    } else if(key.length > cacheOpt.keyLIC) {
-      return {error: 'Key is so long. (' + key.length + '/' + cacheOpt.keyLIC + ')'};
-    } else if(valF && valF.length > cacheOpt.valLIC) {
-      return {error: 'Value is so long. (' + valF.length + '/' + cacheOpt.valLIC + ')'};
+    } else if(valF && valF.length > cacheOpt.limit.entry.inChar) {
+      return {error: 'Value is so long. (' + valF.length + '/' + cacheOpt.limit.entry.inChar + ')'};
     } else if(isNaN(expF)) {
       return {error: 'Invalid expire value. (' + expF + ')'};
     }
@@ -260,6 +323,7 @@ exports = module.exports = function(options) {
 
     // Check the memory
     if(!cData && numOfAvlbEntry() < 1) {
+
       // no more available space
 
       var curTS = new Date().getTime();
@@ -270,24 +334,27 @@ exports = module.exports = function(options) {
       vacuum({exp: true});
 
       if(cacheOpt.eviction.enabled === true && numOfAvlbEntry() < 2) { // last space
+
         // Cleanup for enough space
-        var tLIE = cacheOpt.eviction.limitInEntry;
+        // Evict-able entry limit
+        var evictLIE = numOfEvictEntry();
 
         // Overwrite the limit for preventing bottlenecks.
         // NOTE: This rule should be base on memory size.
         // Also consider an entry / per minute calculation.
-        if(cacheOpt.ts.outOfLimit && cacheOpt.ts.outOfLimit+5000 > curTS) {
-          tLIE = tLIE*(5-(Math.ceil((curTS-cacheOpt.ts.outOfLimit)/1000)));
+        // Currently it multiples for each extra seconds up to 5 seconds.
+        if(cacheOps.ts.outOfLimit && cacheOps.ts.outOfLimit+5000 > curTS) {
+          evictLIE = evictLIE*(5-(Math.ceil((curTS-cacheOps.ts.outOfLimit)/1000)));
         }
 
         // Evict entries
-        vacuum({eviction: true, evictionLIE: tLIE});
+        vacuum({eviction: true, evictionLIE: evictLIE});
       }
 
-      cacheOpt.ts.outOfLimit = curTS;
+      cacheOps.ts.outOfLimit = curTS;
 
-      if(cacheData.len >= cacheOpt.limitInEntry) {
-        result.error = 'Out of entry limit. (' + cacheData.len + '/' + cacheOpt.limitInEntry + ')';
+      if(cacheData.len >= cacheOpt.limit.glob.inEntry) {
+        result.error = 'Out of entry limit. (' + cacheData.len + '/' + cacheOpt.limit.glob.inEntry + ')';
         return result;
       }
     }
@@ -496,13 +563,8 @@ exports = module.exports = function(options) {
 
   // Return
   return {
-    entries: entries,
-    numOfEntry: numOfEntry,
-    numOfAvlbEntry: numOfAvlbEntry,
-    sizeOfPerEntry: sizeOfPerEntry,
     stats: stats,
     vacuum: vacuum,
-
     set: set,
     add: add,
     get: get,
@@ -511,7 +573,13 @@ exports = module.exports = function(options) {
     decrement: decrement,
     drop: drop,
 
+    entries: entries,
     execCmd: execCmd,
-    loadFile: loadFile
+    loadFile: loadFile,
+
+    numOfEntry: numOfEntry,
+    numOfAvlbEntry: numOfAvlbEntry,
+    numOfEvictEntry: numOfEvictEntry,
+    entryMaxSize: entryMaxSize
   };
 };

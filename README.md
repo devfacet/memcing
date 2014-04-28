@@ -42,8 +42,9 @@ node memcing.js -help
   Options:
     -i              : Enable interactive mode.
     -load-file      : Load a command file.
-    -cache-limit    : Cache limit in KB. Default; 16384 kilobytes
-    -vacuum-ival    : Interval in seconds for vacuum. Default; 30
+    -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216
+    -entry-limit    : Entry size limit in bytes. Default (1KB); 1024
+    -vacuum-delay   : Delay in seconds for vacuum. Default; 30
     -eviction       : Enable eviction mode.
     -listen-http    : Listen HTTP requests for REST API.
                       Default; localhost:12080

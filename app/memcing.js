@@ -40,9 +40,10 @@ if(appArgs['load-file'])                    appConfig.loadFile  = appArgs['load-
 
 // Config - cache
 if(appConfig.isDebug === true) appConfig.cache.isDebug = true;
-if(typeof appArgs['cache-limit'] !== 'undefined') appConfig.cache.limitInKB   = parseInt(appArgs['cache-limit'], 10);
-if(typeof appArgs['vacuum-ival'] !== 'undefined') appConfig.cache.vacuumIval  = parseInt(appArgs['vacuum-ival'], 10);
-if(typeof appArgs['eviction'] !== 'undefined')    appConfig.cache.eviction    = true;
+if(typeof appArgs['cache-limit'] !== 'undefined')   appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
+if(typeof appArgs['entry-limit'] !== 'undefined')   appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
+if(typeof appArgs['vacuum-delay'] !== 'undefined')  appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
+if(typeof appArgs['eviction'] !== 'undefined')      appConfig.cache.eviction    = true;
 
 // Config - rest
 if(appConfig.isDebug === true) appConfig.rest.isDebug = true;
@@ -113,8 +114,9 @@ function cmdHelp() {
   console.log("  Options:");
   console.log("    -i              : Enable interactive mode.");
   console.log("    -load-file      : Load a command file.");
-  console.log("    -cache-limit    : Cache limit in KB. Default; 16384 kilobytes");
-  console.log("    -vacuum-ival    : Interval in seconds for vacuum. Default; 30");
+  console.log("    -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216");
+  console.log("    -entry-limit    : Entry size limit in bytes. Default (1KB); 1024");
+  console.log("    -vacuum-delay   : Delay in seconds for vacuum. Default; 30");
   console.log("    -eviction       : Enable eviction mode.");
   console.log("    -listen-http    : Listen HTTP requests for REST API.");
   console.log("                      Default; localhost:12080");

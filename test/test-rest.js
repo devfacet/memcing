@@ -11,7 +11,7 @@ var cache   = require('../app/cache'),
 ;
 
 // Init vars
-var appCache    = cache({isDebug: false, limitInKB: 16384, eviction: true}), // 16MB
+var appCache    = cache({isDebug: false, globLimit: 16384, eviction: true}),
     appREST     = rest({http: {isEnabled: true}}, appCache),
     appRESTUrl  = 'http://' + appREST.addrOf('http')
 ;
@@ -34,8 +34,8 @@ describe('appREST', function() {
 
   // addrOf
   describe("addrOf('http')", function() {
-    it('should run without any error', function(done) {
-      appREST.addrOf('http');
+    it('should return a string value', function(done) {
+      expect(appREST.addrOf('http')).to.be.a('string');
       done();
     });
   });
@@ -45,10 +45,11 @@ describe('appREST', function() {
 
   // GET
   describe('GET ' + appRESTUrl, function() {
-    it('should respond HTTP status code 200', function(done) {
-      request(appRESTUrl, function (err, res) {
+    it('should respond HTTP status code 200 and return empty body', function(done) {
+      request(appRESTUrl, function (err, res, body) {
         if(!err) {
           expect(res.statusCode).to.equal(200);
+          expect(body).to.equal('');
           done();
         } else {
           done(err);
@@ -62,12 +63,7 @@ describe('appREST', function() {
 
   describe('PUT ' + urlHello, function() {
     it('should set `hello` entry', function(done) {
-      request({
-        method: 'PUT',
-        uri : urlHello,
-        headers: reqHeaders,
-        body: 'val=world'
-      }, function (err, res, body) {
+      request({method: 'PUT', uri: urlHello, headers: reqHeaders, body: 'val=world'}, function (err, res, body) {
         if(!err) {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(200);
@@ -88,12 +84,7 @@ describe('appREST', function() {
 
   describe('PUT ' + urlBye, function() {
     it('should set `bye` entry with expiration time', function(done) {
-      request({
-        method: 'PUT',
-        uri : urlBye,
-        headers: reqHeaders,
-        body: 'val=world&exp=60'
-      }, function (err, res, body) {
+      request({method: 'PUT', uri: urlBye, headers: reqHeaders, body: 'val=world&exp=60'}, function (err, res, body) {
         if(!err) {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(200);
@@ -114,18 +105,14 @@ describe('appREST', function() {
 
   describe('POST ' + urlCounter, function() {
     it('should add `counter` entry', function(done) {
-      request({
-        method: 'POST',
-        uri : urlCounter,
-        headers: reqHeaders,
-        body: 'val=1'
-      }, function (err, res, body) {
+      request({method: 'POST', uri: urlCounter, headers: reqHeaders, body: 'val=1'}, function (err, res, body) {
         if(!err) {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(200);
           expect(resData).to.have.property('key', 'counter');
           expect(resData).to.have.property('val', 1);
-          expect(resData.val).to.be.a('number');
+          expect(resData).to.have.property('ts').to.be.above(0);
+          expect(resData).to.have.property('expTS', 0);
           done();
         } else {
           done(err);
@@ -136,13 +123,9 @@ describe('appREST', function() {
 
   // POST entry
   describe('POST ' + urlCounter, function() {
-    it('should fail and respond HTTP status code 409', function(done) {
+    it('should fail, respond HTTP status code 409 and return current entry', function(done) {
       request({
-        method: 'POST',
-        uri : urlCounter,
-        headers: reqHeaders,
-        body: 'val=1'
-      }, function (err, res, body) {
+        method: 'POST', uri: urlCounter, headers: reqHeaders, body: 'val=2'}, function (err, res, body) {
         if(!err) {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(409);
@@ -158,13 +141,11 @@ describe('appREST', function() {
 
   // DELETE entry
   describe('DELETE ' + urlCounter, function() {
-    it('should delete `counter` entry', function(done) {
-      request({
-        method: 'DELETE',
-        uri : urlCounter
-      }, function (err, res) {
+    it('should delete `counter` entry and return empty body', function(done) {
+      request({method: 'DELETE', uri: urlCounter}, function (err, res, body) {
         if(!err) {
           expect(res.statusCode).to.equal(200);
+          expect(body).to.equal('');
           done();
         } else {
           done(err);
@@ -194,13 +175,11 @@ describe('appREST', function() {
 
   // DELETE entries
   describe('DELETE ' + urlEntries, function() {
-    it('should delete all entries', function(done) {
-      request({
-        method: 'DELETE',
-        uri : urlEntries
-      }, function (err, res) {
+    it('should delete all entries and return empty body', function(done) {
+      request({method: 'DELETE', uri: urlEntries}, function (err, res, body) {
         if(!err) {
           expect(res.statusCode).to.equal(200);
+          expect(body).to.equal('');
           done();
         } else {
           done(err);

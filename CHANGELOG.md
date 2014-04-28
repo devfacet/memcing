@@ -3,6 +3,10 @@
 ### HEAD
 
 ```
+* Change -cache-limit (size in bytes)
+* Add -entry-limit
+* Add -vacuum-delay (remove -vacuum-ival)
+* Misc. updates for roadmap (binary arrays)
 * Add Dependency Status
 * Add appveyor.yml
 ```

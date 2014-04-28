@@ -48,7 +48,12 @@ exports = module.exports = function(options, cacheInstance) {
       if(config.isDebug === true) {
         if(cp.cmd) {
           console.log({cmd: cp.cmd, cmdArgs: cp.cmdArgs});
-          console.log(cp.cmdRes);
+
+          if(cp.cmd == 'stats') {
+            console.log(JSON.stringify(cp.cmdRes, null, 2));
+          } else {
+            console.log(cp.cmdRes);
+          }
 
           // NOTE: Do not vacuum here for dump command.
         }
@@ -101,6 +106,8 @@ exports = module.exports = function(options, cacheInstance) {
           }
           break;
         case 'stats':
+          console.log(JSON.stringify(cp.cmdRes, null, 2));
+          break;
         case 'vacuum':
           console.log(cp.cmdRes);
           break;

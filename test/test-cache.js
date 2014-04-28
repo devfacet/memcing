@@ -14,7 +14,7 @@ var cache   = require('../app/cache'),
 describe('appCache', function() {
 
   // Init vars
-  var appCache = cache({isDebug: false, limitInKB: 16384}),
+  var appCache = cache({isDebug: false, globLimit: 16384, eviction: true}),
       result
   ;
 
@@ -38,7 +38,7 @@ describe('appCache', function() {
 
   // set with expiration
   describe("set('hello', 'world', 10)", function() {
-    it('should set `hello` entry', function(done) {
+    it('should set `hello` entry with expiration time', function(done) {
 
       result = appCache.set('hello', 'world', 10);
       if(result.error) {
@@ -66,16 +66,15 @@ describe('appCache', function() {
 
       expect(result).to.have.property('key', 'counter');
       expect(result).to.have.property('val', 1);
-      expect(result.val).to.be.a('number');
       done();
     });
   });
 
   // add
-  describe("add('counter', 1)", function() {
-    it('should fail to add `counter` entry', function(done) {
+  describe("add('counter', 2)", function() {
+    it('should fail and return current entry', function(done) {
 
-      result = appCache.add('counter', 1);
+      result = appCache.add('counter', 2);
       if(!result.error) {
         done('No error!');
         return;
@@ -150,9 +149,31 @@ describe('appCache', function() {
     });
   });
 
+  // vacuum
+  describe("vacuum()", function() {
+    it('should run without any error and return exec times', function(done) {
+
+      result = appCache.vacuum({all: true});
+      if(result.error) {
+        done(result.error);
+        return;
+      }
+
+      expect(result).to.have.property('timeMs');
+      expect(result.timeMs).to.be.a('object');
+      expect(result.timeMs).to.have.property('total');
+      expect(result.timeMs.total).to.be.a('number');
+      expect(result.timeMs).to.have.property('exp');
+      expect(result.timeMs.exp).to.be.a('number');
+      expect(result.timeMs).to.have.property('eviction');
+      expect(result.timeMs.eviction).to.be.a('number');
+      done();
+    });
+  });
+
   // stats
   describe("stats()", function() {
-    it('should run without any error', function(done) {
+    it('should return stats', function(done) {
 
       result = appCache.stats();
       if(result.error) {
@@ -162,41 +183,42 @@ describe('appCache', function() {
 
       expect(result).to.have.property('options');
       expect(result.options).to.be.a('object');
-      expect(result).to.have.property('numberOfEntry');
-      expect(result.numberOfEntry).to.be.a('number');
-      expect(result).to.have.property('numberOfAvlbEntry');
-      expect(result.numberOfAvlbEntry).to.be.a('number');
-      expect(result).to.have.property('usageInPercent');
-      expect(result.usageInPercent).to.be.a('number');
-      done();
-    });
-  });
 
-  // vacuum
-  describe("vacuum()", function() {
-    it('should run without any error', function(done) {
+      expect(result.options).to.have.property('limit');
+      expect(result.options.limit).to.be.a('object');
+      expect(result.options.limit.glob).to.be.a('object');
+      expect(result.options.limit.glob).to.have.property('inByte', 16384);
+      expect(result.options.limit.glob).to.have.property('inEntry', 16384/1024);
+      expect(result.options.limit.entry).to.be.a('object');
+      expect(result.options.limit.entry).to.have.property('inByte', 1024);
+      expect(result.options.limit.entry).to.have.property('inChar', 1024/4);
 
-      result = appCache.vacuum();
-      if(result.error) {
-        done(result.error);
-        return;
-      }
+      expect(result).to.have.property('entries');
+      expect(result.entries).to.be.a('object');
+      expect(result.entries).to.have.property('current', 1);
+      expect(result.entries).to.have.property('available', 15);
+      expect(result.entries).to.have.property('evictable', 1);
 
-      expect(result).to.have.property('timeMS');
-      expect(result.timeMS).to.be.a('object');
-      expect(result.timeMS).to.have.property('total');
-      expect(result.timeMS.total).to.be.a('number');
-      expect(result.timeMS).to.have.property('exp');
-      expect(result.timeMS.exp).to.be.a('number');
-      expect(result.timeMS).to.have.property('eviction');
-      expect(result.timeMS.eviction).to.be.a('number');
+      expect(result).to.have.property('usage');
+      expect(result.usage).to.have.property('totalInP', 6);
+
+      expect(result).to.have.property('operations');
+      expect(result.operations).to.be.a('object');
+      expect(result.operations).to.have.property('ts');
+      expect(result.operations.ts).to.be.a('object');
+      expect(result.operations.ts).to.have.property('vacuum');
+      expect(result.operations.ts.vacuum).to.be.above(0);
+      expect(result.operations.ts).to.have.property('expiration');
+      expect(result.operations.ts.expiration).to.be.above(0);
+      expect(result.operations.ts).to.have.property('eviction', 0);
+      expect(result.operations.ts).to.have.property('outOfLimit', 0);
       done();
     });
   });
 
   // numOfEntry
   describe("numOfEntry()", function() {
-    it('should run without any error', function(done) {
+    it('should return number of entry', function(done) {
 
       result = appCache.numOfEntry();
       if(result.error) {
@@ -204,14 +226,14 @@ describe('appCache', function() {
         return;
       }
 
-      expect(result).to.be.a('number');
+      expect(result).to.be.equal(1);
       done();
     });
   });
 
   // numOfAvlbEntry
   describe("numOfAvlbEntry()", function() {
-    it('should run without any error', function(done) {
+    it('should return number of available entry', function(done) {
 
       result = appCache.numOfAvlbEntry();
       if(result.error) {
@@ -219,22 +241,7 @@ describe('appCache', function() {
         return;
       }
 
-      expect(result).to.be.a('number');
-      done();
-    });
-  });
-
-  // sizeOfPerEntry
-  describe("sizeOfPerEntry()", function() {
-    it('should run without any error', function(done) {
-
-      result = appCache.sizeOfPerEntry();
-      if(result.error) {
-        done(result.error);
-        return;
-      }
-
-      expect(result).to.be.a('number');
+      expect(result).to.be.equal(15);
       done();
     });
   });

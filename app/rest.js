@@ -113,13 +113,15 @@ exports = module.exports = function(options, cacheInstance) {
           } else if(req.method == 'PUT' || req.method == 'POST') {
             var bodyAry = [],
                 dataLen = 0,
-                dataLmt = cacheInstance.sizeOfPerEntry()*2
+                dataLmt = cacheInstance.entryMaxSize()*2 // TODO: Find a better approach.
             ;
 
             req.on('data', function(chunk) {
               //if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
 
               // NOTE: Ignore rest of the data and give 413 error at end of the request.
+              // TODO: Re-think this part, maybe it should destroy the connection instead of 
+              // try to return a `good` message (413).
               if(dataLen >= dataLmt) {
                 return false;
               } else {
