@@ -133,7 +133,7 @@ exports = module.exports = function(options, cacheInstance) {
     // SIGINT (^C) event
     rl.on('SIGINT', function() {
       rl.clearLine(process.stdin, 0); // clear prompt
-      rl.question('All the cached data will be gone. Are you sure? (y/n) ', function(answer) {
+      rl.question('All the cached data will be gone. Are you sure? (y/N) ', function(answer) {
         if(answer.match(/^(y|yes)$/i)) {
           rl.close();
         } else {
