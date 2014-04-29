@@ -3,6 +3,7 @@
 ### HEAD
 
 ```
+* Add benchmark script for basic ops
 * Change -cache-limit (size in bytes)
 * Add -entry-limit
 * Add -vacuum-delay (remove -vacuum-ival)
