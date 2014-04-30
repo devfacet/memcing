@@ -3,6 +3,10 @@
 ### HEAD
 
 ```
+```
+
+### 0.1.7 (2014-04-30)
+
 * Add benchmark script for basic ops
 * Change -cache-limit (size in bytes)
 * Add -entry-limit
@@ -10,7 +14,6 @@
 * Misc. updates for roadmap (binary arrays)
 * Add Dependency Status
 * Add appveyor.yml
-```
 
 ### 0.1.6 (2014-04-25)
 
