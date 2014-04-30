@@ -3,6 +3,7 @@
 ### HEAD
 
 ```
+* Add auto completion for REPL
 ```
 
 ### 0.1.7 (2014-04-30)

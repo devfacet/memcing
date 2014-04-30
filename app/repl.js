@@ -16,8 +16,9 @@ var readline = require('readline');
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config = {isDebug: false},
-      start  // listen - function
+  var config      = {isDebug: false},
+      start,      // start - function
+      completer   // auto complete - function
   ;
 
   // Check params
@@ -30,8 +31,14 @@ exports = module.exports = function(options, cacheInstance) {
   // Starts repl
   start = function start() {
 
-    // Init the pipe
-    var rl = readline.createInterface({input: process.stdin, output: process.stdout});
+    // Init vars
+    var rl = readline.createInterface({
+      input:      process.stdin, 
+      output:     process.stdout, 
+      completer:  completer, 
+      terminal:   true
+    });
+
     rl.setPrompt('> '); // set prompt
     rl.prompt();
 
@@ -141,6 +148,48 @@ exports = module.exports = function(options, cacheInstance) {
         }
       });
     });
+  };
+
+  // Auto complete function for readline.
+  completer = function completer(line) {
+
+    // Init vars
+    var lineF         = line.trim(),
+        cmdList,      // cache command list
+        lineCmds,     // commands on the line
+        lastCmd,      // last command on the line
+        fltrdCmds,    // filtered commands
+        matchingCmds  // matching commands
+    ;
+
+    if(!lineF) {
+      matchingCmds = cacheInstance.cmdList;
+    } else {
+      lineCmds  = lineF.split(' ');
+      lastCmd   = lineCmds.pop();
+
+      if(lineCmds.length > 0) {
+        cmdList = cacheInstance.cmdList.map(function(value) { return lineCmds.join(' ') + ' ' + value; });
+      } else {  
+        cmdList = cacheInstance.cmdList;
+      }
+
+      fltrdCmds = cmdList.filter(function(element) { return element.indexOf(lineF) === 0; });
+
+      if(!fltrdCmds.length) {
+        matchingCmds  = null;
+      } else if(fltrdCmds.length === 1) {
+        matchingCmds  = [fltrdCmds[0] + ' '];
+      } else {
+        if(lineCmds.length > 0) {
+          fltrdCmds   = fltrdCmds.map(function(value) { return value.split(' ').pop(); });
+        }
+
+        matchingCmds  = fltrdCmds;
+      }
+    }
+
+    return [matchingCmds, line];
   };
 
   // Return

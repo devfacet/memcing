@@ -112,6 +112,7 @@ exports = module.exports = function(options) {
       entries,          // entries - function
       execCmd,          // execute command - function
       loadFile,         // load file - function
+      cmdList,          // command list - function
 
       numOfEntry,       // number of entry - function
       numOfAvlbEntry,   // number of available entry - function
@@ -574,6 +575,11 @@ exports = module.exports = function(options) {
     return deferred.promise;
   };
 
+  // Returns the command list
+  cmdList = function cmdList() {
+    return cacheCmds;
+  }();
+
   // Return
   return {
     stats: stats,
@@ -589,6 +595,7 @@ exports = module.exports = function(options) {
     entries: entries,
     execCmd: execCmd,
     loadFile: loadFile,
+    cmdList: cmdList,
 
     numOfEntry: numOfEntry,
     numOfAvlbEntry: numOfAvlbEntry,
