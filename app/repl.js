@@ -12,6 +12,8 @@
 /* jslint node: true */
 'use strict';
 
+var utilex = require('utilex');
+
 // Init the module
 exports = module.exports = function(options, cacheInstance) {
 
@@ -50,28 +52,7 @@ exports = module.exports = function(options, cacheInstance) {
       // Execute the command
       var cp = cacheInstance.execCmd(line);
 
-      // for debug
-      if(config.isDebug === true) {
-        if(cp.cmd) {
-          console.log({cmd: cp.cmd, cmdArgs: cp.cmdArgs});
-
-          if(cp.cmd == 'stats') {
-            console.log(JSON.stringify(cp.cmdRes, null, 2));
-          } else {
-            console.log(cp.cmdRes);
-          }
-
-          // NOTE: Do not vacuum here for dump command. It is good for debugging.
-        }
-
-        if(cp.cmdRes) {
-          if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
-          if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
-        }
-
-        rl.prompt();
-        return;
-      }
+      if(config.isDebug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cp.cmd, cmdArgs: cp.cmdArgs, cmdRes: cp.cmdRes}));
 
       switch(cp.cmd) {
         case 'get':
