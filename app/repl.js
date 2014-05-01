@@ -12,8 +12,6 @@
 /* jslint node: true */
 'use strict';
 
-var readline = require('readline');
-
 // Init the module
 exports = module.exports = function(options, cacheInstance) {
 
@@ -34,13 +32,9 @@ exports = module.exports = function(options, cacheInstance) {
   start = function start() {
 
     // Init vars
-    var rl = readline.createInterface({
-      input:      process.stdin, 
-      output:     process.stdout, 
-      completer:  completer, 
-      terminal:   true
-    });
-
+    var readline  = require('readline'),
+        rl        = readline.createInterface({input: process.stdin, output: process.stdout, terminal: true, completer: completer})
+    ;
     rl.setPrompt('> '); // set prompt
     rl.prompt();
 
@@ -48,7 +42,10 @@ exports = module.exports = function(options, cacheInstance) {
     rl.on('line', function(line) {
 
       // Check the input
-      if(!line.trim()) { rl.prompt(); return; }
+      if(!line.trim()) { 
+        rl.prompt(); 
+        return;
+      }
 
       // Execute the command
       var cp = cacheInstance.execCmd(line);
