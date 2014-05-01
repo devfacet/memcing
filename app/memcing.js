@@ -8,26 +8,25 @@
 /* jslint node: true */
 'use strict';
 
-var utilex  = require('utilex'),
-    cache   = require('./cache'),
-    rest    = require('./rest'),
-    repl    = require('./repl')
+var utilex = require('utilex'),
+    cache  = require('./cache'),
+    rest   = require('./rest'),
+    repl   = require('./repl')
 ;
 
 // Init vars
-var appArgs     = utilex.tidyArgs(),
-    appConfig   = {
+var appArgs       = utilex.tidyArgs(),
+    appConfig     = {
       isDebug:    false,
       isIactive:  false,
       loadFile:   null,
-      rest: {
-        http: {}
-      },
-      cache: {}
+      cache:      {},
+      rest:       {http: {}},
+      repl:       {}
     },
-    appCache,   // cache instance  
-    appREST,    // rest instance
-    appREPL     // repl instance
+    appCache,     // cache instance
+    appREST,      // rest instance
+    appREPL       // repl instance
 ;
 
 // Check for help
@@ -57,9 +56,13 @@ if(typeof appArgs['listen-http'] !== 'undefined') {
   }
 }
 
+// Config - repl
+if(appConfig.isDebug === true) appConfig.repl.isDebug = true;
+
+// Create instances
 var appCache = cache(appConfig.cache),
     appREST  = rest(appConfig.rest, appCache),
-    appREPL  = repl(appConfig, appCache)
+    appREPL  = repl(appConfig.repl, appCache)
 ;
 
 if(appConfig.loadFile) {

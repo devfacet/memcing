@@ -10,9 +10,9 @@
 /* jslint node: true */
 'use strict';
 
-var utilex  = require('utilex'),
-    q       = require('q'),
-    fs      = require('fs')
+var utilex = require('utilex'),
+    q      = require('q'),
+    fs     = require('fs')
 ;
 
 // Init the module
