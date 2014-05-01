@@ -4,7 +4,9 @@
  * For the full copyright and license information, please view the LICENSE.txt file.
  */
 
-// repl module implements REPL.
+// repl module implements Read-Eval-Print-Loop (REPL).
+// 
+// TODO: Command result messages should be change.
 
 // Init reqs
 /* jslint node: true */
@@ -16,9 +18,9 @@ var readline = require('readline');
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config      = {isDebug: false},
-      start,      // start - function
-      completer   // auto complete - function
+  var config    = {isDebug: false},
+      start,    // start - function
+      completer // auto complete - function
   ;
 
   // Check params
@@ -62,12 +64,14 @@ exports = module.exports = function(options, cacheInstance) {
             console.log(cp.cmdRes);
           }
 
-          // NOTE: Do not vacuum here for dump command.
+          // NOTE: Do not vacuum here for dump command. It is good for debugging.
         }
+
         if(cp.cmdRes) {
           if(cp.cmdRes.error) console.log('ERROR: ' + cp.cmdRes.error);
           if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
         }
+
         rl.prompt();
         return;
       }
@@ -91,7 +95,6 @@ exports = module.exports = function(options, cacheInstance) {
           console.log((cp.cmdRes.error) ? 'ERROR' : cp.cmdRes.val);
           break;
         case 'dump':
-
           // Cleanup expired entries
           cacheInstance.vacuum({exp: true});
 
@@ -163,15 +166,15 @@ exports = module.exports = function(options, cacheInstance) {
     ;
 
     if(!lineF) {
-      matchingCmds = cacheInstance.cmdList;
+      matchingCmds  = cacheInstance.cmdList;
     } else {
-      lineCmds  = lineF.split(' ');
-      lastCmd   = lineCmds.pop();
+      lineCmds      = lineF.split(' ');
+      lastCmd       = lineCmds.pop();
 
       if(lineCmds.length > 0) {
-        cmdList = cacheInstance.cmdList.map(function(value) { return lineCmds.join(' ') + ' ' + value; });
+        cmdList     = cacheInstance.cmdList.map(function(value) { return lineCmds.join(' ') + ' ' + value; });
       } else {  
-        cmdList = cacheInstance.cmdList;
+        cmdList     = cacheInstance.cmdList;
       }
 
       fltrdCmds = cmdList.filter(function(element) { return element.indexOf(lineF) === 0; });
