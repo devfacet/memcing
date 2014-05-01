@@ -10,10 +10,9 @@
 /* jslint node: true */
 'use strict';
 
-var utilex    = require('utilex'),
-    q         = require('q'),
-    fs        = require('fs'),
-    readline  = require('readline')
+var utilex  = require('utilex'),
+    q       = require('q'),
+    fs      = require('fs')
 ;
 
 // Init the module
@@ -545,7 +544,9 @@ exports = module.exports = function(options) {
     }
 
     // Init the pipe
-    var rl = readline.createInterface({input: fs.createReadStream(filePathF), terminal: false});
+    var readline  = require('readline'),
+        rl        = readline.createInterface({input: fs.createReadStream(filePathF), terminal: false})
+    ;
     rl.setPrompt('');
 
     // line event
