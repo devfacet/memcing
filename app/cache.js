@@ -550,16 +550,16 @@ exports = module.exports = function(options) {
     rl.setPrompt('');
 
     // line event
-    rl.on('line', function(iLine) {
+    rl.on('line', function(line) {
       lineCntr++;
 
       // Check the line
-      if(!iLine.trim()) { return; }
+      if(!line.trim()) { return; }
 
       // Execute the command
-      var cp = execCmd(iLine);
+      var cp = execCmd(line);
       if(cp.cmdRes && cp.cmdRes.error) {
-        lineErr = cp.cmdRes.error + ' - line #' + lineCntr + ': ' + iLine;
+        lineErr = cp.cmdRes.error + ' - line #' + lineCntr + ': ' + line;
         rl.close();
       }
     });
