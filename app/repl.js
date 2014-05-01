@@ -43,13 +43,13 @@ exports = module.exports = function(options, cacheInstance) {
     rl.prompt();
 
     // line event
-    rl.on('line', function(iLine) {
+    rl.on('line', function(line) {
 
       // Check the input
-      if(!iLine.trim()) { rl.prompt(); return; }
+      if(!line.trim()) { rl.prompt(); return; }
 
       // Execute the command
-      var cp = cacheInstance.execCmd(iLine);
+      var cp = cacheInstance.execCmd(line);
 
       // for debug
       if(config.isDebug === true) {
