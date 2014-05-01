@@ -122,13 +122,13 @@ exports = module.exports = function(options, cacheInstance) {
           console.log(cp.cmdRes);
           break;
         case 'exit':
-          if(cp.cmdRes.exit && cp.cmdRes.exit === true) process.exit(0);
+          if(cp.cmdRes.exit === true) process.exit(0);
           break;
         default:
           if(cp.cmdRes && cp.cmdRes.error) {
             console.log('ERROR: ' + cp.cmdRes.error);
           } else {
-            console.log('ERROR: Unexpected command!' + cp);
+            console.log('ERROR: Unexpected command!' + (cp.cmd || ''));
           }
       }
 
