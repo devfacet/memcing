@@ -12,13 +12,15 @@
 /* jslint node: true */
 'use strict';
 
-var utilex = require('utilex');
+var utilex = require('utilex'),
+    q      = require('q')
+;
 
 // Init the module
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config    = {isDebug: false},
+  var config    = {isDebug: false, isEnabled: false},
       start,    // start - function
       completer // auto complete - function
   ;
@@ -27,18 +29,29 @@ exports = module.exports = function(options, cacheInstance) {
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
-    if(options.isDebug === true) config.isDebug = true;
+    if(options.isDebug === true)    config.isDebug    = true;
+    if(options.isEnabled === true)  config.isEnabled  = true;
   }
 
   // Starts repl
   start = function start() {
 
     // Init vars
-    var readline  = require('readline'),
-        rl        = readline.createInterface({input: process.stdin, output: process.stdout, terminal: true, completer: completer})
+    var deferred = q.defer();
+
+    // Check config
+    if(config.isEnabled !== true) {
+      deferred.resolve();
+      return deferred.promise;      
+    }
+
+    var readline = require('readline'),
+        rl       = readline.createInterface({input: process.stdin, output: process.stdout, terminal: true, completer: completer})
     ;
+
     rl.setPrompt('> '); // set prompt
     rl.prompt();
+    deferred.resolve();
 
     // line event
     rl.on('line', function(line) {
@@ -129,6 +142,8 @@ exports = module.exports = function(options, cacheInstance) {
         }
       });
     });
+
+    return deferred.promise;
   };
 
   // Auto complete function for readline.
