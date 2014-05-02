@@ -538,7 +538,10 @@ exports = module.exports = function(options) {
     ;
 
     // Check the file
-    if(!pathSS || !pathSS.isFile()) {
+    if(!filePath) {
+      deferred.resolve();
+      return deferred.promise;
+    } else if(!pathSS || !pathSS.isFile()) {
       deferred.reject('Invalid file! (' + filePathF + ')');
       return deferred.promise;
     }
