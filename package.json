@@ -38,6 +38,7 @@
   "devDependencies": {
     "chai": "*",
     "mocha": "*",
-    "request": "2.x"
+    "request": "2.x",
+    "async": "0.8.x"
   }
 }
