@@ -62,23 +62,25 @@ exports = module.exports = function(options, cacheInstance) {
   listen = function listen() {
 
     // Init vars
-    var deferred  = q.defer(),
-        hostname  = listenOpt.http.hostname,
-        port      = listenOpt.http.port,
-        server    = http.createServer(listenReq)
-    ;
+    var deferred = q.defer();
 
-    // listen
-    server.listen(port, hostname, function() {
-      listenOpt.http.hostname = server.address().address;
-      listenOpt.http.port     = server.address().port;
-      deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
-    });
+    // http
+    if(options.http.isEnabled === true) {
+      var server = http.createServer(listenReq);
 
-    // error
-    server.on('error', function(e) {
-      deferred.reject(e);
-    });
+      // listen
+      server.listen(listenOpt.http.port, listenOpt.http.hostname, function() {
+        deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
+      });
+
+      // error
+      server.on('error', function(e) {
+        deferred.reject(e);
+      });
+
+    } else {
+      deferred.resolve();
+    }
 
     return deferred.promise;
   };
