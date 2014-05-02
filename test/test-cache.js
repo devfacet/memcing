@@ -4,8 +4,8 @@
 /* global it: false */
 'use strict';
 
-var cache   = require('../app/cache'),
-    expect  = require('chai').expect
+var cache  = require('../app/cache'),
+    expect = require('chai').expect
 ;
 
 // Tests
@@ -192,6 +192,18 @@ describe('appCache', function() {
       expect(result.options.limit.entry).to.be.a('object');
       expect(result.options.limit.entry).to.have.property('inByte', 1024);
       expect(result.options.limit.entry).to.have.property('inChar', 1024/4);
+
+      expect(result.options.vacuum).to.be.a('object');
+      expect(result.options.vacuum).to.have.property('delay');
+      expect(result.options.vacuum.delay).to.be.a('number');
+      expect(result.options.vacuum).to.have.property('running');
+      expect(result.options.vacuum.running).to.be.a('boolean');
+
+      expect(result.options.eviction).to.be.a('object');
+      expect(result.options.eviction).to.have.property('enabled');
+      expect(result.options.eviction.enabled).to.be.a('boolean');
+      expect(result.options.eviction).to.have.property('numOfEntry');
+      expect(result.options.eviction.numOfEntry).to.be.a('number');
 
       expect(result).to.have.property('entries');
       expect(result.entries).to.be.a('object');
