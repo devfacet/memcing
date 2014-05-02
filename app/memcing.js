@@ -9,6 +9,7 @@
 'use strict';
 
 var utilex = require('utilex'),
+    q      = require('q'),
     cache  = require('./cache'),
     rest   = require('./rest'),
     repl   = require('./repl')
@@ -38,7 +39,7 @@ if(typeof appArgs['i'] !== 'undefined')     appConfig.isIactive = true;
 if(appArgs['load-file'])                    appConfig.loadFile  = appArgs['load-file'];
 
 // Config - cache
-if(appConfig.isDebug === true) appConfig.cache.isDebug = true;
+if(appConfig.isDebug === true)                      appConfig.cache.isDebug     = true;
 if(typeof appArgs['cache-limit'] !== 'undefined')   appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
 if(typeof appArgs['entry-limit'] !== 'undefined')   appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
 if(typeof appArgs['vacuum-delay'] !== 'undefined')  appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
@@ -47,7 +48,7 @@ if(typeof appArgs['eviction'] !== 'undefined')      appConfig.cache.eviction    
 // Config - rest
 if(appConfig.isDebug === true) appConfig.rest.isDebug = true;
 if(typeof appArgs['listen-http'] !== 'undefined') {
-  appConfig.rest.http.isEnabled = true;
+  appConfig.rest.http.isEnabled   = true;
 
   var httpAddr = ('' + appArgs['listen-http']).split(':', 2);
   if(httpAddr[0]) {
@@ -57,7 +58,8 @@ if(typeof appArgs['listen-http'] !== 'undefined') {
 }
 
 // Config - repl
-if(appConfig.isDebug === true) appConfig.repl.isDebug = true;
+if(appConfig.isDebug === true)   appConfig.repl.isDebug   = true;
+if(appConfig.isIactive === true) appConfig.repl.isEnabled = true;
 
 // Create instances
 var appCache = cache(appConfig.cache),
@@ -65,45 +67,18 @@ var appCache = cache(appConfig.cache),
     appREPL  = repl(appConfig.repl, appCache)
 ;
 
-if(appConfig.loadFile) {
-  appCache.loadFile(appConfig.loadFile).then(function() {
-    if(appConfig.rest.http.isEnabled) {
-      appREST.listen().then(function(res) {
-        utilex.tidyLog(res);
-        if(appConfig.isIactive) appREPL.start();
-      }, function(err) {
-        utilex.tidyLog(err);
-        process.exit(0);
-      });
-    } else if(appConfig.isIactive) {
-      appREPL.start();
-    } else {
-      process.exit(0);
-    }
-  }, function(err) {
-    utilex.tidyLog(err);
-    process.exit(0);
-  });  
-} else if(appConfig.isIactive) {
-  if(appConfig.rest.http.isEnabled) {
-    appREST.listen().then(function(res) {
-      utilex.tidyLog(res);
-      appREPL.start();
-    }, function(err) {
-      utilex.tidyLog(err);
-      process.exit(0);
-    });
-  } else {
-    appREPL.start();
-  }
-} else if(appConfig.rest.http.isEnabled) {
-  appREST.listen().then(function(res) {
-    utilex.tidyLog(res);
-  }, function(err) {
-    utilex.tidyLog(err);
-    process.exit(0);
-  });
-} else {
+appCache.loadFile(appConfig.loadFile)
+.then(appREST.listen)
+.then(function(res) { if(res) utilex.tidyLog(res); })
+.then(appREPL.start)
+.then(function(res) { 
+  if(res) utilex.tidyLog(res); 
+}, function(err) { 
+  utilex.tidyLog(err); 
+  process.exit(0); 
+});
+
+if(!appConfig.loadFile && !appConfig.isIactive && !appConfig.rest.http.isEnabled) {
   cmdHelp();
 }
 
