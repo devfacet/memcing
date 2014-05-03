@@ -84,15 +84,6 @@ For REST API performance tests;
 
 -
 
-Commands can be pass via stdin.
-```
-node memcing.js -i < ../test/cmds-im.txt
-```
-Reads commands from [cmds-im.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-im.txt)
-and display result.
-
--
-
 ##### Postal Code Service Example
 
 You can create a postal code service with two lines of command.
