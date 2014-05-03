@@ -520,7 +520,7 @@ exports = module.exports = function(options) {
         result.cmdRes = {exit: true};
         break;
       default:
-        result.cmdRes = {error: 'Invalid command! Possible commands: ' + cacheCmds.join(', ')};
+        result.cmdRes = {error: 'Invalid command!'};
     }
 
     return result;
