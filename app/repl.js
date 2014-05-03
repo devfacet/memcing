@@ -44,7 +44,10 @@ exports = module.exports = function(options, cacheInstance) {
     // Check config
     if(config.isEnabled !== true) {
       deferred.resolve();
-      return deferred.promise;      
+      return deferred.promise;
+    } else if(process.stdin.isTTY !== true) {
+      deferred.reject("There is not a TTY context for interactive mode. (Or there is a pipe/stdin usage.)");
+      return deferred.promise;
     }
 
     var rl = require('readline').createInterface({
