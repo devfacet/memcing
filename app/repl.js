@@ -47,6 +47,10 @@ exports = module.exports = function(options, cacheInstance) {
       deferred.resolve();
       return deferred.promise;
     } else if(process.stdin.isTTY !== true) {
+      // TODO: There are some issues with TTY Check this code block later.
+      //       https://www.npmjs.org/package/ttys
+      //       https://github.com/joyent/node/issues/7300
+
       deferred.reject("There is not a TTY context for interactive mode. (Or there is a pipe/stdin usage.)");
       return deferred.promise;
     }
