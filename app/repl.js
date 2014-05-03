@@ -57,6 +57,7 @@ exports = module.exports = function(options, cacheInstance) {
       completer:  completer
     });
 
+    console.log('Commands: ' + cacheInstance.cmdList.join(' '));
     rl.setPrompt('> '); // set prompt
     rl.prompt();
 
@@ -124,9 +125,9 @@ exports = module.exports = function(options, cacheInstance) {
           break;
         default:
           if(cp.cmdRes && cp.cmdRes.error) {
-            console.log('ERROR: ' + cp.cmdRes.error);
+            console.log('ERROR (' + cp.cmdRes.error + ')');
           } else {
-            console.log('ERROR: Unexpected command!' + (cp.cmd || ''));
+            console.log('ERROR');
           }
       }
 
