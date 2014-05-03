@@ -36,6 +36,8 @@ exports = module.exports = function(options, cacheInstance) {
   // Starts repl
   start = function start() {
 
+    if(config.isDebug) utilex.tidyLog('[repl.start]: called');
+
     // Init vars
     var deferred = q.defer();
 
@@ -45,13 +47,15 @@ exports = module.exports = function(options, cacheInstance) {
       return deferred.promise;      
     }
 
-    var readline = require('readline'),
-        rl       = readline.createInterface({input: process.stdin, output: process.stdout, terminal: true, completer: completer})
-    ;
+    var rl = require('readline').createInterface({
+      input:      process.stdin, 
+      output:     process.stdout, 
+      terminal:   true, 
+      completer:  completer
+    });
 
     rl.setPrompt('> '); // set prompt
     rl.prompt();
-    deferred.resolve();
 
     // line event
     rl.on('line', function(line) {
@@ -142,6 +146,8 @@ exports = module.exports = function(options, cacheInstance) {
         }
       });
     });
+
+    deferred.resolve();
 
     return deferred.promise;
   };
