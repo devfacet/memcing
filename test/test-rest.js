@@ -12,7 +12,7 @@ var cache   = require('../app/cache'),
 
 // Init vars
 var appCache   = cache({isDebug: false, globLimit: 16384, eviction: true}),
-    appREST    = rest({http: {isEnabled: true}}, appCache),
+    appREST    = rest({isDebug: false, verbose: 0, http: {isEnabled: true}}, appCache),
     appRESTUrl = 'http://' + appREST.addrOf('http')
 ;
 
