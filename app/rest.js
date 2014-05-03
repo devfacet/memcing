@@ -21,7 +21,7 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config          = {isDebug: false},
+  var config          = {isDebug: false, verbose: 1},
       listenOpt       = {
         http: {
           isEnabled:  false, 
@@ -44,6 +44,8 @@ exports = module.exports = function(options, cacheInstance) {
 
   if(options) {
     if(options.isDebug === true)        config.isDebug            = true;
+    if(options.verbose !== undefined)   config.verbose            = options.verbose;
+
     if(options.http.isEnabled === true) listenOpt.http.isEnabled  = true;
     if(options.http.hostname)           listenOpt.http.hostname   = ('' + options.http.hostname);
     if(!isNaN(options.http.port))       listenOpt.http.port       = options.http.port;
@@ -70,7 +72,9 @@ exports = module.exports = function(options, cacheInstance) {
 
       // listen
       server.listen(listenOpt.http.port, listenOpt.http.hostname, function() {
-        deferred.resolve('Server is listening on ' + server.address().address + ':' + server.address().port);
+        if(config.verbose > 0) utilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
+
+        deferred.resolve();
       });
 
       // error

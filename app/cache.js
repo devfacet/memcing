@@ -19,7 +19,7 @@ var utilex = require('utilex'),
 exports = module.exports = function(options) {
 
   // Init vars
-  var config    = {isDebug: false},
+  var config    = {isDebug: false, verbose: 1},
 
       // cache data
       cacheData = {entries: {}, len: 0},
@@ -121,7 +121,8 @@ exports = module.exports = function(options) {
 
   // Check options
   if(options) {
-    if(options.isDebug === true) config.isDebug = true;
+    if(options.isDebug === true)      config.isDebug  = true;
+    if(options.verbose !== undefined) config.verbose  = options.verbose;
 
     if(!isNaN(options.globLimit) && options.globLimit > 0) {
       cacheOpt.limit.glob.inByte = options.globLimit;

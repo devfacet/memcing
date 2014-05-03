@@ -16,7 +16,7 @@ var utilex = require('utilex'),
 
 // Init vars
 var appArgs   = utilex.tidyArgs(),
-    appFlags  = {loadFile: null, debug: false, listen: false, iactive: false},
+    appFlags  = {debug: false, verbose: 1, loadFile: null, listen: false, iactive: false},
     appConfig = {cache: {}, pipe: {}, rest: {http: {}}, repl: {}},
     appCache, // cache instance
     appREST,  // rest instance
@@ -26,9 +26,10 @@ var appArgs   = utilex.tidyArgs(),
 // Check for arguments
 if(appArgs['help'] !== undefined)         cmdHelp();
 if(appArgs['load-file'])                  appFlags.loadFile           = appArgs['load-file'];
-if(appArgs['debug'] !== undefined)        appFlags.debug              = true;
-if(appArgs['i'] !== undefined)            appFlags.iactive            = true;
 if(appArgs['listen-http'] !== undefined)  appFlags.listen             = true;
+if(appArgs['i'] !== undefined)            appFlags.iactive            = true;
+if(appArgs['debug'] !== undefined)        appFlags.debug              = true;
+if(appArgs['verbose'] !== undefined)      appFlags.verbose            = parseInt(appArgs['verbose'],  10);
 if(appArgs['cache-limit'] !== undefined)  appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
 if(appArgs['entry-limit'] !== undefined)  appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
 if(appArgs['vacuum-delay'] !== undefined) appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
@@ -39,6 +40,13 @@ if(appFlags.debug === true) {
   appConfig.pipe.isDebug  = true;
   appConfig.rest.isDebug  = true;
   appConfig.repl.isDebug  = true;
+}
+
+if(appFlags.verbose !== 1) {
+  appConfig.cache.verbose = appFlags.verbose;
+  appConfig.pipe.verbose  = appFlags.verbose;
+  appConfig.rest.verbose  = appFlags.verbose;
+  appConfig.repl.verbose  = appFlags.verbose;
 }
 
 if(appFlags.listen === true) {
@@ -63,13 +71,10 @@ var appCache = cache(appConfig.cache),
 
 appCache.loadFile(appFlags.loadFile)
 .then(appREST.listen)
-.then(function(res) { 
-  if(res) utilex.tidyLog(res); 
-})
 .then(appREPL.start)
 .then(function(res) {
     if(res) utilex.tidyLog(res);
-    if(!appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) process.exit(0);
+    if(!appFlags.listen && !appFlags.iactive) process.exit(0);
   }, function(err) { 
     utilex.tidyLog(err); 
     process.exit(0); 
@@ -85,13 +90,15 @@ function cmdHelp() {
 
   console.log("  Options:");
   console.log("    -i              : Enable interactive mode.");
+  console.log("    -listen-http    : Listen HTTP requests for REST API.");
+  console.log("                      Default; localhost:12080\n");
   console.log("    -load-file      : Load a command file.");
   console.log("    -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216");
   console.log("    -entry-limit    : Entry size limit in bytes. Default (1KB); 1024");
   console.log("    -vacuum-delay   : Delay in seconds for vacuum. Default; 30");
-  console.log("    -eviction       : Enable eviction mode.");
-  console.log("    -listen-http    : Listen HTTP requests for REST API.");
-  console.log("                      Default; localhost:12080");
+  console.log("    -eviction       : Enable eviction mode.\n");
+  console.log("    -debug          : Enable debug mode.");
+  console.log("    -verbose        : Set verbose message level. Default; 1");
   console.log("    -help           : Display help and exit.\n");
 
   console.log("  Commands:");
@@ -109,9 +116,7 @@ function cmdHelp() {
 
   console.log("  Examples:");
   console.log("    node memcing.js -i");
-  console.log("    node memcing.js -i -load-file /path/file");
-  console.log("    node memcing.js -load-file /path/file -listen-http localhost:12080");
-  console.log("    node memcing.js -listen-http localhost:12080 -eviction\n");
+  console.log("    node memcing.js -i -load-file /path/file -listen-http localhost:12080\n");
 
   console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
 

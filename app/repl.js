@@ -20,7 +20,7 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config    = {isDebug: false, isEnabled: false},
+  var config    = {isDebug: false, verbose: 1, isEnabled: false},
       start,    // start - function
       completer // auto complete - function
   ;
@@ -29,8 +29,9 @@ exports = module.exports = function(options, cacheInstance) {
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
-    if(options.isDebug === true)    config.isDebug    = true;
-    if(options.isEnabled === true)  config.isEnabled  = true;
+    if(options.isDebug === true)      config.isDebug    = true;
+    if(options.verbose !== undefined) config.verbose    = options.verbose;
+    if(options.isEnabled === true)    config.isEnabled  = true;
   }
 
   // Starts repl
@@ -57,7 +58,8 @@ exports = module.exports = function(options, cacheInstance) {
       completer:  completer
     });
 
-    console.log('Commands: ' + cacheInstance.cmdList.join(' '));
+    if(config.verbose > 0) utilex.tidyLog('Running on interactive mode. Commands: ' + cacheInstance.cmdList.join(' '));
+
     rl.setPrompt('> '); // set prompt
     rl.prompt();
 
