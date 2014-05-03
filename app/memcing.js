@@ -9,57 +9,51 @@
 'use strict';
 
 var utilex = require('utilex'),
-    q      = require('q'),
     cache  = require('./cache'),
     rest   = require('./rest'),
     repl   = require('./repl')
 ;
 
 // Init vars
-var appArgs       = utilex.tidyArgs(),
-    appConfig     = {
-      isDebug:    false,
-      isIactive:  false,
-      loadFile:   null,
-      cache:      {},
-      rest:       {http: {}},
-      repl:       {}
-    },
-    appCache,     // cache instance
-    appREST,      // rest instance
-    appREPL       // repl instance
+var appArgs   = utilex.tidyArgs(),
+    appFlags  = {loadFile: null, debug: false, listen: false, iactive: false},
+    appConfig = {cache: {}, pipe: {}, rest: {http: {}}, repl: {}},
+    appCache, // cache instance
+    appREST,  // rest instance
+    appREPL   // repl instance
 ;
 
-// Check for help
-if(typeof appArgs['help'] !== 'undefined')  cmdHelp();
+// Check for arguments
+if(appArgs['help'] !== undefined)         cmdHelp();
+if(appArgs['load-file'])                  appFlags.loadFile           = appArgs['load-file'];
+if(appArgs['debug'] !== undefined)        appFlags.debug              = true;
+if(appArgs['i'] !== undefined)            appFlags.iactive            = true;
+if(appArgs['listen-http'] !== undefined)  appFlags.listen             = true;
+if(appArgs['cache-limit'] !== undefined)  appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
+if(appArgs['entry-limit'] !== undefined)  appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
+if(appArgs['vacuum-delay'] !== undefined) appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
+if(appArgs['eviction'] !== undefined)     appConfig.cache.eviction    = true;
 
-// Config - global
-if(typeof appArgs['debug'] !== 'undefined') appConfig.isDebug   = true;
-if(typeof appArgs['i'] !== 'undefined')     appConfig.isIactive = true;
-if(appArgs['load-file'])                    appConfig.loadFile  = appArgs['load-file'];
+if(appFlags.debug === true) {
+  appConfig.cache.isDebug = true;
+  appConfig.pipe.isDebug  = true;
+  appConfig.rest.isDebug  = true;
+  appConfig.repl.isDebug  = true;
+}
 
-// Config - cache
-if(appConfig.isDebug === true)                      appConfig.cache.isDebug     = true;
-if(typeof appArgs['cache-limit'] !== 'undefined')   appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
-if(typeof appArgs['entry-limit'] !== 'undefined')   appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
-if(typeof appArgs['vacuum-delay'] !== 'undefined')  appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
-if(typeof appArgs['eviction'] !== 'undefined')      appConfig.cache.eviction    = true;
-
-// Config - rest
-if(appConfig.isDebug === true) appConfig.rest.isDebug = true;
-if(typeof appArgs['listen-http'] !== 'undefined') {
-  appConfig.rest.http.isEnabled   = true;
+if(appFlags.listen === true) {
+  appConfig.rest.http.isEnabled = true;
 
   var httpAddr = ('' + appArgs['listen-http']).split(':', 2);
   if(httpAddr[0]) {
-    appConfig.rest.http.hostname  = httpAddr[0].trim();
-    appConfig.rest.http.port      = (httpAddr[1] || null);
+    appConfig.rest.http.hostname = httpAddr[0].trim();
+    appConfig.rest.http.port     = (httpAddr[1] || null);
   }
 }
 
-// Config - repl
-if(appConfig.isDebug === true)   appConfig.repl.isDebug   = true;
-if(appConfig.isIactive === true) appConfig.repl.isEnabled = true;
+if(appFlags.iactive === true) appConfig.repl.isEnabled = true;
+
+if(!appFlags.loadFile && !appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) cmdHelp();
 
 // Create instances
 var appCache = cache(appConfig.cache),
@@ -67,20 +61,19 @@ var appCache = cache(appConfig.cache),
     appREPL  = repl(appConfig.repl, appCache)
 ;
 
-appCache.loadFile(appConfig.loadFile)
+appCache.loadFile(appFlags.loadFile)
 .then(appREST.listen)
 .then(function(res) { if(res) utilex.tidyLog(res); })
 .then(appREPL.start)
-.then(function(res) { 
-  if(res) utilex.tidyLog(res); 
-}, function(err) { 
-  utilex.tidyLog(err); 
-  process.exit(0); 
-});
+.then(function(res) {
+    if(res) utilex.tidyLog(res); 
+  }, function(err) { 
+    utilex.tidyLog(err); 
+    process.exit(0); 
+  }
+);
 
-if(!appConfig.loadFile && !appConfig.isIactive && !appConfig.rest.http.isEnabled) {
-  cmdHelp();
-}
+if(!appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) process.exit(0);
 
 // Displays help and exit.
 function cmdHelp() {
