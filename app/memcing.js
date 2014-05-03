@@ -63,17 +63,18 @@ var appCache = cache(appConfig.cache),
 
 appCache.loadFile(appFlags.loadFile)
 .then(appREST.listen)
-.then(function(res) { if(res) utilex.tidyLog(res); })
+.then(function(res) { 
+  if(res) utilex.tidyLog(res); 
+})
 .then(appREPL.start)
 .then(function(res) {
-    if(res) utilex.tidyLog(res); 
+    if(res) utilex.tidyLog(res);
+    if(!appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) process.exit(0);
   }, function(err) { 
     utilex.tidyLog(err); 
     process.exit(0); 
   }
 );
-
-if(!appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) process.exit(0);
 
 // Displays help and exit.
 function cmdHelp() {
