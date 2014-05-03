@@ -316,8 +316,8 @@ exports = module.exports = function(options) {
 
     // Init vars
     var result = {},
-        valF   = (typeof val != 'undefined') ? val : null,
-        expF   = (typeof exp != 'undefined') ? exp : 0
+        valF   = (typeof val !== 'undefined') ? val : null,
+        expF   = (typeof exp !== 'undefined') ? exp : 0
     ;
 
     // NOTE: Length checking is only for strings.
@@ -411,7 +411,7 @@ exports = module.exports = function(options) {
 
     // Init vars
     var result  = {},
-        amntF   = (typeof amount != 'undefined') ? amount : 1,
+        amntF   = (typeof amount !== 'undefined') ? amount : 1,
         cData   = get(key)
     ;
 
@@ -425,9 +425,9 @@ exports = module.exports = function(options) {
     }
 
     // Set data
-    if(flag == 1) {
+    if(flag === 1) {
       cData.val = (cData.val+amntF);
-    } else if(flag == 2) {
+    } else if(flag === 2) {
       cData.val = (cData.val-amntF);
     }
 
