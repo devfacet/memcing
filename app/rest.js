@@ -51,7 +51,7 @@ exports = module.exports = function(options, cacheInstance) {
 
   // Returns the address of the given kind
   addrOf = function addrOf(kind) {
-    if(kind == 'http') {
+    if(kind === 'http') {
       return listenOpt.http.hostname + ':' + listenOpt.http.port;
     }
 
@@ -99,11 +99,11 @@ exports = module.exports = function(options, cacheInstance) {
 
       if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.pathAry]: ' + JSON.stringify(pathAry));
 
-      if(pathAry[0] == 'entries') {
+      if(pathAry[0] === 'entries') {
         if(pathAry[1]) { // element
           var element = (regex.number.test(pathAry[1]) && !isNaN(pathAry[1]/1)) ? pathAry[1]/1 : pathAry[1];
 
-          if(req.method == 'GET') {
+          if(req.method === 'GET') {
             var cg = cacheInstance.get(element);
             if(cg) {
               res.writeHead(200, resHdr);
@@ -112,7 +112,7 @@ exports = module.exports = function(options, cacheInstance) {
               res.writeHead(404, resHdr);
               res.end(JSON.stringify({code: '404', message: 'Not Found'}));
             }
-          } else if(req.method == 'PUT' || req.method == 'POST') {
+          } else if(req.method === 'PUT' || req.method === 'POST') {
             var bodyAry = [],
                 dataLen = 0,
                 dataLmt = cacheInstance.entryMaxSize()*2 // TODO: Find a better approach.
@@ -140,14 +140,14 @@ exports = module.exports = function(options, cacheInstance) {
                 
                 if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.req.end]: ' + bodyAry.join());
 
-                if(req.headers['content-type'] == 'application/x-www-form-urlencoded') {
+                if(req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                   var qsp       = qs.parse(bodyAry.join()),
                       entryVal  = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
                       entryExp  = (qsp && qsp.exp) ? qsp.exp : null,
                       setTrig   = true
                   ;
 
-                  if(req.method == 'POST') {
+                  if(req.method === 'POST') {
                     var cg = cacheInstance.get(element);
                     if(cg) {
                       res.writeHead(409, resHdr);
@@ -172,7 +172,7 @@ exports = module.exports = function(options, cacheInstance) {
                 }
               }
             });
-          } else if(req.method == 'DELETE') {
+          } else if(req.method === 'DELETE') {
             cacheInstance.del(element);
             res.writeHead(200, resHdr);
             res.end();
@@ -181,7 +181,7 @@ exports = module.exports = function(options, cacheInstance) {
             res.end(JSON.stringify({code: '405', message: 'Method Not Allowed'}));
           }
         } else { // collection
-          if(req.method == 'GET') {
+          if(req.method === 'GET') {
             res.writeHead(200, resHdr);
 
             // Cleanup expired entries
@@ -202,7 +202,7 @@ exports = module.exports = function(options, cacheInstance) {
             }
 
             res.end();
-          } else if(req.method == 'DELETE') {
+          } else if(req.method === 'DELETE') {
             cacheInstance.drop();
             res.writeHead(200, resHdr);
             res.end();
