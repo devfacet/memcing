@@ -37,8 +37,6 @@ exports = module.exports = function(options, cacheInstance) {
   // Starts repl
   start = function start() {
 
-    if(config.isDebug) utilex.tidyLog('[repl.start]: called');
-
     // Init vars
     var deferred = q.defer();
 
