@@ -6,7 +6,7 @@
 
 // pipe module implements stream operations.
 // 
-// TODO: This module needs a lot of things such as mime type detection, better line reader, etc.
+// TODO: This module needs a lot of things such as mime type detection, JSON support, etc.
 //       For now just keep it simple. 
 
 // Init reqs
