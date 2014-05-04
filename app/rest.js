@@ -43,12 +43,14 @@ exports = module.exports = function(options, cacheInstance) {
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
-    if(options.isDebug === true)        config.isDebug            = true;
-    if(options.verbose !== undefined)   config.verbose            = options.verbose;
+    if(options.isDebug === true)          config.isDebug            = true;
+    if(options.verbose !== undefined)     config.verbose            = options.verbose;
 
-    if(options.http.isEnabled === true) listenOpt.http.isEnabled  = true;
-    if(options.http.hostname)           listenOpt.http.hostname   = ('' + options.http.hostname);
-    if(!isNaN(options.http.port))       listenOpt.http.port       = options.http.port;
+    if(options.http) {
+      if(options.http.isEnabled === true) listenOpt.http.isEnabled  = true;
+      if(options.http.hostname)           listenOpt.http.hostname   = ('' + options.http.hostname);
+      if(!isNaN(options.http.port))       listenOpt.http.port       = options.http.port;
+    }
   }
 
   // Returns the address of the given kind
