@@ -10,6 +10,7 @@
 
 var utilex = require('utilex'),
     cache  = require('./cache'),
+    pipe   = require('./pipe'),
     rest   = require('./rest'),
     repl   = require('./repl')
 ;
@@ -65,21 +66,25 @@ if(!appFlags.loadFile && !appFlags.listen && !appFlags.iactive && process.stdin.
 
 // Create instances
 var appCache = cache(appConfig.cache),
+    appPIPE  = pipe(appConfig.pipe, appCache),
     appREST  = rest(appConfig.rest, appCache),
     appREPL  = repl(appConfig.repl, appCache)
 ;
 
 appCache.loadFile(appFlags.loadFile)
+.then(appPIPE.start)
 .then(appREST.listen)
 .then(appREPL.start)
 .then(function(res) {
-    if(res) utilex.tidyLog(res);
-    if(!appFlags.listen && !appFlags.iactive) process.exit(0);
-  }, function(err) { 
-    utilex.tidyLog(err); 
-    process.exit(0); 
-  }
-);
+  if(res) utilex.tidyLog(res);
+})
+.catch(function(err) {
+  utilex.tidyLog(err);
+  process.exit(0); 
+})
+.done(function() {
+  if(!appFlags.listen && !appFlags.iactive) process.exit(0);
+});
 
 // Displays help and exit.
 function cmdHelp() {
