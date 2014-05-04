@@ -64,21 +64,20 @@ exports = module.exports = function(options, cacheInstance) {
         decoder    = new StrDecoder('utf8'),
         lines      = [],
         buffer     = '',
-        chunk,
         i,
         cacheCmd
     ;
 
     process.stdin.on('readable', function(chunk) {
       while (null !== (chunk = process.stdin.read())) {
-        //process.stdout.write(chunk);  // for debug
-        //console.log(chunk);           // for debug
+        //process.stdout.write(chunk);    // for debug
+        //console.log(chunk);             // for debug
 
         buffer += decoder.write(chunk);   // decode chunk data
         lines   = buffer.split(/\r?\n/g); // split from line endings
         buffer  = lines.pop();            // keep the last part
 
-        for (var i = 0; i < lines.length; i++) {
+        for (i = 0; i < lines.length; i++) {
           cacheCmd = cacheInstance.execCmd(lines[i]); // Execute the command
 
           if(config.isDebug) utilex.tidyLog('[pipe.line.i]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
