@@ -76,35 +76,34 @@ exports = module.exports = function(options, cacheInstance) {
         return;
       }
 
-      // Execute the command
-      var cp = cacheInstance.execCmd(line);
+      var cacheCmd = cacheInstance.execCmd(line); // Execute the command
 
-      if(config.isDebug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cp.cmd, cmdArgs: cp.cmdArgs, cmdRes: cp.cmdRes}));
+      if(config.isDebug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
 
-      switch(cp.cmd) {
+      switch(cacheCmd.cmd) {
         case 'get':
-          console.log((cp.cmdRes && cp.cmdRes.val) ? cp.cmdRes.val : '');
+          console.log((cacheCmd.cmdRes && cacheCmd.cmdRes.val) ? cacheCmd.cmdRes.val : '');
           break;
         case 'set':
         case 'add':
-          console.log((cp.cmdRes.error) ? 'ERROR' : 'STORED');
+          console.log((cacheCmd.cmdRes.error) ? 'ERROR' : 'STORED');
           break;
         case 'delete':
-          console.log((cp.cmdRes) ? 'DELETED' : 'ERROR');
+          console.log((cacheCmd.cmdRes) ? 'DELETED' : 'ERROR');
           break;
         case 'drop':
-          console.log((cp.cmdRes) ? 'DROPPED' : 'ERROR');
+          console.log((cacheCmd.cmdRes) ? 'DROPPED' : 'ERROR');
           break;
         case 'increment':
         case 'decrement':
-          console.log((cp.cmdRes.error) ? 'ERROR' : cp.cmdRes.val);
+          console.log((cacheCmd.cmdRes.error) ? 'ERROR' : cacheCmd.cmdRes.val);
           break;
         case 'dump':
           // Cleanup expired entries
           cacheInstance.vacuum({exp: true});
 
           if(cacheInstance.numOfEntry() > 0) {
-            var cData     = cp.cmdRes,
+            var cData     = cacheCmd.cmdRes,
                 cDataLen  = cacheInstance.numOfEntry(),
                 cDataCnt  = 0,
                 cChar     = ''
@@ -121,17 +120,17 @@ exports = module.exports = function(options, cacheInstance) {
           }
           break;
         case 'stats':
-          console.log(JSON.stringify(cp.cmdRes, null, 2));
+          console.log(JSON.stringify(cacheCmd.cmdRes, null, 2));
           break;
         case 'vacuum':
-          console.log(cp.cmdRes);
+          console.log(cacheCmd.cmdRes);
           break;
         case 'exit':
-          if(cp.cmdRes.exit === true) process.exit(0);
+          if(cacheCmd.cmdRes.exit === true) process.exit(0);
           break;
         default:
-          if(cp.cmdRes && cp.cmdRes.error) {
-            console.log('ERROR (' + cp.cmdRes.error + ')');
+          if(cacheCmd.cmdRes && cacheCmd.cmdRes.error) {
+            console.log('ERROR (' + cacheCmd.cmdRes.error + ')');
           } else {
             console.log('ERROR');
           }
