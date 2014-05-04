@@ -3,6 +3,9 @@
 ### HEAD
 
 ```
+* Add pipe module
+* More debugging messages
+* Add verbose option
 * Add auto completion for REPL
 ```
 
