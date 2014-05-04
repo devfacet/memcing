@@ -86,11 +86,13 @@ For REST API performance tests;
 
 ##### Postal Code Service Example
 
-You can create a postal code service with two lines of command.
+You can create a postal code service with;
 ```
-([ -f zip.zip ] || wget -qO zip.zip http://download.geonames.org/export/zip/US.zip) && unzip -p zip.zip US.txt | cat | awk -v sq="'" -F"\\t" '{ print "set \""$2"\" \"["sq$1sq","sq$3sq","sq$4sq","sq$5sq","sq$6sq","sq$10sq","sq$11sq"]\""}' > cmds-postal-codes.txt
-node memcing.js -cache-limit 65536 -listen-http 0.0.0.0:12080 -load-file ./cmds-postal-codes.txt
+([ -f zip.zip ] || wget -qO zip.zip http://download.geonames.org/export/zip/US.zip) && unzip -p zip.zip US.txt \
+| cat | awk -v sq="'" -F"\\t" '{ print "set \""$2"\" \"["sq$1sq","sq$3sq","sq$4sq","sq$5sq","sq$6sq","sq$10sq","sq$11sq"]\""}' \
+| node memcing.js -cache-limit 67108864 -listen-http 0.0.0.0:12080
 ```
+
 See `http://localhost:12080/entries/78729`
 ```JSON
 {
