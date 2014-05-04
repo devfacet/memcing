@@ -86,12 +86,15 @@ For REST API performance tests;
 
 ##### Postal Code Service Example
 
-You can create a postal code service with;
+You can easily create a postal code service (this is just a one command);
 ```
-([ -f zip.zip ] || wget -qO zip.zip http://download.geonames.org/export/zip/US.zip) && unzip -p zip.zip US.txt \
-| cat | awk -v sq="'" -F"\\t" '{ print "set \""$2"\" \"["sq$1sq","sq$3sq","sq$4sq","sq$5sq","sq$6sq","sq$10sq","sq$11sq"]\""}' \
+([ -f postal-codes.zip ] || wget -qO postal-codes.zip http://download.geonames.org/export/zip/US.zip) && unzip -p postal-codes.zip US.txt | cat \
+| awk -v sq="'" -F"\\t" '{ print "set \""$2"\" \"["sq$1sq","sq$3sq","sq$4sq","sq$5sq","sq$6sq","sq$10sq","sq$11sq"]\""}' \
 | node memcing.js -cache-limit 67108864 -listen-http 0.0.0.0:12080
 ```
+1. Check and download the postal codes then extract it. (`wget`, `unzip`, `cat`)
+2. Get CSV file lines and prepare commands (`awk`)
+3. Push commands to the memcing via `stdin`
 
 See `http://localhost:12080/entries/78729`
 ```JSON
