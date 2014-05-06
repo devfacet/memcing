@@ -26,7 +26,8 @@ exports = module.exports = function(options, cacheInstance) {
         isDebug:      false,
         verbose:      1,
         stdin: {
-          kind: 'cmd', // cmd or csv
+          // stream, cmd or csv
+          kind: 'stream',
           csv: {delimiter: ',', fieldKey: 1, fieldFilter: null}
         }
       },
@@ -44,7 +45,7 @@ exports = module.exports = function(options, cacheInstance) {
     if(options.verbose !== undefined) config.verbose = options.verbose;
 
     if(options.stdin !== undefined) {
-      if(options.stdin.kind === 'cmd' || options.stdin.kind === 'csv') {
+      if(options.stdin.kind === 'stream' || options.stdin.kind === 'cmd' || options.stdin.kind === 'csv') {
         config.stdin.kind = options.stdin.kind;
       }
 
@@ -95,57 +96,75 @@ exports = module.exports = function(options, cacheInstance) {
       return deferred.promise;      
     }
 
-    if(config.stdin.kind === 'cmd') {
+    if(config.stdin.kind === 'stream' || config.stdin.kind === 'cmd') {
 
       // Init vars
-      var StrDecoder    = require('string_decoder').StringDecoder,
-          decoder       = new StrDecoder('utf8'),
-          counterRead   = 0,
-          counterEvent  = 0,
-          lines         = [],
-          buffer        = '',
-          chunk
+      var StrDecoder  = require('string_decoder').StringDecoder,
+          decoder     = new StrDecoder('utf8'),
+          cntRead     = 0,
+          cntReadable = 0,
+          lines       = [],
+          lineF       = '',
+          buffer      = '',
+          chunk,
+          spaceIndex
       ;
 
       // readable event
       process.stdin.on('readable', function() {
-        if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable]');
 
-        // read stdin
-        while (null !== (chunk = process.stdin.read())) {
-          //process.stdout.write(chunk);    // for debug
-          //console.log(chunk);             // for debug
+        // Read stdin
+        while (null !== (chunk = process.stdin.read(4))) {
 
           buffer += decoder.write(chunk);   // decode chunk data
           lines   = buffer.split(/\r?\n/g); // split from line endings
           buffer  = lines.pop();            // keep the last part
 
-          // Execute commands
+          // Execute commands line by line
           for (i = 0; i < lines.length; i++) {
             if(lines[i]) {
-              cacheCmd = cacheInstance.execCmd(lines[i]); // TODO: What to do with errors?
+              lineF = ('' + lines[i]).trim();
+
+              if(config.stdin.kind === 'stream') {
+                spaceIndex = lineF.indexOf(' ');
+                cacheCmd   = cacheInstance.set(lineF.substring(0, spaceIndex), lineF.substring(spaceIndex + 1)); // TODO: What to do with errors?
+              }
+              else if(config.stdin.kind === 'cmd') {
+                cacheCmd = cacheInstance.execCmd(lineF); // TODO: What to do with errors?
+              }
 
               if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable.lines]: ' + lines[i] + ' - ' + JSON.stringify(cacheCmd));
             }
           }
 
-          counterRead++;
+          cntRead++;
         }
 
         // Check buffer and execute the command if any
         if(buffer) {
-          cacheCmd  = cacheInstance.execCmd(buffer); // TODO: What to do with errors?
-          buffer    = '';
+          buffer = ('' + buffer).trim();
+
+          if(config.stdin.kind === 'stream') {
+            spaceIndex = buffer.indexOf(' ');
+            cacheCmd   = cacheInstance.set(buffer.substring(0, spaceIndex), buffer.substring(spaceIndex + 1)); // TODO: What to do with errors?
+          }
+          else if(config.stdin.kind === 'cmd') {
+            cacheCmd = cacheInstance.execCmd(buffer); // TODO: What to do with errors?
+          }
 
           if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable.buffer]: ' + buffer + ' - ' + JSON.stringify(cacheCmd));
+
+          buffer = '';
         }
 
-        counterEvent++;
+        cntReadable++;
+
+        if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable]:' + cntReadable);
       });
 
       // end event
       process.stdin.on('end', function() {
-        if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.end]: ' + counterEvent + ':' + counterRead);
+        if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.end]: ' + cntReadable + ':' + cntRead);
 
         deferred.resolve();
       });
@@ -153,39 +172,37 @@ exports = module.exports = function(options, cacheInstance) {
     } else if(config.stdin.kind === 'csv') {
 
       // Init vars
-      var entryKey,
+      var fieldKey    = config.stdin.csv.fieldKey-1,
+          fieldFilter = (config.stdin.csv.fieldFilter) ? config.stdin.csv.fieldFilter.split(',') : null,
+          entryKey,
           entryVal,
-          entryValFields  = [],
-          fieldKey        = config.stdin.csv.fieldKey-1,
-          fieldFilter     = (config.stdin.csv.fieldFilter) ? config.stdin.csv.fieldFilter.split(',') : null
+          csvFields
       ;
 
       // Read csv
       csv()
-      .from.stream(process.stdin, {
-        delimiter: config.stdin.csv.delimiter,
-        comment: '#'
-      })
+      .from.stream(process.stdin, {delimiter: config.stdin.csv.delimiter, comment: '#'})
       .on('record', function(record, index) {
-        if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record]: ' + JSON.stringify(record));
 
-        entryKey = record[fieldKey];
+        if(record[fieldKey]) {
 
-        if(entryKey) {
+          entryKey  = (''+record[fieldKey]).trim();
+          csvFields = record;
+
+          // Get only filtered fields
           if(fieldFilter) {
-            entryValFields = [];
+            csvFields = [];
             for(i = 0; i < fieldFilter.length; i++) {
-              if(record[fieldFilter[i]-1]) entryValFields.push(record[fieldFilter[i]-1]);
+              if(record[fieldFilter[i]-1]) csvFields.push(record[fieldFilter[i]-1]);
             }
-          } else {
-            entryValFields = record;
           }
 
-          entryVal  = (entryValFields.length === 1) ? entryValFields[0] : "['" + entryValFields.join("','") + "']";
+          // Set as string or `parse-able` array
+          entryVal = (csvFields.length === 1) ? csvFields[0] : "['" + csvFields.join("','") + "']";
 
-          cacheCmd  = cacheInstance.set(entryKey, entryVal); // TODO: What to do with errors?
+          cacheCmd = cacheInstance.set(entryKey, entryVal); // TODO: What to do with errors?
 
-          if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record].cacheCmd: ' + JSON.stringify(cacheCmd));
+          if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record.cacheCmd]: ' + JSON.stringify(record) + ' - ' + JSON.stringify(cacheCmd));
         }
       })
       .on('error', function(err) {
