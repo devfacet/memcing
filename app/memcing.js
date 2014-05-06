@@ -147,7 +147,9 @@ function cmdHelp() {
   console.log("  Examples:");
   console.log("    node memcing.js -i");
   console.log("    node memcing.js -i -load-file /path/file -listen-http");
-  console.log("    cat file.csv | node memcing.js -listen-http -csv\n");
+  console.log("    echo hello world | node memcing.js -listen-http");
+  console.log("    cat file.csv | node memcing.js -listen-http -csv");
+  console.log("    cat cmds.txt | node memcing.js -listen-http -cmd\n");
 
   console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
 
