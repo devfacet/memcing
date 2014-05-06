@@ -3,12 +3,15 @@
 ### HEAD
 
 ```
+```
+
+### 0.2.0 (2014-05-06)
+
 * Add csv support
 * Add pipe module
 * Add verbose option
 * Add auto completion for REPL
 * More debugging messages
-```
 
 ### 0.1.7 (2014-04-30)
 
