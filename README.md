@@ -185,20 +185,20 @@ non-persistent, non-durable and supporting eviction. But later I have decided to
 
 #### Implementations
 
-* [x] Interactive mode
-* [ ] REST API
-      - [x] GET
-        - [x] Collection (`/entries`)
-        - [x] Element (`/entries/{KEY}`)
-      - [ ] PUT
-        - [ ] Collection (`/entries`)
-        - [x] Element (`/entries/{KEY}`)
-      - [ ] POST
-        - [ ] Collection (`/entries`)
-        - [x] Element (`/entries/{KEY}`)
-      - [x] DELETE
-        - [x] Collection (`/entries`)
-        - [x] Element (`/entries/{KEY}`)
+- [x] Interactive mode
+- [ ] REST API
+  - [x] GET
+    - [x] Collection (`/entries`)
+    - [x] Element (`/entries/{KEY}`)
+  - [ ] PUT
+    - [ ] Collection (`/entries`)
+    - [x] Element (`/entries/{KEY}`)
+  - [ ] POST
+    - [ ] Collection (`/entries`)
+    - [x] Element (`/entries/{KEY}`)
+  - [x] DELETE
+    - [x] Collection (`/entries`)
+    - [x] Element (`/entries/{KEY}`)
 
 ### Changelog
 
