@@ -26,10 +26,8 @@ exports = module.exports = function(options, cacheInstance) {
         isDebug:      false,
         verbose:      1,
         stdin: {
-          kind: 'cmd', // cmd, csv
-          csv: {
-            delimiter: ','
-          }
+          kind: 'cmd', // cmd or csv
+          csv: {delimiter: ',', fieldKey: 1, fieldFilter: null}
         }
       },
       stdinHasPipe,   // checks stdin - function
@@ -38,7 +36,7 @@ exports = module.exports = function(options, cacheInstance) {
 
   ;
 
-  // Check params
+  // Check options
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
@@ -57,6 +55,14 @@ exports = module.exports = function(options, cacheInstance) {
           } else {
             config.stdin.csv.delimiter = options.stdin.csv.delimiter;
           }
+        }
+
+        if(options.stdin.csv.fieldKey !== undefined && !isNaN(options.stdin.csv.fieldKey)) {
+          config.stdin.csv.fieldKey = options.stdin.csv.fieldKey;
+        }
+
+        if(options.stdin.csv.fieldFilter) {
+          config.stdin.csv.fieldFilter = options.stdin.csv.fieldFilter;
         }
       }
     }
@@ -78,7 +84,10 @@ exports = module.exports = function(options, cacheInstance) {
     if(config.isDebug) utilex.tidyLog('[pipe.start]');
 
     // Init vars
-    var deferred = q.defer();
+    var deferred = q.defer(),
+        cacheCmd,
+        i
+    ;
 
     // Check config
     if(stdinHasPipe() !== true) {
@@ -86,24 +95,23 @@ exports = module.exports = function(options, cacheInstance) {
       return deferred.promise;      
     }
 
-    var StrDecoder    = require('string_decoder').StringDecoder,
-        decoder       = new StrDecoder('utf8'),
-        counterRead   = 0,
-        counterEvent  = 0,
-        lines         = [],
-        buffer        = '',
-        chunk,
-        i,
-        cacheCmd,
-        entryKey,
-        entryVal
-    ;
-
     if(config.stdin.kind === 'cmd') {
 
+      // Init vars
+      var StrDecoder    = require('string_decoder').StringDecoder,
+          decoder       = new StrDecoder('utf8'),
+          counterRead   = 0,
+          counterEvent  = 0,
+          lines         = [],
+          buffer        = '',
+          chunk
+      ;
+
+      // readable event
       process.stdin.on('readable', function() {
         if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable]');
 
+        // read stdin
         while (null !== (chunk = process.stdin.read())) {
           //process.stdout.write(chunk);    // for debug
           //console.log(chunk);             // for debug
@@ -112,6 +120,7 @@ exports = module.exports = function(options, cacheInstance) {
           lines   = buffer.split(/\r?\n/g); // split from line endings
           buffer  = lines.pop();            // keep the last part
 
+          // Execute commands
           for (i = 0; i < lines.length; i++) {
             if(lines[i]) {
               cacheCmd = cacheInstance.execCmd(lines[i]); // TODO: What to do with errors?
@@ -123,6 +132,7 @@ exports = module.exports = function(options, cacheInstance) {
           counterRead++;
         }
 
+        // Check buffer and execute the command if any
         if(buffer) {
           cacheCmd  = cacheInstance.execCmd(buffer); // TODO: What to do with errors?
           buffer    = '';
@@ -133,6 +143,7 @@ exports = module.exports = function(options, cacheInstance) {
         counterEvent++;
       });
 
+      // end event
       process.stdin.on('end', function() {
         if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.end]: ' + counterEvent + ':' + counterRead);
 
@@ -141,6 +152,15 @@ exports = module.exports = function(options, cacheInstance) {
 
     } else if(config.stdin.kind === 'csv') {
 
+      // Init vars
+      var entryKey,
+          entryVal,
+          entryValFields  = [],
+          fieldKey        = config.stdin.csv.fieldKey-1,
+          fieldFilter     = (config.stdin.csv.fieldFilter) ? config.stdin.csv.fieldFilter.split(',') : null
+      ;
+
+      // Read csv
       csv()
       .from.stream(process.stdin, {
         delimiter: config.stdin.csv.delimiter,
@@ -149,12 +169,24 @@ exports = module.exports = function(options, cacheInstance) {
       .on('record', function(record, index) {
         if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record]: ' + JSON.stringify(record));
 
-        entryKey = record.shift();
-        entryVal = (record.length === 1) ? record[0] : "['" + record.join("','") + "']";
+        entryKey = record[fieldKey];
 
-        cacheCmd = cacheInstance.set(entryKey, entryVal); // TODO: What to do with errors?
+        if(entryKey) {
+          if(fieldFilter) {
+            entryValFields = [];
+            for(i = 0; i < fieldFilter.length; i++) {
+              if(record[fieldFilter[i]-1]) entryValFields.push(record[fieldFilter[i]-1]);
+            }
+          } else {
+            entryValFields = record;
+          }
 
-        if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record].cacheCmd: ' + JSON.stringify(cacheCmd));
+          entryVal  = (entryValFields.length === 1) ? entryValFields[0] : "['" + entryValFields.join("','") + "']";
+
+          cacheCmd  = cacheInstance.set(entryKey, entryVal); // TODO: What to do with errors?
+
+          if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record].cacheCmd: ' + JSON.stringify(cacheCmd));
+        }
       })
       .on('error', function(err) {
         deferred.reject(err.message);
