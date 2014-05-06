@@ -25,7 +25,7 @@ exports = module.exports = function(options, cacheInstance) {
       completer // auto complete - function
   ;
 
-  // Check params
+  // Check options
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
