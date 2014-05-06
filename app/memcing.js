@@ -45,6 +45,12 @@ if(appArgs['cmd'] !== undefined) {
 if(appArgs['csv-delimiter']) {
   appConfig.pipe.stdin.csv.delimiter = appArgs['csv-delimiter'];
 }
+if(appArgs['csv-field-key']) {
+  appConfig.pipe.stdin.csv.fieldKey = parseInt(appArgs['csv-field-key'], 10);
+}
+if(appArgs['csv-field-filter']) {
+  appConfig.pipe.stdin.csv.fieldFilter = appArgs['csv-field-filter'];
+}
 
 if(appFlags.debug === true) {
   appConfig.cache.isDebug = true;
@@ -104,22 +110,28 @@ function cmdHelp() {
   console.log("Memcing is an application for simple memory caching.\n");
 
   console.log("  Options:");
-  console.log("    -i              : Enable interactive mode.");
-  console.log("    -listen-http    : Listen HTTP requests for REST API.");
-  console.log("                      Default; localhost:12080\n");
-  console.log("    -load-file      : Load a command file.");
-  console.log("    -cmd            : Enable command mode for stdin.");
-  console.log("    -csv            : Enable CSV mode for stdin.");
-  console.log("    -csv-delimiter  : CSV delimiter (char or `tab`). Default; ,\n");
-  console.log("    -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216");
-  console.log("    -entry-limit    : Entry size limit in bytes. Default (1KB); 1024");
-  console.log("    -vacuum-delay   : Delay in seconds for vacuum. Default; 30");
-  console.log("    -eviction       : Enable eviction mode.\n");
-  console.log("    -debug          : Enable debug mode.");
-  console.log("    -verbose        : Set verbose message level. Default; 1");
-  console.log("    -help           : Display help and exit.\n");
+  console.log("    -i                 : Enable interactive mode.");
+  console.log("    -listen-http       : Listen HTTP requests. Default; localhost:12080");
+  console.log("    -load-file         : Load a command file.\n");
 
-  console.log("  Commands:");
+  console.log("    -cache-limit       : Cache size limit in bytes. Default (16MB); 16777216");
+  console.log("    -entry-limit       : Entry size limit in bytes. Default (1KB); 1024");
+  console.log("    -vacuum-delay      : Delay in seconds for vacuum. Default; 30");
+  console.log("    -eviction          : Enable eviction mode.\n");
+
+  console.log("    -debug             : Enable debug mode.");
+  console.log("    -verbose           : Set verbose message level. Default; 1");
+  console.log("    -help              : Display help and exit.\n");
+
+  console.log("  stdin:");
+  console.log("    -cmd               : Enable command mode for stdin.");
+  console.log("    -csv               : Enable CSV mode for stdin.");
+  console.log("    -csv-delimiter     : CSV delimiter (char or `tab`). Default; ,");
+  console.log("    -csv-field-key     : Key field index on CSV. Default; 1");
+  console.log("    -csv-field-filter  : Include fields on CSV. Default (all); null");
+  console.log("                         Example; -csv-field-filter 1,2\n");
+
+  console.log("  Interactive mode commands:");
   console.log("    get key");
   console.log("    set key value [expire = 0]");
   console.log("    add key value [expire = 0]");

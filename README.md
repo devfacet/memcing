@@ -40,25 +40,28 @@ node memcing.js -help
 ```
 ```
   Options:
-    -i              : Enable interactive mode.
-    -listen-http    : Listen HTTP requests for REST API.
-                      Default; localhost:12080
+    -i                 : Enable interactive mode.
+    -listen-http       : Listen HTTP requests. Default; localhost:12080
+    -load-file         : Load a command file.
 
-    -load-file      : Load a command file.
-    -cmd            : Enable command mode for stdin.
-    -csv            : Enable CSV mode for stdin.
-    -csv-delimiter  : CSV delimiter (char or `tab`). Default; ,
+    -cache-limit       : Cache size limit in bytes. Default (16MB); 16777216
+    -entry-limit       : Entry size limit in bytes. Default (1KB); 1024
+    -vacuum-delay      : Delay in seconds for vacuum. Default; 30
+    -eviction          : Enable eviction mode.
 
-    -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216
-    -entry-limit    : Entry size limit in bytes. Default (1KB); 1024
-    -vacuum-delay   : Delay in seconds for vacuum. Default; 30
-    -eviction       : Enable eviction mode.
+    -debug             : Enable debug mode.
+    -verbose           : Set verbose message level. Default; 1
+    -help              : Display help and exit.
 
-    -debug          : Enable debug mode.
-    -verbose        : Set verbose message level. Default; 1
-    -help           : Display help and exit.
+  stdin:
+    -cmd               : Enable command mode for stdin.
+    -csv               : Enable CSV mode for stdin.
+    -csv-delimiter     : CSV delimiter (char or `tab`). Default; ,
+    -csv-field-key     : Key field index on CSV. Default; 1
+    -csv-field-filter  : Include fields on CSV. Default (all); null
+                         Example; -csv-field-filter 1,2
 
-  Commands:
+  Interactive mode commands:
     get key
     set key value [expire = 0]
     add key value [expire = 0]
