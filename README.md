@@ -45,6 +45,10 @@ node memcing.js -help
                       Default; localhost:12080
 
     -load-file      : Load a command file.
+    -cmd            : Enable command mode for stdin.
+    -csv            : Enable CSV mode for stdin.
+    -csv-delimiter  : CSV delimiter (char or `tab`). Default; ,
+
     -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216
     -entry-limit    : Entry size limit in bytes. Default (1KB); 1024
     -vacuum-delay   : Delay in seconds for vacuum. Default; 30

@@ -18,7 +18,7 @@ var utilex = require('utilex'),
 // Init vars
 var appArgs   = utilex.tidyArgs(),
     appFlags  = {debug: false, verbose: 1, loadFile: null, listen: false, iactive: false},
-    appConfig = {cache: {}, pipe: {}, rest: {http: {}}, repl: {}},
+    appConfig = {cache: {}, pipe: {stdin: {csv: {}}}, rest: {http: {}}, repl: {}},
     appCache, // cache instance
     appREST,  // rest instance
     appREPL   // repl instance
@@ -31,10 +31,20 @@ if(appArgs['listen-http'] !== undefined)  appFlags.listen             = true;
 if(appArgs['i'] !== undefined)            appFlags.iactive            = true;
 if(appArgs['debug'] !== undefined)        appFlags.debug              = true;
 if(appArgs['verbose'] !== undefined)      appFlags.verbose            = parseInt(appArgs['verbose'],  10);
+
 if(appArgs['cache-limit'] !== undefined)  appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
 if(appArgs['entry-limit'] !== undefined)  appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
 if(appArgs['vacuum-delay'] !== undefined) appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
 if(appArgs['eviction'] !== undefined)     appConfig.cache.eviction    = true;
+
+if(appArgs['cmd'] !== undefined) {
+  appConfig.pipe.stdin.kind = 'cmd';
+} else if(appArgs['csv'] !== undefined) {
+  appConfig.pipe.stdin.kind = 'csv';
+}
+if(appArgs['csv-delimiter']) {
+  appConfig.pipe.stdin.csv.delimiter = appArgs['csv-delimiter'];
+}
 
 if(appFlags.debug === true) {
   appConfig.cache.isDebug = true;
@@ -98,6 +108,9 @@ function cmdHelp() {
   console.log("    -listen-http    : Listen HTTP requests for REST API.");
   console.log("                      Default; localhost:12080\n");
   console.log("    -load-file      : Load a command file.");
+  console.log("    -cmd            : Enable command mode for stdin.");
+  console.log("    -csv            : Enable CSV mode for stdin.");
+  console.log("    -csv-delimiter  : CSV delimiter (char or `tab`). Default; ,\n");
   console.log("    -cache-limit    : Cache size limit in bytes. Default (16MB); 16777216");
   console.log("    -entry-limit    : Entry size limit in bytes. Default (1KB); 1024");
   console.log("    -vacuum-delay   : Delay in seconds for vacuum. Default; 30");
