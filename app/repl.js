@@ -54,9 +54,9 @@ exports = module.exports = function(options, cacheInstance) {
     }
 
     var rl = require('readline').createInterface({
-      input:      process.stdin, 
-      output:     process.stdout, 
-      terminal:   true, 
+      input:      process.stdin,
+      output:     process.stdout,
+      terminal:   true,
       completer:  completer
     });
 
@@ -69,8 +69,8 @@ exports = module.exports = function(options, cacheInstance) {
     rl.on('line', function(line) {
 
       // Check the input
-      if(!line.trim()) { 
-        rl.prompt(); 
+      if(!line.trim()) {
+        rl.prompt();
         return;
       }
 
@@ -179,7 +179,7 @@ exports = module.exports = function(options, cacheInstance) {
 
       if(lineCmds.length > 0) {
         cmdList     = cacheInstance.cmdList.map(function(value) { return lineCmds.join(' ') + ' ' + value; });
-      } else {  
+      } else {
         cmdList     = cacheInstance.cmdList;
       }
 

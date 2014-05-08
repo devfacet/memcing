@@ -93,7 +93,7 @@ exports = module.exports = function(options, cacheInstance) {
     // Check config
     if(stdinHasPipe() !== true) {
       deferred.resolve();
-      return deferred.promise;      
+      return deferred.promise;
     }
 
     if(config.stdin.kind === 'stream' || config.stdin.kind === 'cmd') {
@@ -182,7 +182,7 @@ exports = module.exports = function(options, cacheInstance) {
       // Read csv
       csv()
       .from.stream(process.stdin, {delimiter: config.stdin.csv.delimiter, comment: '#'})
-      .on('record', function(record, index) {
+      .on('record', function(record) {
 
         if(record[fieldKey]) {
 

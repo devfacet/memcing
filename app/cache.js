@@ -44,7 +44,7 @@ exports = module.exports = function(options) {
         },
 
         // vacuum options
-        vacuum: {           
+        vacuum: {
           delay:    30,     // vacuum interval in seconds
           running:  false   // whether vacuum running or not
         },
@@ -70,16 +70,16 @@ exports = module.exports = function(options) {
 
       // cache commands
       cacheCmds     = [
-        'get', 
-        'set', 
-        'add', 
-        'delete', 
-        'drop', 
-        'increment', 
-        'decrement', 
-        'dump', 
-        'stats', 
-        'vacuum', 
+        'get',
+        'set',
+        'add',
+        'delete',
+        'drop',
+        'increment',
+        'decrement',
+        'dump',
+        'stats',
+        'vacuum',
         'exit'
       ],
 

@@ -96,7 +96,7 @@ appCache.loadFile(appFlags.loadFile)
 })
 .catch(function(err) {
   utilex.tidyLog(err);
-  process.exit(0); 
+  process.exit(0);
 })
 .done(function() {
   if(!appFlags.listen && !appFlags.iactive) process.exit(0);

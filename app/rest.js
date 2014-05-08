@@ -24,8 +24,8 @@ exports = module.exports = function(options, cacheInstance) {
   var config          = {isDebug: false, verbose: 1},
       listenOpt       = {
         http: {
-          isEnabled:  false, 
-          hostname:   'localhost', 
+          isEnabled:  false,
+          hostname:   'localhost',
           port:       12080
         }
       },
@@ -226,7 +226,7 @@ exports = module.exports = function(options, cacheInstance) {
       }
     } else {
       res.writeHead(500, resHdr);
-      res.end(JSON.stringify({code: '500', message: 'Internal Server Error'}));      
+      res.end(JSON.stringify({code: '500', message: 'Internal Server Error'}));
     }
   };
 
