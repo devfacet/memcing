@@ -5,6 +5,10 @@
 ```
 ```
 
+### 0.2.1 (2014-05-08)
+
+* Change for stdin read buffer size
+
 ### 0.2.0 (2014-05-06)
 
 * Add csv support

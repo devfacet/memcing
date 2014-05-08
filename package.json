@@ -1,6 +1,6 @@
 {
   "name": "memcing",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Memcing is an in-memory key-value caching application with RESTful API.",
   "keywords": [
     "memory",
