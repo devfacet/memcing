@@ -1,11 +1,8 @@
 ## Memcing
 
-[memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application 
-with REST API feature.
+[memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application with RESTful API.  
 
-memcing on [npm registry](http://npmjs.org/package/memcing)   
-
-[![NPM][npm-image]][npm-url] | [![Build Status][travis-image]][travis-url] | [![Dependency Status][depstatus-image]][depstatus-url]
+[![Build Status][travis-image]][travis-url] | [![Dependency Status][depstatus-image]][depstatus-url] | [![NPM][npm-image]][npm-url]
 ---------- | ---------- | ----------
 
 
@@ -179,8 +176,8 @@ curl -X DELETE http://localhost:12080/entries
 
 * For issues see [Issues](https://github.com/cmfatih/memcing/issues)
 * For design goals and coding see [coding](https://github.com/cmfatih/coding)
-* memcing is 'originally' developed for an interview exam. The requirements were; 
-non-persistent, non-durable and supporting eviction. But later I have decided to continue...
+* memcing is 'originally' developed for an interview code exercise. The requirements were; 
+non-persistent, non-durable and supporting eviction.
 
 #### Implementations
 
@@ -210,7 +207,7 @@ Licensed under The MIT License (MIT)
 For the full copyright and license information, please view the LICENSE.txt file.
 
 [npm-url]: http://npmjs.org/package/memcing
-[npm-image]: https://nodei.co/npm/memcing.png?compact=true
+[npm-image]: https://badge.fury.io/js/memcing.png
 
 [travis-url]: https://travis-ci.org/cmfatih/memcing
 [travis-image]: https://travis-ci.org/cmfatih/memcing.svg?branch=master
