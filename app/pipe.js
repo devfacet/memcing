@@ -114,7 +114,7 @@ exports = module.exports = function(options, cacheInstance) {
       process.stdin.on('readable', function() {
 
         // Read stdin
-        while (null !== (chunk = process.stdin.read(4))) {
+        while (null !== (chunk = process.stdin.read())) {
 
           buffer += decoder.write(chunk);   // decode chunk data
           lines   = buffer.split(/\r?\n/g); // split from line endings
