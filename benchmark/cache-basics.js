@@ -30,7 +30,7 @@ var entries       = [],
     hrtime,
     hrtimeGlob,
     hrtimeDiff    = function(hrtime) {
-      hrtime = process.hrtime(hrtime); 
+      hrtime = process.hrtime(hrtime);
       return ((hrtime[0]*1000)+(hrtime[1]*1.0e-6)).toFixed(4);
     },
     i
