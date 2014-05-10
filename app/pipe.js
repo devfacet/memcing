@@ -23,7 +23,7 @@ exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
   var config          = {
-        isDebug:      false,
+        debug:      false,
         verbose:      1,
         stdin: {
           // stream, cmd or csv
@@ -40,7 +40,7 @@ exports = module.exports = function(options, cacheInstance) {
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
-    if(options.isDebug === true)      config.isDebug = true;
+    if(options.debug === true)        config.debug   = true;
     if(options.verbose !== undefined) config.verbose = options.verbose;
 
     if(options.stdin !== undefined) {
@@ -81,7 +81,7 @@ exports = module.exports = function(options, cacheInstance) {
   // Starts reading
   start = function start() {
 
-    if(config.isDebug) utilex.tidyLog('[pipe.start]');
+    if(config.debug) utilex.tidyLog('[pipe.start]');
 
     // Init vars
     var deferred = q.defer(),
@@ -132,7 +132,7 @@ exports = module.exports = function(options, cacheInstance) {
                 cacheCmd = cacheInstance.execCmd(lineF); // TODO: What to do with errors?
               }
 
-              if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable.lines]: ' + lines[i] + ' - ' + JSON.stringify(cacheCmd));
+              if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable.lines]: ' + lines[i] + ' - ' + JSON.stringify(cacheCmd));
             }
           }
 
@@ -151,19 +151,19 @@ exports = module.exports = function(options, cacheInstance) {
             cacheCmd = cacheInstance.execCmd(buffer); // TODO: What to do with errors?
           }
 
-          if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable.buffer]: ' + buffer + ' - ' + JSON.stringify(cacheCmd));
+          if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable.buffer]: ' + buffer + ' - ' + JSON.stringify(cacheCmd));
 
           buffer = '';
         }
 
         cntReadable++;
 
-        if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.readable]:' + cntReadable);
+        if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable]:' + cntReadable);
       });
 
       // end event
       process.stdin.on('end', function() {
-        if(config.isDebug) utilex.tidyLog('[pipe.start.stdin.end]: ' + cntReadable + ':' + cntRead);
+        if(config.debug) utilex.tidyLog('[pipe.start.stdin.end]: ' + cntReadable + ':' + cntRead);
 
         deferred.resolve();
       });
@@ -201,14 +201,14 @@ exports = module.exports = function(options, cacheInstance) {
 
           cacheCmd = cacheInstance.set(entryKey, entryVal); // TODO: What to do with errors?
 
-          if(config.isDebug) utilex.tidyLog('[pipe.start.csv.record.cacheCmd]: ' + JSON.stringify(record) + ' - ' + JSON.stringify(cacheCmd));
+          if(config.debug) utilex.tidyLog('[pipe.start.csv.record.cacheCmd]: ' + JSON.stringify(record) + ' - ' + JSON.stringify(cacheCmd));
         }
       })
       .on('error', function(err) {
         deferred.reject(err.message);
       })
       .on('end', function(count) {
-        if(config.isDebug) utilex.tidyLog('[pipe.start.csv.end]: ' + count);
+        if(config.debug) utilex.tidyLog('[pipe.start.csv.end]: ' + count);
 
         deferred.resolve();
       });

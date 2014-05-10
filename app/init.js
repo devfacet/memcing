@@ -75,10 +75,10 @@ exports = module.exports = function(appFlags, appConfig) {
 
   // debug
   if(appFlags.debug === true) {
-    appConfig.cache.isDebug = true;
-    appConfig.pipe.isDebug  = true;
-    appConfig.rest.isDebug  = true;
-    appConfig.repl.isDebug  = true;
+    appConfig.cache.debug = true;
+    appConfig.pipe.debug  = true;
+    appConfig.rest.debug  = true;
+    appConfig.repl.debug  = true;
   }
 
   // verbose

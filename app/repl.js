@@ -20,7 +20,7 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config    = {isDebug: false, verbose: 1, isEnabled: false},
+  var config    = {debug: false, verbose: 1, isEnabled: false},
       start,    // start - function
       completer // auto complete - function
   ;
@@ -29,9 +29,9 @@ exports = module.exports = function(options, cacheInstance) {
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
-    if(options.isDebug === true)      config.isDebug    = true;
-    if(options.verbose !== undefined) config.verbose    = options.verbose;
-    if(options.isEnabled === true)    config.isEnabled  = true;
+    if(options.debug === true)        config.debug     = true;
+    if(options.verbose !== undefined) config.verbose   = options.verbose;
+    if(options.isEnabled === true)    config.isEnabled = true;
   }
 
   // Starts repl
@@ -76,7 +76,7 @@ exports = module.exports = function(options, cacheInstance) {
 
       var cacheCmd = cacheInstance.execCmd(line); // Execute the command
 
-      if(config.isDebug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
+      if(config.debug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
 
       switch(cacheCmd.cmd) {
         case 'get':

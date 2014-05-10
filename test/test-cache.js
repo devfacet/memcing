@@ -14,7 +14,7 @@ var cache  = require('../app/cache'),
 describe('appCache', function() {
 
   // Init vars
-  var appCache = cache({isDebug: false, globLimit: 16384, entryLimit: 256, eviction: true}),
+  var appCache = cache({debug: false, globLimit: 16384, entryLimit: 256, eviction: true}),
       result
   ;
 

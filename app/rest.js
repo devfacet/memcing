@@ -21,7 +21,7 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, cacheInstance) {
 
   // Init vars
-  var config          = {isDebug: false, verbose: 1},
+  var config          = {debug: false, verbose: 1},
       listenOpt       = {
         http: {
           isEnabled:  false,
@@ -43,8 +43,8 @@ exports = module.exports = function(options, cacheInstance) {
   if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
 
   if(options) {
-    if(options.isDebug === true)          config.isDebug            = true;
-    if(options.verbose !== undefined)     config.verbose            = options.verbose;
+    if(options.debug === true)        config.debug   = true;
+    if(options.verbose !== undefined) config.verbose = options.verbose;
 
     if(options.http) {
       if(options.http.isEnabled === true) listenOpt.http.isEnabled  = true;
@@ -103,7 +103,7 @@ exports = module.exports = function(options, cacheInstance) {
       var pathAry = urlParse.pathname.split('/');
       pathAry.shift(); // remove first element
 
-      if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.pathAry]: ' + JSON.stringify(pathAry));
+      if(config.debug === true) utilex.tidyLog('[rest.listenReq.pathAry]: ' + JSON.stringify(pathAry));
 
       if(pathAry[0] === 'entries') {
         if(pathAry[1]) { // element
@@ -125,7 +125,7 @@ exports = module.exports = function(options, cacheInstance) {
             ;
 
             req.on('data', function(chunk) {
-              //if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
+              //if(config.debug === true) utilex.tidyLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
 
               // NOTE: Ignore rest of the data and give 413 error at end of the request.
               // TODO: Re-think this part, maybe it should destroy the connection instead of 
@@ -144,7 +144,7 @@ exports = module.exports = function(options, cacheInstance) {
                 res.end(JSON.stringify({code: '413', message: 'Request Entity Too Large'}));
               } else {
                 
-                if(config.isDebug === true) utilex.tidyLog('[rest.listenReq.req.end]: ' + bodyAry.join());
+                if(config.debug === true) utilex.tidyLog('[rest.listenReq.req.end]: ' + bodyAry.join());
 
                 if(req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                   var qsp       = qs.parse(bodyAry.join()),

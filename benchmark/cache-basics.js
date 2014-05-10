@@ -9,7 +9,7 @@ var utilex    = require('utilex'),
 // Init vars
 var appArgs   = utilex.tidyArgs(),
     appConfig = {isHeapdump: false},
-    appCache  = cache({isDebug: false, globLimit: 134217728, eviction: false})
+    appCache  = cache({debug: false, globLimit: 134217728, eviction: false})
 ;
 
 // config
