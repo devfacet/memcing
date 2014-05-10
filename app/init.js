@@ -65,9 +65,13 @@ exports = module.exports = function(appFlags, appConfig) {
   appConfig.rest.debug   = appFlags.debug;
   appConfig.rest.verbose = appFlags.verbose;
   if(appFlags.listen === true) {
-    appConfig.rest.http.isEnabled = true;
-    appConfig.rest.http.hostname  = appArgs['listen-http'].substring(0, appArgs['listen-http'].indexOf(':')).trim(),
-    appConfig.rest.http.port      = parseInt(appArgs['listen-http'].substring(appArgs['listen-http'].indexOf(':')+1).trim(), 10);
+    if(appArgs['listen-http'] !== undefined) {
+      var listenHTTP = (appArgs['listen-http']) ? appArgs['listen-http'] : '0.0.0.0:12080';
+
+      appConfig.rest.http.isEnabled = true;
+      appConfig.rest.http.hostname  = listenHTTP.substring(0, listenHTTP.indexOf(':')).trim(),
+      appConfig.rest.http.port      = parseInt(listenHTTP.substring(listenHTTP.indexOf(':')+1).trim(), 10);
+    }
   }
 
   // repl

@@ -21,42 +21,25 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, appInstance) {
 
   // Init vars
-  var config          = {debug: false, verbose: 1},
-      listenOpt       = {
-        http: {
-          isEnabled:  false,
-          hostname:   'localhost',
-          port:       12080
-        }
-      },
-      regex           = {
-        number:       new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')
-      },
-
-      listen,         // listen - function
-      listenReq,      // request listener - function
-
-      addrOf          // address - function
+  var config     = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null}},
+      regex      = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
+      listen,    // listen - function
+      listenReq, // request listener - function
+      addrOf     // address - function
   ;
 
-  // Check options
+  // Check the app
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
-  if(options) {
-    if(options.debug === true)        config.debug   = true;
-    if(options.verbose !== undefined) config.verbose = options.verbose;
-
-    if(options.http) {
-      if(options.http.isEnabled === true) listenOpt.http.isEnabled  = true;
-      if(options.http.hostname)           listenOpt.http.hostname   = ('' + options.http.hostname);
-      if(!isNaN(options.http.port))       listenOpt.http.port       = options.http.port;
-    }
-  }
+  // Check the options
+  if(options && options instanceof Object)
+    for(var key in config)
+      if(options.hasOwnProperty(key)) config[key] = options[key];
 
   // Returns the address of the given kind
   addrOf = function addrOf(kind) {
     if(kind === 'http') {
-      return listenOpt.http.hostname + ':' + listenOpt.http.port;
+      return config.http.hostname + ':' + config.http.port;
     }
 
     return;
@@ -72,18 +55,15 @@ exports = module.exports = function(options, appInstance) {
     if(options.http.isEnabled === true) {
       var server = http.createServer(listenReq);
 
-      // listen
-      server.listen(listenOpt.http.port, listenOpt.http.hostname, function() {
-        if(config.verbose > 0) utilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
+      server.listen(config.http.port, config.http.hostname, function() {
+        if(config.verbose > 0 || config.debug === true) {
+          utilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
+        }
 
         deferred.resolve();
-      });
-
-      // error
-      server.on('error', function(e) {
+      }).on('error', function(e) {
         deferred.reject(e);
       });
-
     } else {
       deferred.resolve();
     }
