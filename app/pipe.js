@@ -34,7 +34,6 @@ exports = module.exports = function(options, cacheInstance) {
       stdinHasPipe,   // checks stdin - function
       stdoutHasPipe,  // checks stdout - function
       start           // start - function
-
   ;
 
   // Check options
