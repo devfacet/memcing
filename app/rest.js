@@ -18,7 +18,7 @@ var utilex = require('utilex'),
 ;
 
 // Init the module
-exports = module.exports = function(options, cacheInstance) {
+exports = module.exports = function(options, appInstance) {
 
   // Init vars
   var config          = {debug: false, verbose: 1},
@@ -40,7 +40,7 @@ exports = module.exports = function(options, cacheInstance) {
   ;
 
   // Check options
-  if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
+  if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
   if(options) {
     if(options.debug === true)        config.debug   = true;
@@ -110,7 +110,7 @@ exports = module.exports = function(options, cacheInstance) {
           var element = (regex.number.test(pathAry[1]) && !isNaN(pathAry[1]/1)) ? pathAry[1]/1 : pathAry[1];
 
           if(req.method === 'GET') {
-            var cg = cacheInstance.get(element);
+            var cg = appInstance.get(element);
             if(cg) {
               res.writeHead(200, resHdr);
               res.end(JSON.stringify(cg));
@@ -121,7 +121,7 @@ exports = module.exports = function(options, cacheInstance) {
           } else if(req.method === 'PUT' || req.method === 'POST') {
             var bodyAry = [],
                 dataLen = 0,
-                dataLmt = cacheInstance.entryMaxSize()*2 // TODO: Find a better approach.
+                dataLmt = appInstance.entryMaxSize()*2 // TODO: Find a better approach.
             ;
 
             req.on('data', function(chunk) {
@@ -154,7 +154,7 @@ exports = module.exports = function(options, cacheInstance) {
                   ;
 
                   if(req.method === 'POST') {
-                    var cg = cacheInstance.get(element);
+                    var cg = appInstance.get(element);
                     if(cg) {
                       res.writeHead(409, resHdr);
                       res.end(JSON.stringify({code: '409', message: 'Conflict', entry: cg}));
@@ -163,10 +163,10 @@ exports = module.exports = function(options, cacheInstance) {
                   }
 
                   if(setTrig === true) {
-                    var cs = cacheInstance.set(element, entryVal, entryExp);
+                    var cs = appInstance.set(element, entryVal, entryExp);
                     if(!cs.error) {
                       res.writeHead(200, resHdr);
-                      res.end(JSON.stringify(cacheInstance.get(element)));
+                      res.end(JSON.stringify(appInstance.get(element)));
                     } else {
                       res.writeHead(400, resHdr);
                       res.end(JSON.stringify({code: '400', message: cs.error}));
@@ -179,7 +179,7 @@ exports = module.exports = function(options, cacheInstance) {
               }
             });
           } else if(req.method === 'DELETE') {
-            cacheInstance.del(element);
+            appInstance.del(element);
             res.writeHead(200, resHdr);
             res.end();
           } else {
@@ -191,10 +191,10 @@ exports = module.exports = function(options, cacheInstance) {
             res.writeHead(200, resHdr);
 
             // Cleanup expired entries
-            cacheInstance.vacuum({exp: true});
+            appInstance.vacuum({exp: true});
 
-            if(cacheInstance.numOfEntry() > 0) {
-              var cData = cacheInstance.entries(),
+            if(appInstance.numOfEntry() > 0) {
+              var cData = appInstance.entries(),
                   cChar = ''
               ;
               res.write('[');
@@ -209,7 +209,7 @@ exports = module.exports = function(options, cacheInstance) {
 
             res.end();
           } else if(req.method === 'DELETE') {
-            cacheInstance.drop();
+            appInstance.drop();
             res.writeHead(200, resHdr);
             res.end();
           } else {

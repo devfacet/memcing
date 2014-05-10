@@ -17,7 +17,7 @@ var utilex = require('utilex'),
 ;
 
 // Init the module
-exports = module.exports = function(options, cacheInstance) {
+exports = module.exports = function(options, appInstance) {
 
   // Init vars
   var config    = {debug: false, verbose: 1, isEnabled: false},
@@ -25,14 +25,13 @@ exports = module.exports = function(options, cacheInstance) {
       completer // auto complete - function
   ;
 
-  // Check options
-  if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
+  // Check the app
+  if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
-  if(options) {
-    if(options.debug === true)        config.debug     = true;
-    if(options.verbose !== undefined) config.verbose   = options.verbose;
-    if(options.isEnabled === true)    config.isEnabled = true;
-  }
+  // Check the options
+  if(options && options instanceof Object)
+    for(var key in config)
+      if(options.hasOwnProperty(key)) config[key] = options[key];
 
   // Starts repl
   start = function start() {
@@ -60,7 +59,7 @@ exports = module.exports = function(options, cacheInstance) {
       completer:  completer
     });
 
-    if(config.verbose > 0) utilex.tidyLog('Running on interactive mode. Commands: ' + cacheInstance.cmdList.join(' '));
+    if(config.verbose > 0) utilex.tidyLog('Running on interactive mode. Commands: ' + appInstance.cmdList.join(' '));
 
     rl.setPrompt('> '); // set prompt
     rl.prompt();
@@ -74,7 +73,7 @@ exports = module.exports = function(options, cacheInstance) {
         return;
       }
 
-      var cacheCmd = cacheInstance.execCmd(line); // Execute the command
+      var cacheCmd = appInstance.execCmd(line); // Execute the command
 
       if(config.debug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
 
@@ -98,11 +97,11 @@ exports = module.exports = function(options, cacheInstance) {
           break;
         case 'dump':
           // Cleanup expired entries
-          cacheInstance.vacuum({exp: true});
+          appInstance.vacuum({exp: true});
 
-          if(cacheInstance.numOfEntry() > 0) {
+          if(appInstance.numOfEntry() > 0) {
             var cData     = cacheCmd.cmdRes,
-                cDataLen  = cacheInstance.numOfEntry(),
+                cDataLen  = appInstance.numOfEntry(),
                 cDataCnt  = 0,
                 cChar     = ''
             ;
@@ -172,15 +171,15 @@ exports = module.exports = function(options, cacheInstance) {
     ;
 
     if(!lineF) {
-      matchingCmds  = cacheInstance.cmdList;
+      matchingCmds  = appInstance.cmdList;
     } else {
       lineCmds      = lineF.split(' ');
       lastCmd       = lineCmds.pop();
 
       if(lineCmds.length > 0) {
-        cmdList     = cacheInstance.cmdList.map(function(value) { return lineCmds.join(' ') + ' ' + value; });
+        cmdList     = appInstance.cmdList.map(function(value) { return lineCmds.join(' ') + ' ' + value; });
       } else {
-        cmdList     = cacheInstance.cmdList;
+        cmdList     = appInstance.cmdList;
       }
 
       fltrdCmds = cmdList.filter(function(element) { return element.indexOf(lineF) === 0; });

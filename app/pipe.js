@@ -19,7 +19,7 @@ var utilex = require('utilex'),
 ;
 
 // Init the module
-exports = module.exports = function(options, cacheInstance) {
+exports = module.exports = function(options, appInstance) {
 
   // Init vars
   var config          = {
@@ -37,7 +37,7 @@ exports = module.exports = function(options, cacheInstance) {
   ;
 
   // Check options
-  if(typeof cacheInstance !== 'object') throw new Error('Invalid cache instance!');
+  if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
   if(options) {
     if(options.debug === true)        config.debug   = true;
@@ -126,10 +126,10 @@ exports = module.exports = function(options, cacheInstance) {
 
               if(config.stdin.kind === 'stream') {
                 spaceIndex = lineF.indexOf(' ');
-                cacheCmd   = cacheInstance.set(lineF.substring(0, spaceIndex), lineF.substring(spaceIndex + 1)); // TODO: What to do with errors?
+                cacheCmd   = appInstance.set(lineF.substring(0, spaceIndex), lineF.substring(spaceIndex + 1)); // TODO: What to do with errors?
               }
               else if(config.stdin.kind === 'cmd') {
-                cacheCmd = cacheInstance.execCmd(lineF); // TODO: What to do with errors?
+                cacheCmd = appInstance.execCmd(lineF); // TODO: What to do with errors?
               }
 
               if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable.lines]: ' + lines[i] + ' - ' + JSON.stringify(cacheCmd));
@@ -145,10 +145,10 @@ exports = module.exports = function(options, cacheInstance) {
 
           if(config.stdin.kind === 'stream') {
             spaceIndex = buffer.indexOf(' ');
-            cacheCmd   = cacheInstance.set(buffer.substring(0, spaceIndex), buffer.substring(spaceIndex + 1)); // TODO: What to do with errors?
+            cacheCmd   = appInstance.set(buffer.substring(0, spaceIndex), buffer.substring(spaceIndex + 1)); // TODO: What to do with errors?
           }
           else if(config.stdin.kind === 'cmd') {
-            cacheCmd = cacheInstance.execCmd(buffer); // TODO: What to do with errors?
+            cacheCmd = appInstance.execCmd(buffer); // TODO: What to do with errors?
           }
 
           if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable.buffer]: ' + buffer + ' - ' + JSON.stringify(cacheCmd));
@@ -199,7 +199,7 @@ exports = module.exports = function(options, cacheInstance) {
           // Set as string or `parse-able` array
           entryVal = (csvFields.length === 1) ? csvFields[0] : "['" + csvFields.join("','") + "']";
 
-          cacheCmd = cacheInstance.set(entryKey, entryVal); // TODO: What to do with errors?
+          cacheCmd = appInstance.set(entryKey, entryVal); // TODO: What to do with errors?
 
           if(config.debug) utilex.tidyLog('[pipe.start.csv.record.cacheCmd]: ' + JSON.stringify(record) + ' - ' + JSON.stringify(cacheCmd));
         }
