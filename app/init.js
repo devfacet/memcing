@@ -69,7 +69,7 @@ exports = module.exports = function(appFlags, appConfig) {
       var listenHTTP = (appArgs['listen-http']) ? appArgs['listen-http'] : '0.0.0.0:12080';
 
       appConfig.rest.http.isEnabled = true;
-      appConfig.rest.http.hostname  = listenHTTP.substring(0, listenHTTP.indexOf(':')).trim(),
+      appConfig.rest.http.hostname  = listenHTTP.substring(0, listenHTTP.indexOf(':')).trim();
       appConfig.rest.http.port      = parseInt(listenHTTP.substring(listenHTTP.indexOf(':')+1).trim(), 10);
     }
   }

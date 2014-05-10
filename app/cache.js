@@ -39,7 +39,7 @@ exports = module.exports = function(options) {
           // entry limits
           entry: {
             inByte :  1024,   // entry size limit in bytes
-            inChar :  1024/4  // THIS BLOCK IS TEMP AND WILL BE GONE
+            inChar :  1024/4  // TODO: THIS BLOCK IS TEMP AND WILL BE GONE
           }
         },
 
@@ -119,7 +119,7 @@ exports = module.exports = function(options) {
       entryMaxSize      // max size of entry - function
   ;
 
-  // Check options
+  // Check the options
   if(options) {
     if(options.debug === true)        config.debug   = true;
     if(options.verbose !== undefined) config.verbose = options.verbose;

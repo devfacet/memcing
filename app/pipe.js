@@ -22,23 +22,20 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, appInstance) {
 
   // Init vars
-  var config          = {
-        debug:      false,
-        verbose:      1,
-        stdin: {
-          // stream, cmd or csv
-          kind: 'stream',
-          csv: {delimiter: ',', fieldKey: 1, fieldFilter: null}
-        }
+  var config         = {
+        debug:       false,
+        verbose:     1,
+        stdin:       {kind: 'stream', csv: {delimiter: ',', fieldKey: 1, fieldFilter: null}} // stream, cmd or csv
       },
-      stdinHasPipe,   // checks stdin - function
-      stdoutHasPipe,  // checks stdout - function
-      start           // start - function
+      stdinHasPipe,  // checks stdin - function
+      stdoutHasPipe, // checks stdout - function
+      start          // start - function
   ;
 
-  // Check options
+  // Check the app
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
+  // Check the options
   if(options) {
     if(options.debug === true)        config.debug   = true;
     if(options.verbose !== undefined) config.verbose = options.verbose;

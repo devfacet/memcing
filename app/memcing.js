@@ -48,7 +48,9 @@ appCache.loadFile(appFlags.loadFile)
   process.exit(0);
 })
 .done(function() {
-  if(!appFlags.listen && !appFlags.iactive) process.exit(0);
+  if(!appFlags.listen && !appFlags.iactive) {
+    process.exit(0); // Nothing to do
+  }
 });
 
 // Displays help and exit.
