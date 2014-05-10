@@ -48,12 +48,16 @@ exports = module.exports = function(appFlags, appConfig) {
   appConfig.repl    = {};
 
   // cache
+  appConfig.cache.debug   = appFlags.debug;
+  appConfig.cache.verbose = appFlags.verbose;
   if(appArgs['cache-limit'] !== undefined)  appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
   if(appArgs['entry-limit'] !== undefined)  appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
   if(appArgs['vacuum-delay'] !== undefined) appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
   if(appArgs['eviction'] !== undefined)     appConfig.cache.eviction    = true;
 
   // pipe
+  appConfig.pipe.debug   = appFlags.debug;
+  appConfig.pipe.verbose = appFlags.verbose;
   if(appArgs['cmd'] !== undefined) {
     appConfig.pipe.stdin.kind = 'cmd';
   } else if(appArgs['csv'] !== undefined) {
@@ -64,6 +68,8 @@ exports = module.exports = function(appFlags, appConfig) {
   if(appArgs['csv-field-filter']) appConfig.pipe.stdin.csv.fieldFilter = appArgs['csv-field-filter'];
 
   // rest
+  appConfig.rest.debug   = appFlags.debug;
+  appConfig.rest.verbose = appFlags.verbose;
   if(appFlags.listen === true) {
     appConfig.rest.http.isEnabled = true;
     appConfig.rest.http.hostname  = appArgs['listen-http'].substring(0, appArgs['listen-http'].indexOf(':')).trim(),
@@ -71,23 +77,9 @@ exports = module.exports = function(appFlags, appConfig) {
   }
 
   // repl
-  if(appFlags.iactive === true) appConfig.repl.isEnabled = true;
-
-  // debug
-  if(appFlags.debug === true) {
-    appConfig.cache.debug = true;
-    appConfig.pipe.debug  = true;
-    appConfig.rest.debug  = true;
-    appConfig.repl.debug  = true;
-  }
-
-  // verbose
-  if(appFlags.verbose !== 1) {
-    appConfig.cache.verbose = appFlags.verbose;
-    appConfig.pipe.verbose  = appFlags.verbose;
-    appConfig.rest.verbose  = appFlags.verbose;
-    appConfig.repl.verbose  = appFlags.verbose;
-  }
+  appConfig.repl.debug     = appFlags.debug;
+  appConfig.repl.verbose   = appFlags.verbose;
+  appConfig.repl.isEnabled = (appFlags.iactive === true) ? true : false;
 
   // Return
   return true;
