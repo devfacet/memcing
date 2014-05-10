@@ -29,12 +29,13 @@ var appConfig = {appPath: fs.realpathSync(__dirname + '/../')},
 if(!init(appFlags, appConfig)) throw new Error('Memcing could not be initialized!');
 if(!appFlags.loadFile && !appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) cmdHelp();
 
-// Create instances
+// Create the instances
 appCache = cache(appConfig.cache);
 appPIPE  = pipe(appConfig.pipe, appCache);
 appREST  = rest(appConfig.rest, appCache);
 appREPL  = repl(appConfig.repl, appCache);
 
+// Init the app
 appCache.loadFile(appFlags.loadFile)
 .then(appPIPE.start)
 .then(appREST.listen)
