@@ -14,7 +14,7 @@ var cache  = require('../app/cache'),
 describe('appCache', function() {
 
   // Init vars
-  var appCache = cache({isDebug: false, globLimit: 16384, eviction: true}),
+  var appCache = cache({isDebug: false, globLimit: 16384, entryLimit: 256, eviction: true}),
       result
   ;
 
@@ -188,10 +188,10 @@ describe('appCache', function() {
       expect(result.options.limit).to.be.a('object');
       expect(result.options.limit.glob).to.be.a('object');
       expect(result.options.limit.glob).to.have.property('inByte', 16384);
-      expect(result.options.limit.glob).to.have.property('inEntry', 16384/1024);
+      expect(result.options.limit.glob).to.have.property('inEntry', 16384/256);
       expect(result.options.limit.entry).to.be.a('object');
-      expect(result.options.limit.entry).to.have.property('inByte', 1024);
-      expect(result.options.limit.entry).to.have.property('inChar', 1024/4);
+      expect(result.options.limit.entry).to.have.property('inByte', 256);
+      expect(result.options.limit.entry).to.have.property('inChar', 256/4);
 
       expect(result.options.vacuum).to.be.a('object');
       expect(result.options.vacuum).to.have.property('delay');
@@ -208,11 +208,11 @@ describe('appCache', function() {
       expect(result).to.have.property('entries');
       expect(result.entries).to.be.a('object');
       expect(result.entries).to.have.property('current', 1);
-      expect(result.entries).to.have.property('available', 15);
+      expect(result.entries).to.have.property('available', ((16384/256)-1));
       expect(result.entries).to.have.property('evictable', 1);
 
       expect(result).to.have.property('usage');
-      expect(result.usage).to.have.property('totalInP', 6);
+      expect(result.usage).to.have.property('totalInP', 1);
 
       expect(result).to.have.property('operations');
       expect(result.operations).to.be.a('object');
@@ -253,7 +253,7 @@ describe('appCache', function() {
         return;
       }
 
-      expect(result).to.be.equal(15);
+      expect(result).to.be.equal(((16384/256)-1));
       done();
     });
   });
