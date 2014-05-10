@@ -21,11 +21,11 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, appInstance) {
 
   // Init vars
-  var config     = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null}},
-      regex      = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
-      listen,    // listen - function
-      listenReq, // request listener - function
-      addrOf     // address - function
+  var config      = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null, server: null}},
+      regex       = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
+      listen,     // listen - function
+      listenReq,  // request listener - function
+      addrOf      // address - function
   ;
 
   // Check the app
@@ -53,11 +53,13 @@ exports = module.exports = function(options, appInstance) {
 
     // http
     if(options.http.isEnabled === true) {
-      var server = http.createServer(listenReq);
+      config.http.server = http.createServer(listenReq)
+      .listen(config.http.port, config.http.hostname, function() {
+        config.http.hostname = config.http.server.address().address;
+        config.http.port     = config.http.server.address().port;
 
-      server.listen(config.http.port, config.http.hostname, function() {
         if(config.verbose > 0 || config.debug === true) {
-          utilex.tidyLog('Server is listening on ' + server.address().address + ':' + server.address().port);
+          utilex.tidyLog('Server is listening on ' + config.http.hostname + ':' + config.http.port);
         }
 
         deferred.resolve();
