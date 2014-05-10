@@ -37,14 +37,8 @@ exports = module.exports = function(appFlags, appConfig) {
   appConfig.debug   = appFlags.debug;
   appConfig.verbose = appFlags.verbose;
   appConfig.cache   = {};
-  appConfig.pipe    = {
-    stdin: {
-      csv: {}
-    }
-  };
-  appConfig.rest    = {
-    http: {}
-  };
+  appConfig.pipe    = {stdin: {csv: {}}};
+  appConfig.rest    = {http: {}};
   appConfig.repl    = {};
 
   // cache
