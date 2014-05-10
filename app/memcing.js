@@ -9,6 +9,8 @@
 'use strict';
 
 var utilex = require('utilex'),
+    fs     = require('fs'),
+    init   = require('./init'),
     cache  = require('./cache'),
     pipe   = require('./pipe'),
     rest   = require('./rest'),
@@ -16,76 +18,22 @@ var utilex = require('utilex'),
 ;
 
 // Init vars
-var appArgs   = utilex.tidyArgs(),
-    appFlags  = {debug: false, verbose: 1, loadFile: null, listen: false, iactive: false},
-    appConfig = {cache: {}, pipe: {stdin: {csv: {}}}, rest: {http: {}}, repl: {}},
+var appConfig = {appPath: fs.realpathSync(__dirname + '/../')},
+    appFlags  = {},
+    appPIPE,  // pipe instance
     appCache, // cache instance
     appREST,  // rest instance
     appREPL   // repl instance
 ;
 
-// Check for arguments
-if(appArgs['help'] !== undefined)         cmdHelp();
-if(appArgs['load-file'])                  appFlags.loadFile           = appArgs['load-file'];
-if(appArgs['listen-http'] !== undefined)  appFlags.listen             = true;
-if(appArgs['i'] !== undefined)            appFlags.iactive            = true;
-if(appArgs['debug'] !== undefined)        appFlags.debug              = true;
-if(appArgs['verbose'] !== undefined)      appFlags.verbose            = parseInt(appArgs['verbose'],  10);
-
-if(appArgs['cache-limit'] !== undefined)  appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
-if(appArgs['entry-limit'] !== undefined)  appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
-if(appArgs['vacuum-delay'] !== undefined) appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
-if(appArgs['eviction'] !== undefined)     appConfig.cache.eviction    = true;
-
-if(appArgs['cmd'] !== undefined) {
-  appConfig.pipe.stdin.kind = 'cmd';
-} else if(appArgs['csv'] !== undefined) {
-  appConfig.pipe.stdin.kind = 'csv';
-}
-if(appArgs['csv-delimiter']) {
-  appConfig.pipe.stdin.csv.delimiter = appArgs['csv-delimiter'];
-}
-if(appArgs['csv-field-key']) {
-  appConfig.pipe.stdin.csv.fieldKey = parseInt(appArgs['csv-field-key'], 10);
-}
-if(appArgs['csv-field-filter']) {
-  appConfig.pipe.stdin.csv.fieldFilter = appArgs['csv-field-filter'];
-}
-
-if(appFlags.debug === true) {
-  appConfig.cache.isDebug = true;
-  appConfig.pipe.isDebug  = true;
-  appConfig.rest.isDebug  = true;
-  appConfig.repl.isDebug  = true;
-}
-
-if(appFlags.verbose !== 1) {
-  appConfig.cache.verbose = appFlags.verbose;
-  appConfig.pipe.verbose  = appFlags.verbose;
-  appConfig.rest.verbose  = appFlags.verbose;
-  appConfig.repl.verbose  = appFlags.verbose;
-}
-
-if(appFlags.listen === true) {
-  appConfig.rest.http.isEnabled = true;
-
-  var httpAddr = ('' + appArgs['listen-http']).split(':', 2);
-  if(httpAddr[0]) {
-    appConfig.rest.http.hostname = httpAddr[0].trim();
-    appConfig.rest.http.port     = (httpAddr[1] || null);
-  }
-}
-
-if(appFlags.iactive === true) appConfig.repl.isEnabled = true;
-
+if(!init(appFlags, appConfig)) throw new Error('Memcing could not be initialized!');
 if(!appFlags.loadFile && !appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) cmdHelp();
 
 // Create instances
-var appCache = cache(appConfig.cache),
-    appPIPE  = pipe(appConfig.pipe, appCache),
-    appREST  = rest(appConfig.rest, appCache),
-    appREPL  = repl(appConfig.repl, appCache)
-;
+appCache = cache(appConfig.cache);
+appPIPE  = pipe(appConfig.pipe, appCache);
+appREST  = rest(appConfig.rest, appCache);
+appREPL  = repl(appConfig.repl, appCache);
 
 appCache.loadFile(appFlags.loadFile)
 .then(appPIPE.start)
