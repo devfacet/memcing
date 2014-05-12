@@ -12,7 +12,7 @@ var cache   = require('../app/cache'),
 
 // Init vars
 var appCache   = cache({debug: false, globLimit: 16384, eviction: true}),
-    appREST    = rest({debug: false, verbose: 0, http: {isEnabled: true, hostname: 'localhost', port: 12080}}, appCache),
+    appREST    = rest({debug: false, verbose: 0, http: {isEnabled: true, hostname: '127.0.0.1', port: 12081}}, appCache),
     appRESTUrl = 'http://' + appREST.addrOf('http');
 ;
 
@@ -34,8 +34,8 @@ describe('appREST', function() {
 
   // addrOf
   describe("addrOf('http')", function() {
-    it('should return a string value (' + appREST.addrOf('http') + ')', function(done) {
-      expect(appREST.addrOf('http')).to.be.a('string');
+    it('should return the correct HTTP address (' + appREST.addrOf('http') + ')', function(done) {
+      expect(appREST.addrOf('http')).to.equal('127.0.0.1:12081');
       done();
     });
   });
