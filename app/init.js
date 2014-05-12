@@ -15,21 +15,31 @@ var utilex = require('utilex'),
 ;
 
 // Init the module
-exports = module.exports = function(appConfig) {
-
-  if(!appConfig || !(appConfig instanceof Object)) return false;
+exports = module.exports = function(options) {
 
   // Init vars
-  var appArgs  = utilex.tidyArgs(),
-      appFlags = {}
+  var appArgs   = utilex.tidyArgs(),
+      appFlags  = {},
+      appConfig
   ;
+
+  // Check the options
+  if(options && options instanceof Object) {
+    if(options.appConfig && options.appConfig instanceof Object) {
+      appConfig = options.appConfig;
+    } else {
+      throw new Error('Invalid app config instance!');
+    }
+  } else {
+    throw new Error('Invalid app options!');
+  }
   
   // Flags
-  appFlags.debug    = (appArgs['debug'] !== undefined) ? true : false;
-  appFlags.verbose  = (appArgs['verbose'] !== undefined) ? parseInt(appArgs['verbose'],  10) : 1;
-  appFlags.loadFile = (appArgs['load-file']) ? (appArgs['load-file']) : null;
-  appFlags.listen   = (appArgs['listen-http'] !== undefined) ? true : false;
-  appFlags.iactive  = (appArgs['i'] !== undefined) ? true : false;
+  appFlags.debug     = (appArgs['debug'] !== undefined) ? true : false;
+  appFlags.verbose   = (appArgs['verbose'] !== undefined) ? parseInt(appArgs['verbose'],  10) : 1;
+  appFlags.loadFile  = (appArgs['load-file']) ? (appArgs['load-file']) : null;
+  appFlags.listen    = (appArgs['listen-http'] !== undefined) ? true : false;
+  appFlags.iactive   = (appArgs['i'] !== undefined) ? true : false;
 
   // Config
   appConfig.debug    = appFlags.debug;
@@ -43,16 +53,16 @@ exports = module.exports = function(appConfig) {
   appConfig.repl     = {};
 
   // cache
-  appConfig.cache.debug   = appFlags.debug;
-  appConfig.cache.verbose = appFlags.verbose;
+  appConfig.cache.debug   = appConfig.debug;
+  appConfig.cache.verbose = appConfig.verbose;
   if(appArgs['cache-limit'] !== undefined)  appConfig.cache.globLimit   = parseInt(appArgs['cache-limit'],  10);
   if(appArgs['entry-limit'] !== undefined)  appConfig.cache.entryLimit  = parseInt(appArgs['entry-limit'],  10);
   if(appArgs['vacuum-delay'] !== undefined) appConfig.cache.vacuumDelay = parseInt(appArgs['vacuum-delay'], 10);
   if(appArgs['eviction'] !== undefined)     appConfig.cache.eviction    = true;
 
   // pipe
-  appConfig.pipe.debug   = appFlags.debug;
-  appConfig.pipe.verbose = appFlags.verbose;
+  appConfig.pipe.debug   = appConfig.debug;
+  appConfig.pipe.verbose = appConfig.verbose;
   if(appArgs['cmd'] !== undefined) {
     appConfig.pipe.stdin.kind = 'cmd';
   } else if(appArgs['csv'] !== undefined) {
@@ -63,10 +73,10 @@ exports = module.exports = function(appConfig) {
   if(appArgs['csv-field-filter']) appConfig.pipe.stdin.csv.fieldFilter = appArgs['csv-field-filter'];
 
   // rest
-  appConfig.rest.debug   = appFlags.debug;
-  appConfig.rest.verbose = appFlags.verbose;
+  appConfig.rest.debug   = appConfig.debug;
+  appConfig.rest.verbose = appConfig.verbose;
 
-  if(appFlags.listen === true) {
+  if(appConfig.listen === true) {
     if(appArgs['listen-http'] !== undefined) {
       var listenHTTP = (appArgs['listen-http']) ? appArgs['listen-http'] : '0.0.0.0:12080';
 
@@ -80,9 +90,9 @@ exports = module.exports = function(appConfig) {
   }
 
   // repl
-  appConfig.repl.debug     = appFlags.debug;
-  appConfig.repl.verbose   = appFlags.verbose;
-  appConfig.repl.isEnabled = (appFlags.iactive === true) ? true : false;
+  appConfig.repl.debug     = appConfig.debug;
+  appConfig.repl.verbose   = appConfig.verbose;
+  appConfig.repl.isEnabled = (appConfig.iactive === true) ? true : false;
 
   // Return
   return true;

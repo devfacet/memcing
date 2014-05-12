@@ -26,8 +26,10 @@ var appConfig = {appPath: fs.realpathSync(path.join(__dirname, '..'))},
     appREPL   // repl instance
 ;
 
-if(!init(appConfig)) throw new Error('Memcing could not be initialized!');
+// Init the app
+init({appConfig: appConfig});
 
+// Check for the help command
 if(!appConfig.loadFile && !appConfig.listen && !appConfig.iactive && process.stdin.isTTY === true) cmdHelp();
 
 // Create the instances
