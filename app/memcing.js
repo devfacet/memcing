@@ -10,6 +10,7 @@
 
 var utilex = require('utilex'),
     fs     = require('fs'),
+    path   = require('path'),
     init   = require('./init'),
     cache  = require('./cache'),
     pipe   = require('./pipe'),
@@ -18,7 +19,7 @@ var utilex = require('utilex'),
 ;
 
 // Init vars
-var appConfig = {appPath: fs.realpathSync(__dirname + '/../')},
+var appConfig = {appPath: fs.realpathSync(path.join(__dirname, '..'))},
     appPIPE,  // pipe instance
     appCache, // cache instance
     appREST,  // rest instance
