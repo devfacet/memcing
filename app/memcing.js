@@ -19,15 +19,15 @@ var utilex = require('utilex'),
 
 // Init vars
 var appConfig = {appPath: fs.realpathSync(__dirname + '/../')},
-    appFlags  = {},
     appPIPE,  // pipe instance
     appCache, // cache instance
     appREST,  // rest instance
     appREPL   // repl instance
 ;
 
-if(!init(appFlags, appConfig)) throw new Error('Memcing could not be initialized!');
-if(!appFlags.loadFile && !appFlags.listen && !appFlags.iactive && process.stdin.isTTY === true) cmdHelp();
+if(!init(appConfig)) throw new Error('Memcing could not be initialized!');
+
+if(!appConfig.loadFile && !appConfig.listen && !appConfig.iactive && process.stdin.isTTY === true) cmdHelp();
 
 // Create the instances
 appCache = cache(appConfig.cache);
@@ -36,7 +36,7 @@ appREST  = rest(appConfig.rest, appCache);
 appREPL  = repl(appConfig.repl, appCache);
 
 // Init the app
-appCache.loadFile(appFlags.loadFile)
+appCache.loadFile(appConfig.loadFile)
 .then(appPIPE.start)
 .then(appREST.listen)
 .then(appREPL.start)
@@ -48,7 +48,7 @@ appCache.loadFile(appFlags.loadFile)
   process.exit(0);
 })
 .done(function() {
-  if(!appFlags.listen && !appFlags.iactive) {
+  if(!appConfig.listen && !appConfig.iactive) {
     process.exit(0); // Nothing to do
   }
 });

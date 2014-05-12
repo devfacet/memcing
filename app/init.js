@@ -15,14 +15,14 @@ var utilex = require('utilex'),
 ;
 
 // Init the module
-exports = module.exports = function(appFlags, appConfig) {
+exports = module.exports = function(appConfig) {
 
-  // Check the vars
-  if(!appFlags || !(appFlags instanceof Object))   return false;
   if(!appConfig || !(appConfig instanceof Object)) return false;
 
   // Init vars
-  var appArgs = utilex.tidyArgs();
+  var appArgs  = utilex.tidyArgs(),
+      appFlags = {}
+  ;
   
   // Flags
   appFlags.debug    = (appArgs['debug'] !== undefined) ? true : false;
@@ -32,12 +32,15 @@ exports = module.exports = function(appFlags, appConfig) {
   appFlags.iactive  = (appArgs['i'] !== undefined) ? true : false;
 
   // Config
-  appConfig.debug   = appFlags.debug;
-  appConfig.verbose = appFlags.verbose;
-  appConfig.cache   = {};
-  appConfig.pipe    = {stdin: {csv: {}}};
-  appConfig.rest    = {http: {}};
-  appConfig.repl    = {};
+  appConfig.debug    = appFlags.debug;
+  appConfig.verbose  = appFlags.verbose;
+  appConfig.loadFile = appFlags.loadFile;
+  appConfig.listen   = appFlags.listen;
+  appConfig.iactive  = appFlags.iactive;
+  appConfig.cache    = {};
+  appConfig.pipe     = {stdin: {csv: {}}};
+  appConfig.rest     = {http: {}};
+  appConfig.repl     = {};
 
   // cache
   appConfig.cache.debug   = appFlags.debug;
