@@ -22,9 +22,7 @@ exports = module.exports = function(appFlags, appConfig) {
   if(!appConfig || !(appConfig instanceof Object)) return false;
 
   // Init vars
-  var appArgs = utilex.tidyArgs(),
-      appPath = appConfig.appPath
-  ;
+  var appArgs = utilex.tidyArgs();
   
   // Flags
   appFlags.debug    = (appArgs['debug'] !== undefined) ? true : false;
@@ -64,6 +62,7 @@ exports = module.exports = function(appFlags, appConfig) {
   // rest
   appConfig.rest.debug   = appFlags.debug;
   appConfig.rest.verbose = appFlags.verbose;
+
   if(appFlags.listen === true) {
     if(appArgs['listen-http'] !== undefined) {
       var listenHTTP = (appArgs['listen-http']) ? appArgs['listen-http'] : '0.0.0.0:12080';
@@ -71,6 +70,9 @@ exports = module.exports = function(appFlags, appConfig) {
       appConfig.rest.http.isEnabled = true;
       appConfig.rest.http.hostname  = listenHTTP.substring(0, listenHTTP.indexOf(':')).trim();
       appConfig.rest.http.port      = parseInt(listenHTTP.substring(listenHTTP.indexOf(':')+1).trim(), 10);
+      if(!appConfig.rest.http.hostname)   appConfig.rest.http.hostname = '0.0.0.0';
+      if(isNaN(appConfig.rest.http.port)) appConfig.rest.http.port     = '12080';
+      appConfig.rest.http.address   = appConfig.rest.http.hostname + ':' + appConfig.rest.http.port;
     }
   }
 
