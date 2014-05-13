@@ -21,11 +21,11 @@ var utilex = require('utilex'),
 exports = module.exports = function(options, appInstance) {
 
   // Init vars
-  var config      = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null, server: null}},
-      regex       = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
-      listen,     // listen - function
-      listenReq,  // request listener - function
-      addrOf      // address - function
+  var config     = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null, server: null}},
+      regex      = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
+      listen,    // listen - function
+      listenReq, // request listener - function
+      addrOf     // address - function
   ;
 
   // Check the app

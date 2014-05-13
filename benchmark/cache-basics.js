@@ -2,8 +2,8 @@
 /* jslint node: true */
 'use strict';
 
-var utilex    = require('utilex'),
-    cache     = require('../app/cache')
+var utilex = require('utilex'),
+    cache  = require('../app/cache')
 ;
 
 // Init vars
@@ -21,15 +21,15 @@ if(typeof appArgs['heapdump'] !== 'undefined') {
 // Tests
 
 // Init vars
-var entries       = [],
-    entryLimit    = 100000,
-    checklist     = [],
-    checklistLen  = 0,
+var entries      = [],
+    entryLimit   = 100000,
+    checklist    = [],
+    checklistLen = 0,
     randKey,
     randVal,
     hrtime,
     hrtimeGlob,
-    hrtimeDiff    = function(hrtime) {
+    hrtimeDiff   = function(hrtime) {
       hrtime = process.hrtime(hrtime);
       return ((hrtime[0]*1000)+(hrtime[1]*1.0e-6)).toFixed(4);
     },
