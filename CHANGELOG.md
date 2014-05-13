@@ -5,6 +5,12 @@
 ```
 ```
 
+### 0.2.2 (2014-05-12)
+
+* Add init module
+* Changes on package.json
+* Misc. updates
+
 ### 0.2.1 (2014-05-08)
 
 * Change for stdin read buffer size

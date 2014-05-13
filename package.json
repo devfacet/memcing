@@ -1,12 +1,14 @@
 {
   "name": "memcing",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Memcing is an in-memory key-value caching application with RESTful API.",
   "keywords": [
     "memory",
     "in-memory",
     "cache",
-    "caching"
+    "caching",
+    "memcache",
+    "memcached"
   ],
   "homepage": "http://github.com/cmfatih/memcing",
   "repository": {
@@ -26,7 +28,10 @@
   "main": "app/memcing.js",
   "scripts": {
     "start": "node app/memcing.js -i -listen-http",
-    "test": "node node_modules/mocha/bin/mocha --reporter spec test/test-cache.js test/test-rest.js"
+    "test": "node node_modules/mocha/bin/mocha --reporter spec test/test-cache.js test/test-rest.js",
+    "test-all": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js test/test-rest.js",
+    "test-cache": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js",
+    "test-rest": "node node_modules/mocha/bin/mocha --reporter list test/test-rest.js"
   },
   "engines": [
     "node >= 0.10.21"
@@ -37,8 +42,8 @@
     "csv": "0.3.x"
   },
   "devDependencies": {
-    "mocha": "*",
-    "chai": "*",
+    "mocha": "1.x",
+    "chai": "1.x",
     "request": "2.x"
   }
 }
