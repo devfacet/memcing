@@ -24,8 +24,8 @@ exports = module.exports = function(options) {
   ;
 
   // Check the options
-  if(options && options instanceof Object) {
-    if(options.appConfig && options.appConfig instanceof Object) {
+  if(options && typeof options === 'object') {
+    if(options.appConfig && typeof options.appConfig === 'object') {
       appConfig = options.appConfig;
     } else {
       throw new Error('Invalid app config instance!');

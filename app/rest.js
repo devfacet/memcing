@@ -32,7 +32,7 @@ exports = module.exports = function(options, appInstance) {
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
   // Check the options
-  if(options && options instanceof Object)
+  if(options && typeof options === 'object')
     for(var key in config)
       if(options.hasOwnProperty(key)) config[key] = options[key];
 
