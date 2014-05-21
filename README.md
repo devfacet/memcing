@@ -2,8 +2,8 @@
 
 [memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application with RESTful API.  
 
-[![Build Status][travis-image]][travis-url] | [![Dependency Status][depstatus-image]][depstatus-url] | [![NPM][npm-image]][npm-url]
----------- | ---------- | ----------
+[![Build Status][travis-image]][travis-url] | [![NPM][npm-image]][npm-url]
+---------- | ----------
 
 
 ### Installation
@@ -211,9 +211,3 @@ For the full copyright and license information, please view the LICENSE.txt file
 
 [travis-url]: https://travis-ci.org/cmfatih/memcing
 [travis-image]: https://travis-ci.org/cmfatih/memcing.svg?branch=master
-
-[appveyor-url]: https://ci.appveyor.com/project/cmfatih/memcing
-[appveyor-image]: https://ci.appveyor.com/api/projects/status/811fxhv7iok8x5u6
-
-[depstatus-url]: https://david-dm.org/cmfatih/memcing
-[depstatus-image]: https://david-dm.org/cmfatih/memcing.png
