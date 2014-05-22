@@ -20,9 +20,8 @@ var utilex = require('utilex'),
 // Init the module
 exports = module.exports = function(options, appInstance) {
 
-  // Init vars
-  var config     = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null, server: null}},
-      regex      = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
+  var config = {debug: false, verbose: 1, http: {isEnabled: false, hostname: null, port: null, server: null}},
+      regex  = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
       listen,    // listen - function
       listenReq, // request listener - function
       addrOf     // address - function
@@ -48,7 +47,6 @@ exports = module.exports = function(options, appInstance) {
   // Starts HTTP server.
   listen = function listen() {
 
-    // Init vars
     var deferred = q.defer();
 
     // http
@@ -76,9 +74,8 @@ exports = module.exports = function(options, appInstance) {
   // Request listener function HTTP server.
   listenReq = function reqListener(req, res) {
 
-    // Init vars
-    var urlParse  = url.parse(req.url, true, false),
-        resHdr    = {'Content-Type': 'application/json'}
+    var urlParse = url.parse(req.url, true, false),
+        resHdr   = {'Content-Type': 'application/json'}
     ;
 
     if(urlParse && urlParse.pathname) {
@@ -129,10 +126,10 @@ exports = module.exports = function(options, appInstance) {
                 if(config.debug === true) utilex.tidyLog('[rest.listenReq.req.end]: ' + bodyAry.join());
 
                 if(req.headers['content-type'] === 'application/x-www-form-urlencoded') {
-                  var qsp       = qs.parse(bodyAry.join()),
-                      entryVal  = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
-                      entryExp  = (qsp && qsp.exp) ? qsp.exp : null,
-                      setTrig   = true
+                  var qsp      = qs.parse(bodyAry.join()),
+                      entryVal = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
+                      entryExp = (qsp && qsp.exp) ? qsp.exp : null,
+                      setTrig  = true
                   ;
 
                   if(req.method === 'POST') {
@@ -181,8 +178,10 @@ exports = module.exports = function(options, appInstance) {
               ;
               res.write('[');
               for(var key in cData) {
-                res.write(cChar + '\n' + JSON.stringify(cData[key]));
-                if(!cChar) cChar = ',';
+                if(cData.hasOwnProperty(key)) {
+                  res.write(cChar + '\n' + JSON.stringify(cData[key]));
+                  if(!cChar) cChar = ',';
+                }
               }
               res.write('\n]');
             } else {

@@ -19,8 +19,7 @@ var utilex = require('utilex'),
 // Init the module
 exports = module.exports = function(options, appInstance) {
 
-  // Init vars
-  var config    = {debug: false, verbose: 1, isEnabled: false},
+  var config = {debug: false, verbose: 1, isEnabled: false},
       start,    // start - function
       completer // auto complete - function
   ;
@@ -36,7 +35,6 @@ exports = module.exports = function(options, appInstance) {
   // Starts repl
   start = function start() {
 
-    // Init vars
     var deferred = q.defer();
 
     // Check config
@@ -53,10 +51,10 @@ exports = module.exports = function(options, appInstance) {
     }
 
     var rl = require('readline').createInterface({
-      input:      process.stdin,
-      output:     process.stdout,
-      terminal:   true,
-      completer:  completer
+      input:     process.stdin,
+      output:    process.stdout,
+      terminal:  true,
+      completer: completer
     });
 
     if(config.verbose > 0) utilex.tidyLog('Running on interactive mode. Commands: ' + appInstance.cmdList.join(' '));
@@ -100,16 +98,18 @@ exports = module.exports = function(options, appInstance) {
           appInstance.vacuum({exp: true});
 
           if(appInstance.numOfEntry() > 0) {
-            var cData     = cacheCmd.cmdRes,
-                cDataLen  = appInstance.numOfEntry(),
-                cDataCnt  = 0,
-                cChar     = ''
+            var cData    = cacheCmd.cmdRes,
+                cDataLen = appInstance.numOfEntry(),
+                cDataCnt = 0,
+                cChar    = ''
             ;
             console.log('[');
             for(var key in cData) {
-              cDataCnt++;
-              cChar = (cDataCnt < cDataLen) ? ',' : '';
-              console.log(JSON.stringify(cData[key]) + cChar);
+              if(cData.hasOwnProperty(key)) {
+                cDataCnt++;
+                cChar = (cDataCnt < cDataLen) ? ',' : '';
+                console.log(JSON.stringify(cData[key]) + cChar);
+              }
             }
             console.log(']');
           } else {
@@ -161,13 +161,12 @@ exports = module.exports = function(options, appInstance) {
   // Auto complete function for readline.
   completer = function completer(line) {
 
-    // Init vars
-    var lineF         = line.trim(),
-        cmdList,      // cache command list
-        lineCmds,     // commands on the line
-        lastCmd,      // last command on the line
-        fltrdCmds,    // filtered commands
-        matchingCmds  // matching commands
+    var lineF = line.trim(),
+        cmdList,     // cache command list
+        lineCmds,    // commands on the line
+        lastCmd,     // last command on the line
+        fltrdCmds,   // filtered commands
+        matchingCmds // matching commands
     ;
 
     if(!lineF) {

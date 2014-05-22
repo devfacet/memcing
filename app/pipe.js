@@ -21,11 +21,10 @@ var utilex = require('utilex'),
 // Init the module
 exports = module.exports = function(options, appInstance) {
 
-  // Init vars
-  var config         = {
-        debug:       false,
-        verbose:     1,
-        stdin:       {kind: 'stream', csv: {delimiter: ',', fieldKey: 1, fieldFilter: null}} // stream, cmd or csv
+  var config  = {
+        debug:   false,
+        verbose: 1,
+        stdin:   {kind: 'stream', csv: {delimiter: ',', fieldKey: 1, fieldFilter: null}} // stream, cmd or csv
       },
       stdinHasPipe,  // checks stdin - function
       stdoutHasPipe, // checks stdout - function
@@ -80,7 +79,6 @@ exports = module.exports = function(options, appInstance) {
 
     if(config.debug) utilex.tidyLog('[pipe.start]');
 
-    // Init vars
     var deferred = q.defer(),
         cacheCmd,
         i
@@ -94,7 +92,6 @@ exports = module.exports = function(options, appInstance) {
 
     if(config.stdin.kind === 'stream' || config.stdin.kind === 'cmd') {
 
-      // Init vars
       var StrDecoder  = require('string_decoder').StringDecoder,
           decoder     = new StrDecoder('utf8'),
           cntRead     = 0,
@@ -167,7 +164,6 @@ exports = module.exports = function(options, appInstance) {
 
     } else if(config.stdin.kind === 'csv') {
 
-      // Init vars
       var fieldKey    = config.stdin.csv.fieldKey-1,
           fieldFilter = (config.stdin.csv.fieldFilter) ? config.stdin.csv.fieldFilter.split(',') : null,
           entryKey,

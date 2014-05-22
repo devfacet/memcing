@@ -18,7 +18,6 @@ var utilex = require('utilex'),
 // Init the module
 exports = module.exports = function(options) {
 
-  // Init vars
   var config    = {debug: false, verbose: 1},
 
       // cache data
@@ -205,7 +204,6 @@ exports = module.exports = function(options) {
 
     cacheOpt.vacuum.running = true;
 
-    // Init vars
     var result        = {},
 
         optAll        = false,
@@ -318,7 +316,6 @@ exports = module.exports = function(options) {
   // Sets the value of the given key.
   set = function set(key, val, exp) {
 
-    // Init vars
     var result = {},
         valF   = (typeof val !== 'undefined') ? val : null,
         expF   = (typeof exp !== 'undefined') ? exp : 0
@@ -413,7 +410,6 @@ exports = module.exports = function(options) {
   // Checks and increments or decrements the value of the given key.
   incdec = function incdec(key, amount, flag) {
 
-    // Init vars
     var result  = {},
         amntF   = (typeof amount !== 'undefined') ? amount : 1,
         cData   = get(key)
@@ -461,7 +457,6 @@ exports = module.exports = function(options) {
   // Executes the given command.
   execCmd = function execCmd(command) {
 
-    // Init vars
     var result  = {cmd: null, cmdArgs: null, cmdRes: null},
         cmdF    = ('' + command).trim()
     ;
@@ -533,7 +528,6 @@ exports = module.exports = function(options) {
   // Loads the given file.
   loadFile = function loadFile(filePath) {
 
-    // Init vars
     var deferred  = q.defer(),
         filePathF = ('' + filePath),
         pathSS    = (filePathF && fs.existsSync(filePathF)) ? fs.statSync(filePathF) : null,
@@ -550,7 +544,6 @@ exports = module.exports = function(options) {
       return deferred.promise;
     }
 
-    // Init the pipe
     var readline  = require('readline'),
         rl        = readline.createInterface({input: fs.createReadStream(filePathF), terminal: false})
     ;

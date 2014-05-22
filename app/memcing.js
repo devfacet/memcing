@@ -18,7 +18,6 @@ var utilex = require('utilex'),
     repl   = require('./repl')
 ;
 
-// Init vars
 var appConfig = {appPath: fs.realpathSync(path.join(__dirname, '..'))},
     appPIPE,  // pipe instance
     appCache, // cache instance
@@ -38,7 +37,6 @@ appPIPE  = pipe(appConfig.pipe, appCache);
 appREST  = rest(appConfig.rest, appCache);
 appREPL  = repl(appConfig.repl, appCache);
 
-// Init the app
 appCache.loadFile(appConfig.loadFile)
 .then(appPIPE.start)
 .then(appREST.listen)

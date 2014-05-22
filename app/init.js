@@ -10,16 +10,13 @@
 /* jslint node: true */
 'use strict';
 
-var utilex = require('utilex'),
-    fs     = require('fs')
-;
+var utilex = require('utilex');
 
 // Init the module
 exports = module.exports = function(options) {
 
-  // Init vars
-  var appArgs   = utilex.tidyArgs(),
-      appFlags  = {},
+  var appArgs  = utilex.tidyArgs(),
+      appFlags = {},
       appConfig
   ;
 

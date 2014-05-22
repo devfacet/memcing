@@ -6,7 +6,6 @@ var utilex = require('utilex'),
     cache  = require('../app/cache')
 ;
 
-// Init vars
 var appArgs   = utilex.tidyArgs(),
     appConfig = {isHeapdump: false},
     appCache  = cache({debug: false, globLimit: 134217728, eviction: false})
@@ -29,7 +28,7 @@ var entries      = [],
     randVal,
     hrtime,
     hrtimeGlob,
-    hrtimeDiff   = function(hrtime) {
+    hrtimeDiff = function(hrtime) {
       hrtime = process.hrtime(hrtime);
       return ((hrtime[0]*1000)+(hrtime[1]*1.0e-6)).toFixed(4);
     },
