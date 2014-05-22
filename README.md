@@ -5,7 +5,6 @@
 [![Build Status][travis-image]][travis-url] | [![NPM][npm-image]][npm-url]
 ---------- | ----------
 
-
 ### Installation
 
 For latest release
