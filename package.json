@@ -31,7 +31,10 @@
     "test": "node node_modules/mocha/bin/mocha --reporter spec test/test-cache.js test/test-rest.js",
     "test-all": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js test/test-rest.js",
     "test-cache": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js",
-    "test-rest": "node node_modules/mocha/bin/mocha --reporter list test/test-rest.js"
+    "test-rest": "node node_modules/mocha/bin/mocha --reporter list test/test-rest.js",
+
+    "bench-1": "node benchmark/cache-basics.js",
+    "bench-cache-basics": "node benchmark/cache-basics.js"
   },
   "engines": [
     "node >= 0.10.21"
