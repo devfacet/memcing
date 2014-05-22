@@ -13,7 +13,6 @@ var cache  = require('../app/cache'),
 // Test for cache instance
 describe('appCache', function() {
 
-  // Init vars
   var appCache = cache({debug: false, globLimit: 16384, entryLimit: 256, eviction: true}),
       result
   ;
