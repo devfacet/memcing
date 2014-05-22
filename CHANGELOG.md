@@ -3,6 +3,8 @@
 ### HEAD
 
 ```
+* Add JS linter rules
+* Change ignore rules
 ```
 
 ### 0.2.3 (2014-05-21)
