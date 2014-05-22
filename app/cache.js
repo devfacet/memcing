@@ -274,7 +274,10 @@ exports = module.exports = function(options) {
             sortCB        = function(a, b) { return a[1] - b[1]; } // sort by timestamps
         ;
 
-        for(var key2 in cacheData.entries) entryList.push([key2, cacheData.entries[key2].ts]);
+        for(var key2 in cacheData.entries)
+          if(cacheData.entries.hasOwnProperty(key2))
+            entryList.push([key2, cacheData.entries[key2].ts]);
+
         entryList.sort(sortCB);
         entryListLen = entryList.length;
         for(var i = 0; i < entryListLen; i++) {
