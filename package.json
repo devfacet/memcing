@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "utilex": "0.2.x",
-    "q": "1.x",
+    "q": "1.0.x",
     "csv": "0.3.x"
   },
   "devDependencies": {
