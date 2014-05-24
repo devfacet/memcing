@@ -10,7 +10,6 @@ var cache   = require('../app/cache'),
     expect  = require('chai').expect
 ;
 
-// Init vars
 var appCache   = cache({debug: false, globLimit: 16384, eviction: true}),
     appREST    = rest({debug: false, verbose: 0, http: {isEnabled: true, hostname: '127.0.0.1', port: 12081}}, appCache),
     appRESTUrl = 'http://' + appREST.addrOf('http')
@@ -18,7 +17,7 @@ var appCache   = cache({debug: false, globLimit: 16384, eviction: true}),
 
 // Tests
 
-// Test for REST API instance
+// Test for REST API
 describe('appREST', function() {
 
   // listen
@@ -40,12 +39,11 @@ describe('appREST', function() {
     });
   });
 
-  // Init vars
   var reqHeaders = {'Content-Type': 'application/x-www-form-urlencoded'};
 
   // GET
   describe('GET ' + appRESTUrl, function() {
-    it('should respond HTTP status code 200 and return empty body', function(done) {
+    it('should respond HTTP 200 and return empty body', function(done) {
       request(appRESTUrl, function (err, res, body) {
         if(!err) {
           expect(res.statusCode).to.equal(200);
@@ -123,7 +121,7 @@ describe('appREST', function() {
 
   // POST entry
   describe('POST ' + urlCounter, function() {
-    it('should fail, respond HTTP status code 409 and return current entry', function(done) {
+    it('should fail, respond HTTP 409 and return current entry', function(done) {
       request({
         method: 'POST', uri: urlCounter, headers: reqHeaders, body: 'val=2'}, function (err, res, body) {
         if(!err) {
@@ -164,7 +162,7 @@ describe('appREST', function() {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(200);
           expect(resData).to.be.a('array');
-          expect(resData).to.have.length(2); // entry `bye` still exists
+          expect(resData).to.have.length(2); // entry `bye` should exists
           done();
         } else {
           done(err);
