@@ -5,17 +5,15 @@
 'use strict';
 
 var cache  = require('../app/cache'),
-    expect = require('chai').expect
-;
+    expect = require('chai').expect;
 
 // Tests
 
-// Test for cache instance
+// Test for cache module
 describe('appCache', function() {
 
   var appCache = cache({debug: false, globLimit: 16384, entryLimit: 256, eviction: true}),
-      result
-  ;
+      result;
 
   // set
   describe("set('hello', 'world')", function() {
