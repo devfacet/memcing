@@ -12,8 +12,7 @@
 
 var utilex = require('utilex'),
     q      = require('q'),
-    fs     = require('fs')
-;
+    fs     = require('fs');
 
 // Init the module
 exports = module.exports = function(options) {
@@ -115,8 +114,7 @@ exports = module.exports = function(options) {
       numOfEntry,       // number of entry - function
       numOfAvlbEntry,   // number of available entry - function
       numOfEvictEntry,  // number of evict-able entry - function
-      entryMaxSize      // max size of entry - function
-  ;
+      entryMaxSize;     // max size of entry - function
 
   // Check the options
   if(options) {
@@ -186,16 +184,16 @@ exports = module.exports = function(options) {
   // Returns the stats.
   stats = function stats() {
     return {
-      options:      cacheOpt,
+      options: cacheOpt,
       entries: {
-        current:    numOfEntry(),
-        available:  numOfAvlbEntry(),
-        evictable:  numOfEvictEntry()
+        current:   numOfEntry(),
+        available: numOfAvlbEntry(),
+        evictable: numOfEvictEntry()
       },
       usage: {
-        totalInP:   (cacheOpt.limit.glob.inEntry) ? Math.floor((cacheData.len*100)/cacheOpt.limit.glob.inEntry) : 0
+        totalInP: (cacheOpt.limit.glob.inEntry) ? Math.floor((cacheData.len*100)/cacheOpt.limit.glob.inEntry) : 0
       },
-      operations:   cacheOps
+      operations: cacheOps
     };
   };
 
@@ -204,23 +202,16 @@ exports = module.exports = function(options) {
 
     cacheOpt.vacuum.running = true;
 
-    var result        = {},
-
-        optAll        = false,
-        optExp        = false,
-        optExpLIE     = 0,      // expiration limit in entry
-        optEvict      = false,
-        optEvictLIE   = 0,      // eviction limit in entry
-
-        tsList        = {       // timestamps list
-          total:      0,
-          expiration: 0,
-          eviction:   0
-        },
-        tsBegin       = new Date().getTime(), // begin timestamps
-        tsTemp,       // temporary timestamps
-        entryCntr     // entry counter
-    ;
+    var result      = {},
+        optAll      = false,
+        optExp      = false,
+        optExpLIE   = 0, // expiration limit in entry
+        optEvict    = false,
+        optEvictLIE = 0, // eviction limit in entry
+        tsList      = {total: 0, expiration: 0, eviction: 0}, // timestamps list
+        tsBegin     = new Date().getTime(), // begin timestamps
+        tsTemp,     // temporary timestamps
+        entryCntr;  // entry counter
 
     // Check options
     if(options) {
@@ -267,10 +258,9 @@ exports = module.exports = function(options) {
       }
 
       if(optEvictLIE > 0) {
-        var entryList     = [],
-            entryListLen  = 0,
-            sortCB        = function(a, b) { return a[1] - b[1]; } // sort by timestamps
-        ;
+        var entryList    = [],
+            entryListLen = 0,
+            sortCB       = function(a, b) { return a[1] - b[1]; }; // sort by timestamps
 
         for(var key2 in cacheData.entries)
           if(cacheData.entries.hasOwnProperty(key2))
@@ -318,8 +308,7 @@ exports = module.exports = function(options) {
 
     var result = {},
         valF   = (typeof val !== 'undefined') ? val : null,
-        expF   = (typeof exp !== 'undefined') ? exp : 0
-    ;
+        expF   = (typeof exp !== 'undefined') ? exp : 0;
 
     // NOTE: Length checking is only for strings.
 
@@ -377,8 +366,7 @@ exports = module.exports = function(options) {
     if(!cData) cacheData.len++;
 
     var ts    = new Date().getTime(),
-        tsExp = (expF) ? (ts+(expF*1000)) : 0
-    ;
+        tsExp = (expF) ? (ts+(expF*1000)) : 0;
     
     cacheData.entries[key] = {key: key, val: valF, ts: ts, expTS: tsExp};
 
@@ -410,10 +398,9 @@ exports = module.exports = function(options) {
   // Checks and increments or decrements the value of the given key.
   incdec = function incdec(key, amount, flag) {
 
-    var result  = {},
-        amntF   = (typeof amount !== 'undefined') ? amount : 1,
-        cData   = get(key)
-    ;
+    var result = {},
+        amntF  = (typeof amount !== 'undefined') ? amount : 1,
+        cData  = get(key);
 
     // Check vars
     if(!cData) {
@@ -457,17 +444,15 @@ exports = module.exports = function(options) {
   // Executes the given command.
   execCmd = function execCmd(command) {
 
-    var result  = {cmd: null, cmdArgs: null, cmdRes: null},
-        cmdF    = ('' + command).trim()
-    ;
+    var result = {cmd: null, cmdArgs: null, cmdRes: null},
+        cmdF   = ('' + command).trim();
 
     // Check vars
     if(!cmdF) return result;
 
     // Parse the command
-    var cmdMatch  = cmdF.match(regex.command),
-        cmdArgs   = cmdF.match(regex.args)
-    ;
+    var cmdMatch = cmdF.match(regex.command),
+        cmdArgs  = cmdF.match(regex.args);
 
     result.cmd = (cmdMatch instanceof Array && cmdMatch[0]) ? cmdMatch[0].toLowerCase() : null;
     if(cmdArgs instanceof Array) cmdArgs.shift();
@@ -532,8 +517,7 @@ exports = module.exports = function(options) {
         filePathF = ('' + filePath),
         pathSS    = (filePathF && fs.existsSync(filePathF)) ? fs.statSync(filePathF) : null,
         lineCntr  = 0,
-        lineErr   = null
-    ;
+        lineErr   = null;
 
     // Check the file
     if(!filePath) {
@@ -544,9 +528,9 @@ exports = module.exports = function(options) {
       return deferred.promise;
     }
 
-    var readline  = require('readline'),
-        rl        = readline.createInterface({input: fs.createReadStream(filePathF), terminal: false})
-    ;
+    var readline = require('readline'),
+        rl       = readline.createInterface({input: fs.createReadStream(filePathF), terminal: false});
+
     rl.setPrompt('');
 
     // line event

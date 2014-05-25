@@ -17,8 +17,7 @@ exports = module.exports = function(options) {
 
   var appArgs  = utilex.tidyArgs(),
       appFlags = {},
-      appConfig
-  ;
+      appConfig;
 
   // Check the options
   if(options && typeof options === 'object') {

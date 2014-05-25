@@ -15,8 +15,7 @@
 
 var utilex = require('utilex'),
     q      = require('q'),
-    csv    = require('csv')
-;
+    csv    = require('csv');
 
 // Init the module
 exports = module.exports = function(options, appInstance) {
@@ -28,8 +27,7 @@ exports = module.exports = function(options, appInstance) {
       },
       stdinHasPipe,  // checks stdin - function
       stdoutHasPipe, // checks stdout - function
-      start          // start - function
-  ;
+      start;         // start - function
 
   // Check the app
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
@@ -81,8 +79,7 @@ exports = module.exports = function(options, appInstance) {
 
     var deferred = q.defer(),
         cacheCmd,
-        i
-    ;
+        i;
 
     // Check config
     if(stdinHasPipe() !== true) {
@@ -100,8 +97,7 @@ exports = module.exports = function(options, appInstance) {
           lineF       = '',
           buffer      = '',
           chunk,
-          spaceIndex
-      ;
+          spaceIndex;
 
       // readable event
       process.stdin.on('readable', function() {
@@ -168,8 +164,7 @@ exports = module.exports = function(options, appInstance) {
           fieldFilter = (config.stdin.csv.fieldFilter) ? config.stdin.csv.fieldFilter.split(',') : null,
           entryKey,
           entryVal,
-          csvFields
-      ;
+          csvFields;
 
       // Read csv
       csv()

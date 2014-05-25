@@ -13,16 +13,14 @@
 'use strict';
 
 var utilex = require('utilex'),
-    q      = require('q')
-;
+    q      = require('q');
 
 // Init the module
 exports = module.exports = function(options, appInstance) {
 
   var config = {debug: false, verbose: 1, isEnabled: false},
-      start,    // start - function
-      completer // auto complete - function
-  ;
+      start,     // start - function
+      completer; // auto complete - function
 
   // Check the app
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
@@ -101,8 +99,8 @@ exports = module.exports = function(options, appInstance) {
             var cData    = cacheCmd.cmdRes,
                 cDataLen = appInstance.numOfEntry(),
                 cDataCnt = 0,
-                cChar    = ''
-            ;
+                cChar    = '';
+
             console.log('[');
             for(var key in cData) {
               if(cData.hasOwnProperty(key)) {
@@ -162,12 +160,11 @@ exports = module.exports = function(options, appInstance) {
   completer = function completer(line) {
 
     var lineF = line.trim(),
-        cmdList,     // cache command list
-        lineCmds,    // commands on the line
-        lastCmd,     // last command on the line
-        fltrdCmds,   // filtered commands
-        matchingCmds // matching commands
-    ;
+        cmdList,      // cache command list
+        lineCmds,     // commands on the line
+        lastCmd,      // last command on the line
+        fltrdCmds,    // filtered commands
+        matchingCmds; // matching commands
 
     if(!lineF) {
       matchingCmds  = appInstance.cmdList;

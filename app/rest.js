@@ -14,8 +14,7 @@ var utilex = require('utilex'),
     q      = require('q'),
     http   = require('http'),
     url    = require('url'),
-    qs     = require('querystring')
-;
+    qs     = require('querystring');
 
 // Init the module
 exports = module.exports = function(options, appInstance) {
@@ -24,8 +23,7 @@ exports = module.exports = function(options, appInstance) {
       regex  = {number: new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g')},
       listen,    // listen - function
       listenReq, // request listener - function
-      addrOf     // address - function
-  ;
+      addrOf;    // address - function
 
   // Check the app
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
@@ -75,8 +73,7 @@ exports = module.exports = function(options, appInstance) {
   listenReq = function reqListener(req, res) {
 
     var urlParse = url.parse(req.url, true, false),
-        resHdr   = {'Content-Type': 'application/json'}
-    ;
+        resHdr   = {'Content-Type': 'application/json'};
 
     if(urlParse && urlParse.pathname) {
       var pathAry = urlParse.pathname.split('/');
@@ -100,8 +97,7 @@ exports = module.exports = function(options, appInstance) {
           } else if(req.method === 'PUT' || req.method === 'POST') {
             var bodyAry = [],
                 dataLen = 0,
-                dataLmt = appInstance.entryMaxSize()*2 // TODO: Find a better approach.
-            ;
+                dataLmt = appInstance.entryMaxSize()*2; // TODO: Find a better approach.
 
             req.on('data', function(chunk) {
               //if(config.debug === true) utilex.tidyLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
@@ -129,8 +125,7 @@ exports = module.exports = function(options, appInstance) {
                   var qsp      = qs.parse(bodyAry.join()),
                       entryVal = (qsp && qsp.val && regex.number.test(qsp.val) && !isNaN(qsp.val/1)) ? qsp.val/1 : ((qsp && qsp.val) ? qsp.val : null),
                       entryExp = (qsp && qsp.exp) ? qsp.exp : null,
-                      setTrig  = true
-                  ;
+                      setTrig  = true;
 
                   if(req.method === 'POST') {
                     var cg = appInstance.get(element);
@@ -174,8 +169,8 @@ exports = module.exports = function(options, appInstance) {
 
             if(appInstance.numOfEntry() > 0) {
               var cData = appInstance.entries(),
-                  cChar = ''
-              ;
+                  cChar = '';
+
               res.write('[');
               for(var key in cData) {
                 if(cData.hasOwnProperty(key)) {

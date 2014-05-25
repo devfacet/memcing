@@ -15,15 +15,13 @@ var utilex = require('utilex'),
     cache  = require('./cache'),
     pipe   = require('./pipe'),
     rest   = require('./rest'),
-    repl   = require('./repl')
-;
+    repl   = require('./repl');
 
 var appConfig = {appPath: fs.realpathSync(path.join(__dirname, '..'))},
     appPIPE,  // pipe instance
     appCache, // cache instance
     appREST,  // rest instance
-    appREPL   // repl instance
-;
+    appREPL;  // repl instance
 
 // Init the app
 init({appConfig: appConfig});
