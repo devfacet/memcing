@@ -34,8 +34,8 @@
     "test-cache": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js",
     "test-rest": "node node_modules/mocha/bin/mocha --reporter list test/test-rest.js",
 
-    "bench-1": "node benchmark/cache-basics.js",
-    "bench-cache-basics": "node benchmark/cache-basics.js"
+    "benchmark-1": "node benchmark/cache-basics.js",
+    "benchmark-cache-basics": "node benchmark/cache-basics.js"
   },
   "engines": [
     "node >= 0.10.21"
