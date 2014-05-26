@@ -13,13 +13,13 @@ var spawn   = require('child_process').spawn,
 // Test for options
 describe('options', function() {
 
-  var child      = spawn('node', ['./app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
+  var child      = spawn('node', ['app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
       restUrl    = 'http://127.0.0.1:12082',
       urlEntries = restUrl + '/entries';
 
   // listen-http
   describe('-listen-http', function() {
-    it('should listen on 0.0.0.0:12082', function(done) {
+    it('should listen HTTP requests', function(done) {
       request(restUrl, function (err, res, body) {
         if(!err) {
           expect(res.statusCode).to.equal(200);
@@ -34,7 +34,7 @@ describe('options', function() {
 
   // load-file
   describe('-load-file', function() {
-    it('should load all entries in test/cmds-lf.txt', function(done) {
+    it('should load commands from the given file', function(done) {
       request(urlEntries, function (err, res, body) {
         if(!err) {
           var resData = JSON.parse(body);
