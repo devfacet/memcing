@@ -185,7 +185,7 @@ exports = module.exports = function(options, appInstance) {
           }
 
           // Set as string or `parse-able` array
-          entryVal = (csvFields.length === 1) ? csvFields[0] : "['" + csvFields.join("','") + "']";
+          entryVal = (csvFields.length === 1) ? csvFields[0] : "[\"" + csvFields.join("\",\"") + "\"]";
 
           cacheCmd = appInstance.set(entryKey, entryVal); // TODO: What to do with errors?
 
