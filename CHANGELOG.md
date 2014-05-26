@@ -3,11 +3,14 @@
 ### HEAD
 
 ```
+```
+
+### 0.2.4 (2014-05-26)
+
 * Add JS linter rules
 * Change ignore rules
 * Add test for options
 * Add test for stdin
-```
 
 ### 0.2.3 (2014-05-21)
 
