@@ -28,7 +28,7 @@
   "main": "app/memcing.js",
   "scripts": {
     "start": "node app/memcing.js -i -listen-http",
-    "test": "node node_modules/mocha/bin/mocha --timeout 10000 --slow 2000 --reporter spec test/test-cache.js test/test-rest.js test/test-opts.js test/test-stdin.js",
+    "test": "node node_modules/mocha/bin/mocha --timeout 10000 --reporter spec test/test-cache.js test/test-rest.js",
 
     "test-all": "node node_modules/mocha/bin/mocha --timeout 10000 --reporter list test/test-cache.js test/test-rest.js test/test-opts.js test/test-stdin.js",
     "test-cache": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js",
