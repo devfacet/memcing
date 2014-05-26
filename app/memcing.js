@@ -61,10 +61,10 @@ function cmdHelp() {
 
   console.log("  Options:");
   console.log("    -i                 : Enable interactive mode.");
-  console.log("    -listen-http       : Listen HTTP requests. Default; localhost:12080");
+  console.log("    -listen-http       : Listen HTTP requests. Default; 0.0.0.0:12080");
   console.log("    -load-file         : Load a command file.\n");
 
-  console.log("    -cache-limit       : Cache size limit in bytes. Default (16MB); 16777216");
+  console.log("    -cache-limit       : Cache size limit in bytes. Default (128MB); 134217728");
   console.log("    -entry-limit       : Entry size limit in bytes. Default (1KB); 1024");
   console.log("    -vacuum-delay      : Delay in seconds for vacuum. Default; 30");
   console.log("    -eviction          : Enable eviction mode.\n");

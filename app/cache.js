@@ -19,55 +19,36 @@ exports = module.exports = function(options) {
 
   var config    = {debug: false, verbose: 1},
 
-      // cache data
-      cacheData = {entries: {}, len: 0},
-
-      // cache options
-      cacheOpt  = {
-
-        // limit
-        limit: {
-
-          // global limits
-          glob : {
-            inByte:   16777216, // cache limit in bytes
-            inEntry:  0,        // cache limit in number of entry
+      cacheData = {entries: {}, len: 0}, // cache data
+      cacheOpt  = { // cache options
+        limit: {    // limit
+          glob : {  // global limits
+            inByte:   134217728, // cache limit in bytes
+            inEntry:  0,         // cache limit in number of entry
           },
-
-          // entry limits
-          entry: {
-            inByte :  1024,   // entry size limit in bytes
-            inChar :  1024/4  // TODO: THIS BLOCK IS TEMP AND WILL BE GONE
+          entry: {  // entry limits
+            inByte :  1024,  // entry size limit in bytes
+            inChar :  1024/4 // TODO: THIS BLOCK IS TEMP AND WILL BE GONE
           }
         },
-
-        // vacuum options
-        vacuum: {
-          delay:    30,     // vacuum interval in seconds
-          running:  false   // whether vacuum running or not
+        vacuum: { // vacuum options
+          delay:    30,   // vacuum interval in seconds
+          running:  false // whether vacuum running or not
         },
-
-        // eviction options
-        eviction: {
-          enabled:  false,  // eviction enabled or not
-          numOfEntry: 0,    // number of entry that will be evicted
+        eviction: { // eviction options
+          enabled:  false, // eviction enabled or not
+          numOfEntry: 0,   // number of entry that will be evicted
         }
       },
-
-      // cache operations
-      cacheOps      = {
-
-        // timestamps
-        ts: {
+      cacheOps = { // cache operations
+        ts: { // timestamps
           vacuum:     0, // timestamps for last vacuum process
           expiration: 0, // timestamps for last expiration process
           eviction:   0, // timestamps for last eviction process
           outOfLimit: 0  // timestamps for last out of limit event
         }
       },
-
-      // cache commands
-      cacheCmds     = [
+      cacheCmds = [ // cache commands
         'get',
         'set',
         'add',
@@ -81,40 +62,37 @@ exports = module.exports = function(options) {
         'exit'
       ],
 
-      // timers
-      timers        = {
+      timers = { // timers
         vacuum: null
       },
 
-      // regex
-      regex         = {
+      regex = { // regex
         number:     new RegExp('^(-*)[0-9]+(\\.[0-9]+)?$', 'g'),
         trimQuotes: new RegExp('^"|"$', 'g'),
         command:    new RegExp('^\\b(' + cacheCmds.join('|') + ')\\b', 'i'),
         args:       new RegExp('("[^"]*")|([^\\s]+)', 'g') // TODO: It should support escape chars. Currently \" doesn't work.
       },
 
-      // functions
-      stats,            // stats - function
-      vacuum,           // vacuum - function
-      get,              // get - function
-      set,              // set - function
-      add,              // add - function
-      del,              // delete - function
-      incdec,           // increment or decrement value - function 
-      increment,        // increment value - function
-      decrement,        // decrement value - function
-      drop,             // drop data set - function
+      stats,     // stats - function
+      vacuum,    // vacuum - function
+      get,       // get - function
+      set,       // set - function
+      add,       // add - function
+      del,       // delete - function
+      incdec,    // increment or decrement value - function 
+      increment, // increment value - function
+      decrement, // decrement value - function
+      drop,      // drop data set - function
 
-      entries,          // entries - function
-      execCmd,          // execute command - function
-      loadFile,         // load file - function
-      cmdList,          // command list - function
+      entries,  // entries - function
+      execCmd,  // execute command - function
+      loadFile, // load file - function
+      cmdList,  // command list - function
 
-      numOfEntry,       // number of entry - function
-      numOfAvlbEntry,   // number of available entry - function
-      numOfEvictEntry,  // number of evict-able entry - function
-      entryMaxSize;     // max size of entry - function
+      numOfEntry,      // number of entry - function
+      numOfAvlbEntry,  // number of available entry - function
+      numOfEvictEntry, // number of evict-able entry - function
+      entryMaxSize;    // max size of entry - function
 
   // Check the options
   if(options) {

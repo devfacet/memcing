@@ -37,10 +37,10 @@ node memcing.js -help
 ```
   Options:
     -i                 : Enable interactive mode.
-    -listen-http       : Listen HTTP requests. Default; localhost:12080
+    -listen-http       : Listen HTTP requests. Default; 0.0.0.0:12080
     -load-file         : Load a command file.
 
-    -cache-limit       : Cache size limit in bytes. Default (16MB); 16777216
+    -cache-limit       : Cache size limit in bytes. Default (128MB); 134217728
     -entry-limit       : Entry size limit in bytes. Default (1KB); 1024
     -vacuum-delay      : Delay in seconds for vacuum. Default; 30
     -eviction          : Enable eviction mode.
@@ -75,13 +75,13 @@ node memcing.js -help
 
 Interactive mode and RESTful can be used in same time.
 ```
-node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http localhost:12080
+node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http
 ```
 Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
 then switch to interactive mode and listen http requests. The cached data will be available for 
-REPL and REST API.  
+REPL and RESTful API.  
 
-For REST API performance tests;  
+For RESTful API performance tests;  
 `ab -n 10000 http://localhost:12080/entries/hello`  
 `ab -n 10000 -c 100 http://localhost:12080/entries/hello`
 
@@ -92,7 +92,7 @@ For REST API performance tests;
 You can easily create a postal code service;
 ```
 wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && unzip -p zip-codes.zip US.txt | cat \
-| node memcing.js -cache-limit 67108864 -listen-http 0.0.0.0:12080 -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
+| node memcing.js -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
 ```
 
 See `http://localhost:12080/entries/78729`
@@ -108,9 +108,9 @@ See `http://localhost:12080/entries/78729`
 If you want to include other countries see http://download.geonames.org/export/zip/
 and change the part (`US.zip` and `US.txt`) of the command at above. 
 
-### REST API
+### RESTful API
 
-*REST API is still under development. For the current implementations 
+*RESTful API is still under development. For the current implementations 
 See [Implementations](#implementations)*  
 
 **Notes**
@@ -181,7 +181,7 @@ non-persistent, non-durable and supporting eviction.
 #### Implementations
 
 - [x] Interactive mode
-- [ ] REST API
+- [ ] RESTful API
   - [x] GET
     - [x] Collection (`/entries`)
     - [x] Element (`/entries/{KEY}`)
