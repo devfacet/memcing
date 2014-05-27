@@ -67,16 +67,30 @@ describe('stdin', function() {
       echoCmd.on('close', function() {
         mingCmd.stdin.end();
 
-        request(restUrl + '/entries/counter', function(err, res, body) {
+        request(restUrl + '/entries', function(err, res, body) {
           if(!err) {
             var resData = JSON.parse(body);
             expect(res.statusCode).to.equal(200);
-            expect(resData).to.be.a('object');
-            expect(resData).to.have.property('key', 'counter');
-            expect(resData).to.have.property('val');
-            expect(JSON.parse(resData.val)).to.be.a('array');
-            expect(resData).to.have.property('ts').to.be.above(0);
-            expect(resData).to.have.property('expTS', 0);
+
+            expect(resData).to.be.a('array');
+            expect(resData).to.have.length(4);
+
+            expect(resData).to.have.deep.property('[0].key', 'hello');
+            expect(JSON.parse(resData[0].val)).to.be.a('array')
+            .with.deep.equal(['hello', 'world']);
+
+            expect(resData).to.have.deep.property('[1].key', 'counter');
+            expect(JSON.parse(resData[1].val)).to.be.a('array')
+            .with.deep.equal(['counter', '1']);
+
+            expect(resData).to.have.deep.property('[2].key', 'foo');
+            expect(JSON.parse(resData[2].val)).to.be.a('array')
+            .with.deep.equal(['  foo', ' bar', '1 ']);
+
+            expect(resData).to.have.deep.property('[3].key', 'test key');
+            expect(JSON.parse(resData[3].val)).to.be.a('array')
+            .with.deep.equal(['test key', 'hello world']);
+
             done();
           } else {
             done(err);
