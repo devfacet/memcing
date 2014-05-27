@@ -41,7 +41,7 @@ describe('options', function() {
           expect(res.statusCode).to.equal(200);
 
           expect(resData).to.be.a('array');
-          expect(resData).to.have.length(3);
+          expect(resData).to.have.property('length').to.be.equal(3);
 
           expect(resData).to.have.deep.property('[0].key', 'hello');
           expect(resData[0]).to.have.property('ts').to.be.above(0);

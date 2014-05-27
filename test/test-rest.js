@@ -160,7 +160,7 @@ describe('appREST', function() {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(200);
           expect(resData).to.be.a('array');
-          expect(resData).to.have.length(2); // entry `bye` should exists
+          expect(resData).to.have.property('length').to.be.equal(2); // entry `bye` should exists
           done();
         } else {
           done(err);

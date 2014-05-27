@@ -73,7 +73,7 @@ describe('stdin', function() {
             expect(res.statusCode).to.equal(200);
 
             expect(resData).to.be.a('array');
-            expect(resData).to.have.length(4);
+            expect(resData).to.have.property('length').to.be.equal(4);
 
             expect(resData).to.have.deep.property('[0].key', 'hello');
             expect(JSON.parse(resData[0].val)).to.be.a('array')
