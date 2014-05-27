@@ -255,6 +255,63 @@ describe('appCache', function() {
     });
   });
 
+  // numOfEvictEntry
+  describe("numOfEvictEntry()", function() {
+    it('should return number of evict-able entry', function(done) {
+
+      result = appCache.numOfEvictEntry();
+      if(result.error) {
+        done(result.error);
+        return;
+      }
+
+      expect(result).to.be.equal(Math.floor(((16384/256)*2)/100));
+      done();
+    });
+  });
+
+  // entryMaxSize
+  describe("entryMaxSize()", function() {
+    it('should return max size of entry', function(done) {
+
+      result = appCache.entryMaxSize();
+      if(result.error) {
+        done(result.error);
+        return;
+      }
+
+      expect(result).to.be.equal(256);
+      done();
+    });
+  });
+
+  // cmdList
+  describe("cmdList", function() {
+    it('should return command list', function(done) {
+
+      result = appCache.cmdList;
+      if(result.error) {
+        done(result.error);
+        return;
+      }
+
+      expect(result).to.deep.equals([
+        'get',
+        'set',
+        'add',
+        'delete',
+        'drop',
+        'increment',
+        'decrement',
+        'dump',
+        'stats',
+        'vacuum',
+        'exit'
+      ]);
+      done();
+    });
+  });
+
   // entries
   describe("entries()", function() {
     it('should get all entries', function(done) {
