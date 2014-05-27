@@ -39,13 +39,19 @@ describe('options', function() {
         if(!err) {
           var resData = JSON.parse(body);
           expect(res.statusCode).to.equal(200);
+
           expect(resData).to.be.a('array');
           expect(resData).to.have.length(3);
-          expect(resData[0]).to.be.a('object');
-          expect(resData[0]).to.have.property('key');
-          expect(resData[0]).to.have.property('val');
+
+          expect(resData).to.have.deep.property('[0].key', 'hello');
           expect(resData[0]).to.have.property('ts').to.be.above(0);
-          expect(resData[0]).to.have.property('expTS');
+
+          expect(resData).to.have.deep.property('[1].key', 'counter');
+          expect(resData[1]).to.have.property('val').to.be.equal(1);
+
+          expect(resData).to.have.deep.property('[2].key', 'bye');
+          expect(resData[2]).to.have.property('expTS').to.be.above(new Date().getTime());
+
           done();
         } else {
           done(err);
