@@ -28,14 +28,19 @@ describe('options', function() {
           expect(resData).to.be.a('array');
           expect(resData).to.have.property('length').to.be.equal(3);
 
-          expect(resData).to.have.deep.property('[0].key', 'hello');
-          expect(resData[0]).to.have.property('ts').to.be.above(0);
-
-          expect(resData).to.have.deep.property('[1].key', 'counter');
-          expect(resData[1]).to.have.property('val').to.be.equal(1);
-
-          expect(resData).to.have.deep.property('[2].key', 'bye');
-          expect(resData[2]).to.have.property('expTS').to.be.above(new Date().getTime());
+          for(var key in resData) {
+            if(resData.hasOwnProperty(key)) {
+              if(resData[key].key === 'hello') {
+                expect(resData[key]).to.have.property('val', 'world');
+                expect(resData[key]).to.have.property('ts').to.be.above(0);
+              } else if(resData[key].key === 'counter') {
+                expect(resData[key]).to.have.property('val').to.be.equal(1);
+              } else if(resData[key].key === 'bye') {
+                expect(resData[key]).to.have.property('val', 'bye');
+                expect(resData[key]).to.have.property('expTS').to.be.above(new Date().getTime());
+              }
+            }
+          }
 
           done();
         } else {
