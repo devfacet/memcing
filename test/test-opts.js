@@ -17,23 +17,8 @@ describe('options', function() {
       restUrl    = 'http://127.0.0.1:12082',
       urlEntries = restUrl + '/entries';
 
-  // listen-http
-  describe('-listen-http', function() {
-    it('should listen HTTP requests', function(done) {
-      request(restUrl, function (err, res, body) {
-        if(!err) {
-          expect(res.statusCode).to.equal(200);
-          expect(body).to.equal('');
-          done();
-        } else {
-          done(err);
-        }
-      });
-    });
-  });
-
   // load-file
-  describe('-load-file', function() {
+  describe('`memcing.js -load-file`', function() {
     it('should load commands from the given file', function(done) {
       request(urlEntries, function (err, res, body) {
         if(!err) {
@@ -52,6 +37,21 @@ describe('options', function() {
           expect(resData).to.have.deep.property('[2].key', 'bye');
           expect(resData[2]).to.have.property('expTS').to.be.above(new Date().getTime());
 
+          done();
+        } else {
+          done(err);
+        }
+      });
+    });
+  });
+
+  // listen-http
+  describe('`memcing.js -listen-http`', function() {
+    it('should listen HTTP requests', function(done) {
+      request(restUrl, function (err, res, body) {
+        if(!err) {
+          expect(res.statusCode).to.equal(200);
+          expect(body).to.equal('');
           done();
         } else {
           done(err);
