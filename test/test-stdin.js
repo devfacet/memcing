@@ -13,8 +13,6 @@ var spawn   = require('child_process').spawn,
 // Test for stdin
 describe('stdin', function() {
 
-  if(process.env.NODE_TEST_LEVEL < 2) return;
-
   var echoCmd,
       mingCmd,
       restUrl,
