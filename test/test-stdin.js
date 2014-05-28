@@ -100,49 +100,47 @@ describe('stdin', function() {
     });
 
     // csv - fields
-    describe('`-csv-delimiter -csv-field-key -csv-field-filter`', function() {
-      it('should affect CSV fields', function(done) {
+    it('should apply CSV field options', function(done) {
 
-        echoCmd = spawn('cat', ['test/csv-sample.csv']);
-        mingCmd = spawn('node', ['app/memcing.js', '-listen-http', ':12084', '-csv', '-csv-delimiter', ',', '-csv-field-key', '2', '-csv-field-filter', '1,2', 'verbose']);
-        restUrl = 'http://127.0.0.1:12084';
+      echoCmd = spawn('cat', ['test/csv-sample.csv']);
+      mingCmd = spawn('node', ['app/memcing.js', '-listen-http', ':12084', '-csv', '-csv-delimiter', ',', '-csv-field-key', '2', '-csv-field-filter', '1,2', 'verbose']);
+      restUrl = 'http://127.0.0.1:12084';
 
-        echoCmd.stdout.on('data', function(data) {
-          mingCmd.stdin.write(data);
-        });
+      echoCmd.stdout.on('data', function(data) {
+        mingCmd.stdin.write(data);
+      });
 
-        echoCmd.on('close', function() {
-          mingCmd.stdin.end();
+      echoCmd.on('close', function() {
+        mingCmd.stdin.end();
 
-          request(restUrl + '/entries', function(err, res, body) {
-            if(!err) {
-              var resData = JSON.parse(body);
-              expect(res.statusCode).to.equal(200);
+        request(restUrl + '/entries', function(err, res, body) {
+          if(!err) {
+            var resData = JSON.parse(body);
+            expect(res.statusCode).to.equal(200);
 
-              expect(resData).to.be.a('array');
-              expect(resData).to.have.property('length').to.be.equal(4);
+            expect(resData).to.be.a('array');
+            expect(resData).to.have.property('length').to.be.equal(4);
 
-              for(var key in resData) {
-                if(resData.hasOwnProperty(key)) {
-                  if(resData[key].key === 'world') {
-                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['hello', 'world']);
-                  } else if(resData[key].key === 1) {
-                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['counter', '1']);
-                  } else if(resData[key].key === 'bar') {
-                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['  foo', ' bar']);
-                  } else if(resData[key].key === 'hello world') {
-                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['test key', 'hello world']);
-                  }
+            for(var key in resData) {
+              if(resData.hasOwnProperty(key)) {
+                if(resData[key].key === 'world') {
+                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['hello', 'world']);
+                } else if(resData[key].key === 1) {
+                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['counter', '1']);
+                } else if(resData[key].key === 'bar') {
+                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['  foo', ' bar']);
+                } else if(resData[key].key === 'hello world') {
+                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['test key', 'hello world']);
                 }
               }
-
-              done();
-            } else {
-              done(err);
             }
-            echoCmd.kill();
-            mingCmd.kill();
-          });
+
+            done();
+          } else {
+            done(err);
+          }
+          echoCmd.kill();
+          mingCmd.kill();
         });
       });
     });
