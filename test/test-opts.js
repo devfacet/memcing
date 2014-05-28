@@ -5,6 +5,7 @@
 'use strict';
 
 var spawn   = require('child_process').spawn,
+    exec    = require('child_process').exec,
     request = require('request'),
     expect  = require('chai').expect;
 
@@ -13,7 +14,7 @@ var spawn   = require('child_process').spawn,
 // Test for options
 describe('options', function() {
 
-  var child      = spawn('node', ['app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
+  var mingCmd    = spawn('node', ['app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
       restUrl    = 'http://127.0.0.1:12082',
       urlEntries = restUrl + '/entries';
 
@@ -48,6 +49,24 @@ describe('options', function() {
         }
       });
     });
+
+    it('should fail to load commands from the given bad file', function(done) {
+
+      var mingCmd2 = exec('node app/memcing.js -load-file test/cmds-dup.txt -verbose 5 -debug', function(error, stdout, stderr) {
+        
+        if(error !== null) {
+          done(err);
+          return;
+        } else if(stderr) {
+          done(err);
+          return;
+        }
+
+        var resData = (''+stdout).replace(/\r?\n/g, '');
+        expect(resData).to.contain('Key already exists. (hello) - line #4: add hello again');
+        done();
+      });
+    });
   });
 
   // listen-http
@@ -61,7 +80,7 @@ describe('options', function() {
         } else {
           done(err);
         }
-        child.kill();
+        mingCmd.kill();
       });
     });
   });
