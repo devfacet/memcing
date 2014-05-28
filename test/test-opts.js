@@ -14,6 +14,8 @@ var spawn   = require('child_process').spawn,
 // Test for options
 describe('options', function() {
 
+  if(process.env.NODE_TEST_LEVEL < 2) return;
+
   var mingCmd    = spawn('node', ['app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
       restUrl    = 'http://127.0.0.1:12082',
       urlEntries = restUrl + '/entries';
