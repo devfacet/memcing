@@ -17,7 +17,8 @@ describe('stdin', function() {
 
   var echoCmd,
       mingCmd,
-      restUrl;
+      restUrl,
+      reqDelay = 500;
 
   //stream
   describe('`echo hello world | memcing.js`', function() {
@@ -34,22 +35,24 @@ describe('stdin', function() {
       echoCmd.on('close', function() {
         mingCmd.stdin.end();
 
-        request(restUrl + '/entries/hello', function(err, res, body) {
-          if(!err) {
-            var resData = JSON.parse(body);
-            expect(res.statusCode).to.equal(200);
-            expect(resData).to.be.a('object');
-            expect(resData).to.have.property('key', 'hello');
-            expect(resData).to.have.property('val', 'world');
-            expect(resData).to.have.property('ts').to.be.above(0);
-            expect(resData).to.have.property('expTS', 0);
-            done();
-          } else {
-            done(err);
-          }
-          echoCmd.kill();
-          mingCmd.kill();
-        });
+        setTimeout(function() {
+          request(restUrl + '/entries/hello', function(err, res, body) {
+            if(!err) {
+              var resData = JSON.parse(body);
+              expect(res.statusCode).to.equal(200);
+              expect(resData).to.be.a('object');
+              expect(resData).to.have.property('key', 'hello');
+              expect(resData).to.have.property('val', 'world');
+              expect(resData).to.have.property('ts').to.be.above(0);
+              expect(resData).to.have.property('expTS', 0);
+              done();
+            } else {
+              done(err);
+            }
+            echoCmd.kill();
+            mingCmd.kill();
+          });
+        }, reqDelay);
       });
     });
   });
@@ -69,35 +72,37 @@ describe('stdin', function() {
       echoCmd.on('close', function() {
         mingCmd.stdin.end();
 
-        request(restUrl + '/entries', function(err, res, body) {
-          if(!err) {
-            var resData = JSON.parse(body);
-            expect(res.statusCode).to.equal(200);
+        setTimeout(function() {
+          request(restUrl + '/entries', function(err, res, body) {
+            if(!err) {
+              var resData = JSON.parse(body);
+              expect(res.statusCode).to.equal(200);
 
-            expect(resData).to.be.a('array');
-            expect(resData).to.have.property('length').to.be.equal(4);
+              expect(resData).to.be.a('array');
+              expect(resData).to.have.property('length').to.be.equal(4);
 
-            for(var key in resData) {
-              if(resData.hasOwnProperty(key)) {
-                if(resData[key].key === 'hello') {
-                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['hello', 'world']);
-                } else if(resData[key].key === 'counter') {
-                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['counter', '1']);
-                } else if(resData[key].key === 'foo') {
-                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['  foo', ' bar', '1 ']);
-                } else if(resData[key].key === 'test key') {
-                  expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['test key', 'hello world', '3rd']);
+              for(var key in resData) {
+                if(resData.hasOwnProperty(key)) {
+                  if(resData[key].key === 'hello') {
+                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['hello', 'world']);
+                  } else if(resData[key].key === 'counter') {
+                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['counter', '1']);
+                  } else if(resData[key].key === 'foo') {
+                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['  foo', ' bar', '1 ']);
+                  } else if(resData[key].key === 'test key') {
+                    expect(JSON.parse(resData[key].val)).to.be.a('array').with.deep.equal(['test key', 'hello world', '3rd']);
+                  }
                 }
               }
-            }
 
-            done();
-          } else {
-            done(err);
-          }
-          echoCmd.kill();
-          mingCmd.kill();
-        });
+              done();
+            } else {
+              done(err);
+            }
+            echoCmd.kill();
+            mingCmd.kill();
+          });
+        }, reqDelay);
       });
     });
 
@@ -115,7 +120,8 @@ describe('stdin', function() {
       echoCmd.on('close', function() {
         mingCmd.stdin.end();
 
-        request(restUrl + '/entries', function(err, res, body) {
+        setTimeout(function() {
+          request(restUrl + '/entries', function(err, res, body) {
           if(!err) {
             var resData = JSON.parse(body);
             expect(res.statusCode).to.equal(200);
@@ -143,7 +149,8 @@ describe('stdin', function() {
           }
           echoCmd.kill();
           mingCmd.kill();
-        });
+          });
+        }, reqDelay);
       });
     });
   });
@@ -163,22 +170,24 @@ describe('stdin', function() {
       echoCmd.on('close', function() {
         mingCmd.stdin.end();
 
-        request(restUrl + '/entries/counter', function(err, res, body) {
-          if(!err) {
-            var resData = JSON.parse(body);
-            expect(res.statusCode).to.equal(200);
-            expect(resData).to.be.a('object');
-            expect(resData).to.have.property('key', 'counter');
-            expect(resData).to.have.property('val', 2);
-            expect(resData).to.have.property('ts').to.be.above(0);
-            expect(resData).to.have.property('expTS', 0);
-            done();
-          } else {
-            done(err);
-          }
-          echoCmd.kill();
-          mingCmd.kill();
-        });
+        setTimeout(function() {
+          request(restUrl + '/entries/counter', function(err, res, body) {
+            if(!err) {
+              var resData = JSON.parse(body);
+              expect(res.statusCode).to.equal(200);
+              expect(resData).to.be.a('object');
+              expect(resData).to.have.property('key', 'counter');
+              expect(resData).to.have.property('val', 2);
+              expect(resData).to.have.property('ts').to.be.above(0);
+              expect(resData).to.have.property('expTS', 0);
+              done();
+            } else {
+              done(err);
+            }
+            echoCmd.kill();
+            mingCmd.kill();
+          });
+        }, reqDelay);
       });
     });
   });

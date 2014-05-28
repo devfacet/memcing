@@ -34,7 +34,7 @@
     "test-cache": "node node_modules/mocha/bin/mocha --reporter list test/test-cache.js",
     "test-rest": "node node_modules/mocha/bin/mocha --reporter list test/test-rest.js",
     "test-opts": "node node_modules/mocha/bin/mocha --reporter list test/test-opts.js",
-    "test-stdin": "node node_modules/mocha/bin/mocha --reporter list test/test-stdin.js",
+    "test-stdin": "node node_modules/mocha/bin/mocha --timeout 10000 --reporter list test/test-stdin.js",
 
     "benchmark-1": "node benchmark/cache-basics.js",
     "benchmark-cache-basics": "node benchmark/cache-basics.js"

@@ -18,49 +18,53 @@ describe('options', function() {
 
   var mingCmd    = spawn('node', ['app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
       restUrl    = 'http://127.0.0.1:12082',
-      urlEntries = restUrl + '/entries';
+      urlEntries = restUrl + '/entries',
+      reqDelay   = 500;
 
   // load-file
   describe('`memcing.js -load-file`', function() {
     it('should load commands from the given file', function(done) {
-      request(urlEntries, function (err, res, body) {
-        if(!err) {
-          var resData = JSON.parse(body);
-          expect(res.statusCode).to.equal(200);
 
-          expect(resData).to.be.a('array');
-          expect(resData).to.have.property('length').to.be.equal(3);
+      setTimeout(function() {
+        request(urlEntries, function (err, res, body) {
+          if(!err) {
+            var resData = JSON.parse(body);
+            expect(res.statusCode).to.equal(200);
 
-          for(var key in resData) {
-            if(resData.hasOwnProperty(key)) {
-              if(resData[key].key === 'hello') {
-                expect(resData[key]).to.have.property('val', 'world');
-                expect(resData[key]).to.have.property('ts').to.be.above(0);
-              } else if(resData[key].key === 'counter') {
-                expect(resData[key]).to.have.property('val').to.be.equal(1);
-              } else if(resData[key].key === 'bye') {
-                expect(resData[key]).to.have.property('val', 'bye');
-                expect(resData[key]).to.have.property('expTS').to.be.above(new Date().getTime());
+            expect(resData).to.be.a('array');
+            expect(resData).to.have.property('length').to.be.equal(3);
+
+            for(var key in resData) {
+              if(resData.hasOwnProperty(key)) {
+                if(resData[key].key === 'hello') {
+                  expect(resData[key]).to.have.property('val', 'world');
+                  expect(resData[key]).to.have.property('ts').to.be.above(0);
+                } else if(resData[key].key === 'counter') {
+                  expect(resData[key]).to.have.property('val').to.be.equal(1);
+                } else if(resData[key].key === 'bye') {
+                  expect(resData[key]).to.have.property('val', 'bye');
+                  expect(resData[key]).to.have.property('expTS').to.be.above(new Date().getTime());
+                }
               }
             }
-          }
 
-          done();
-        } else {
-          done(err);
-        }
-      });
+            done();
+          } else {
+            done(err);
+          }
+        });
+      }, reqDelay);
     });
 
     it('should fail to load commands from the given bad file', function(done) {
 
-      var mingCmd2 = exec('node app/memcing.js -load-file test/cmds-dup.txt -verbose 5 -debug', function(error, stdout, stderr) {
+      exec('node app/memcing.js -load-file test/cmds-dup.txt -verbose 5 -debug', function(err, stdout, stderr) {
         
-        if(error !== null) {
+        if(err) {
           done(err);
           return;
         } else if(stderr) {
-          done(err);
+          done(stderr);
           return;
         }
 
