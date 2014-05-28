@@ -344,4 +344,24 @@ describe('appCache', function() {
       done();
     });
   });
+
+  // loadFile
+  describe("loadFile()", function() {
+    it('should load the given file', function(done) {
+      appCache.loadFile(__dirname + '/cmds-lf.txt').then(function(res) {
+        done();
+      }, function(err) {
+        done(err);
+      });
+    });
+
+    it('should fail to load the given file', function(done) {
+      appCache.loadFile(__dirname + '/cmds-dup.txt').then(function(res) {
+        done('No error!');
+        return;
+      }, function(err) {
+        done();
+      });
+    });
+  });
 });
