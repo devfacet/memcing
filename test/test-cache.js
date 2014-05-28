@@ -348,20 +348,37 @@ describe('appCache', function() {
   // loadFile
   describe("loadFile()", function() {
     it('should load the given file', function(done) {
-      appCache.loadFile(__dirname + '/cmds-lf.txt').then(function(res) {
+      appCache.loadFile(__dirname + '/cmds-lf.txt').then(function() {
         done();
       }, function(err) {
         done(err);
       });
     });
 
-    it('should fail to load the given file', function(done) {
-      appCache.loadFile(__dirname + '/cmds-dup.txt').then(function(res) {
+    it('should fail to load the given bad file', function(done) {
+      appCache.loadFile(__dirname + '/cmds-dup.txt').then(function() {
         done('No error!');
         return;
-      }, function(err) {
+      }, function() {
         done();
       });
+    });
+  });
+
+  // execCmd
+  describe("execCmd()", function() {
+    it('should execute the given command', function(done) {
+
+      result = appCache.execCmd('stats');
+      if(result.cmdRes && result.cmdRes.error) {
+        done(result.cmdRes.error);
+        return;
+      }
+
+      expect(result).to.have.property('cmd', 'stats');
+      expect(result).to.have.property('cmdArgs').with.deep.equal([]);
+      expect(result.cmdRes).to.be.a('object');
+      done();
     });
   });
 });
