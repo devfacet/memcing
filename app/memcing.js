@@ -57,7 +57,7 @@ function cmdHelp() {
 
   console.log("Usage: node memching.js [OPTION]...\n");
 
-  console.log("Memcing is an application for simple memory caching.\n");
+  console.log("Memcing is an in-memory key-value caching application.\n");
 
   console.log("  Options:");
   console.log("    -i                 : Enable interactive mode.");
