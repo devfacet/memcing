@@ -98,10 +98,10 @@ wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && unzip -
 See `http://localhost:12080/entries/78729`
 ```JSON
 {
-  "key": 78729,
-  "val": "['US','Austin','Texas','TX','Williamson','30.4521','-97.7688']",
-  "ts": 1397288286856,
-  "expTS": 0
+  "key":"78729",
+  "val":"[\"US\",\"Austin\",\"Texas\",\"TX\",\"Williamson\",\"30.4521\",\"-97.7688\"]",
+  "ts":1401417873489,
+  "expTS":0
 }
 ```
 
