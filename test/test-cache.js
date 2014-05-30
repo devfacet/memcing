@@ -12,7 +12,13 @@ var cache  = require('../app/cache'),
 // Test for cache module
 describe('appCache', function() {
 
-  var appCache = cache({debug: false, globLimit: 16384, entryLimit: 256, eviction: true}),
+  var appCache = cache({
+        debug: false,
+        globLimit: 16384,
+        entryLimit: 256,
+        vacuumDelay: 10,
+        eviction: true
+      }),
       result;
 
   // set
@@ -191,7 +197,7 @@ describe('appCache', function() {
       expect(result.options.limit.entry).to.have.property('inChar', 256/4);
 
       expect(result.options.vacuum).to.be.a('object');
-      expect(result.options.vacuum).to.have.property('delay');
+      expect(result.options.vacuum).to.have.property('delay').to.be.equal(10);
       expect(result.options.vacuum.delay).to.be.a('number');
       expect(result.options.vacuum).to.have.property('running');
       expect(result.options.vacuum.running).to.be.a('boolean');
