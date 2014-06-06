@@ -33,7 +33,7 @@ exports = module.exports = function(options, appInstance) {
   if(typeof appInstance !== 'object') throw new Error('Invalid app instance!');
 
   // Check the options
-  if(options) {
+  if(options && typeof options === 'object') {
     if(options.debug === true)        config.debug   = true;
     if(options.verbose !== undefined) config.verbose = options.verbose;
 

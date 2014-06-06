@@ -95,7 +95,7 @@ exports = module.exports = function(options) {
       entryMaxSize;    // max size of entry - function
 
   // Check the options
-  if(options) {
+  if(options && typeof options === 'object') {
     if(options.debug === true)        config.debug   = true;
     if(options.verbose !== undefined) config.verbose = options.verbose;
 
@@ -442,6 +442,7 @@ exports = module.exports = function(options) {
         result.cmdArgs[i] = result.cmdArgs[i].replace(regex.trimQuotes, ''); // quotes
         if(regex.number.test(result.cmdArgs[i]) && !isNaN(result.cmdArgs[i]/1)) {
           result.cmdArgs[i] = result.cmdArgs[i]/1; // number
+          // TODO: Check this!
         }
       }
     }
