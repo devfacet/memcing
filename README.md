@@ -175,7 +175,7 @@ curl -X DELETE http://localhost:12080/entries
 
 * For issues see [Issues](https://github.com/cmfatih/memcing/issues)
 * For design goals and coding see [coding](https://github.com/cmfatih/coding)
-* memcing is 'originally' developed for an interview code exercise. The requirements were; 
+* It is 'originally' developed for code exercise. The requirements were; 
 non-persistent, non-durable and supporting eviction.
 
 #### Implementations
