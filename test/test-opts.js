@@ -20,11 +20,10 @@ describe('options', function() {
       reqDelay   = 500;
 
   // load-file
-  describe('`memcing.js -load-file`', function() {
+  describe('`-load-file`', function() {
     it('should load commands from the given file', function(done) {
-
       setTimeout(function() {
-        request(urlEntries, function (err, res, body) {
+        request(urlEntries, function(err, res, body) {
           if(!err) {
             var resData = JSON.parse(body);
             expect(res.statusCode).to.equal(200);
@@ -55,9 +54,7 @@ describe('options', function() {
     });
 
     it('should fail to load commands from the given bad file', function(done) {
-
       exec('node app/memcing.js -load-file test/cmds-dup.txt -verbose 5 -debug', function(err, stdout, stderr) {
-        
         if(err) {
           done(err);
           return;
@@ -74,7 +71,7 @@ describe('options', function() {
   });
 
   // listen-http
-  describe('`memcing.js -listen-http`', function() {
+  describe('`-listen-http`', function() {
     it('should listen HTTP requests', function(done) {
       request(restUrl, function (err, res, body) {
         if(!err) {
