@@ -1,6 +1,6 @@
 {
   "name": "memcing",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Memcing is an in-memory key-value caching application with RESTful API.",
   "keywords": [
     "memory",
@@ -40,7 +40,7 @@
     "benchmark-cache-basics": "node benchmark/cache-basics.js"
   },
   "engines": [
-    "node >= 0.10.21"
+    "node >= 0.10.22"
   ],
   "dependencies": {
     "utilex": "0.2.x",
