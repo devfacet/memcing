@@ -174,8 +174,7 @@ curl -X DELETE http://localhost:12080/entries
 ### Notes
 
 * For issues see [Issues](https://github.com/cmfatih/memcing/issues)
-* For design goals and coding see [coding](https://github.com/cmfatih/coding) and
-  [conventions](http://sideeffect.kr/popularconvention/#javascript)
+* For design goals and coding see [coding](https://github.com/cmfatih/coding)
 * It is 'originally' developed for code exercise. The requirements were; 
 non-persistent, non-durable and supporting eviction.
 
