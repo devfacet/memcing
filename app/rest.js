@@ -55,7 +55,7 @@ exports = module.exports = function(options, appInstance) {
         config.http.port     = config.http.server.address().port;
 
         if(config.verbose > 0 || config.debug === true) {
-          utilex.tidyLog('Server is listening on ' + config.http.hostname + ':' + config.http.port);
+          utilex.conLog('Server is listening on ' + config.http.hostname + ':' + config.http.port);
         }
 
         deferred.resolve();
@@ -79,7 +79,7 @@ exports = module.exports = function(options, appInstance) {
       var pathAry = urlParse.pathname.split('/');
       pathAry.shift(); // remove first element
 
-      if(config.debug === true) utilex.tidyLog('[rest.listenReq.pathAry]: ' + JSON.stringify(pathAry));
+      if(config.debug === true) utilex.conLog('[rest.listenReq.pathAry]: ' + JSON.stringify(pathAry));
 
       if(pathAry[0] === 'entries') {
         if(pathAry[1]) { // element
@@ -100,7 +100,7 @@ exports = module.exports = function(options, appInstance) {
                 dataLmt = appInstance.entryMaxSize()*2; // TODO: Find a better approach.
 
             req.on('data', function(chunk) {
-              //if(config.debug === true) utilex.tidyLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
+              //if(config.debug === true) utilex.conLog('[rest.listenReq.req.data]: ' + chunk.length + ' - ' + dataLen + ' - ' + dataLmt);
 
               // NOTE: Ignore rest of the data and give 413 error at end of the request.
               // TODO: Re-think this part, maybe it should destroy the connection instead of 
@@ -119,7 +119,7 @@ exports = module.exports = function(options, appInstance) {
                 res.end(JSON.stringify({code: '413', message: 'Request Entity Too Large'}));
               } else {
                 
-                if(config.debug === true) utilex.tidyLog('[rest.listenReq.req.end]: ' + bodyAry.join());
+                if(config.debug === true) utilex.conLog('[rest.listenReq.req.end]: ' + bodyAry.join());
 
                 if(req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                   var qsp      = qs.parse(bodyAry.join()),

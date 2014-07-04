@@ -222,7 +222,7 @@ exports = module.exports = function(options) {
       cacheOps.ts.expiration = tsTemp;
 
       tsList.expiration = (new Date().getTime())-tsTemp;
-      if(config.debug) utilex.tidyLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + entryCntr + ' entry / ' + tsList.expiration + 'ms)');
+      if(config.debug) utilex.conLog('[cache.vacuum]: Vacuuming for expired entries is done. (' + entryCntr + ' entry / ' + tsList.expiration + 'ms)');
     }
 
     // Check the data for eviction
@@ -256,7 +256,7 @@ exports = module.exports = function(options) {
       }
 
       tsList.eviction = (new Date().getTime())-tsTemp;
-      if(config.debug) utilex.tidyLog('[cache.vacuum]: Vacuuming for eviction is done. (' + entryCntr + ' entry / ' +  tsList.eviction + 'ms)');
+      if(config.debug) utilex.conLog('[cache.vacuum]: Vacuuming for eviction is done. (' + entryCntr + ' entry / ' +  tsList.eviction + 'ms)');
     }
 
     cacheOps.ts.vacuum = new Date().getTime();
@@ -309,7 +309,7 @@ exports = module.exports = function(options) {
 
       var curTS = new Date().getTime();
 
-      if(config.debug) utilex.tidyLog('[cache.set]: Out of entry limit. (' + cacheData.len + ')');
+      if(config.debug) utilex.conLog('[cache.set]: Out of entry limit. (' + cacheData.len + ')');
 
       // Cleanup expired entries
       vacuum({exp: true});

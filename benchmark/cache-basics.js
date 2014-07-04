@@ -5,7 +5,7 @@
 var utilex = require('utilex'),
     cache  = require('../app/cache');
 
-var appArgs   = utilex.tidyArgs(),
+var appArgs   = utilex.appArgs(),
     appConfig = {isHeapdump: false},
     appCache  = cache({debug: false, globLimit: 134217728, eviction: false});
 
@@ -33,10 +33,10 @@ var entries      = [],
     i;
 
 hrtimeGlob = process.hrtime();
-utilex.tidyLog('Benchmark process is starting...');
+utilex.conLog('Benchmark process is starting...');
 
 // Create entries
-utilex.tidyLog('Preparing ' + entryLimit + ' entries...');
+utilex.conLog('Preparing ' + entryLimit + ' entries...');
 hrtime = process.hrtime();
 for(i = 0; i < entryLimit; i++) {
   randKey = (Math.random() + 1).toString(36).substring(2) + (Math.random() + 1).toString(36).substring(2);
@@ -46,38 +46,38 @@ for(i = 0; i < entryLimit; i++) {
 
   entries.push([randKey, randVal]);
 }
-utilex.tidyLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
+utilex.conLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
 checklistLen = checklist.length;
 
 // Add entries
-utilex.tidyLog('Caching ' + entryLimit + ' entries...');
+utilex.conLog('Caching ' + entryLimit + ' entries...');
 hrtime = process.hrtime();
 for(i = 0; i < entryLimit; i++) {
   appCache.set(entries[i][0], entries[i][1]);
 }
-utilex.tidyLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
+utilex.conLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
 
 // Get entries
-utilex.tidyLog('Checking ' + checklistLen + ' randomly selected entries...');
+utilex.conLog('Checking ' + checklistLen + ' randomly selected entries...');
 hrtime = process.hrtime();
 for(i = 0; i < checklistLen; i++) {
   appCache.get(checklist[i]);
 }
-utilex.tidyLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
+utilex.conLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
 
 // Delete entries
-utilex.tidyLog('Deleting ' + checklistLen + ' randomly selected entries...');
+utilex.conLog('Deleting ' + checklistLen + ' randomly selected entries...');
 hrtime = process.hrtime();
 for(i = 0; i < checklistLen; i++) {
   appCache.del(checklist[i]);
 }
-utilex.tidyLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
+utilex.conLog('Done! ' + hrtimeDiff(hrtime) + 'ms');
 
 // Stats
-utilex.tidyLog('Stats for entries:' + JSON.stringify(appCache.stats().entries));
+utilex.conLog('Stats for entries:' + JSON.stringify(appCache.stats().entries));
 console.log(appCache.stats().entries);
 
-utilex.tidyLog('Benchmark process is done! ' + hrtimeDiff(hrtimeGlob) + 'ms');
+utilex.conLog('Benchmark process is done! ' + hrtimeDiff(hrtimeGlob) + 'ms');
 
 // heapdump
 if(appConfig.isHeapdump === true) {

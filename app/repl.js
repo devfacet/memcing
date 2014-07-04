@@ -55,7 +55,7 @@ exports = module.exports = function(options, appInstance) {
       completer: completer
     });
 
-    if(config.verbose > 0) utilex.tidyLog('Running on interactive mode. Commands: ' + appInstance.cmdList.join(' '));
+    if(config.verbose > 0) utilex.conLog('Running on interactive mode. Commands: ' + appInstance.cmdList.join(' '));
 
     rl.setPrompt('> '); // set prompt
     rl.prompt();
@@ -71,7 +71,7 @@ exports = module.exports = function(options, appInstance) {
 
       var cacheCmd = appInstance.execCmd(line); // Execute the command
 
-      if(config.debug) utilex.tidyLog('[repl.line]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
+      if(config.debug) utilex.conLog('[repl.line]: ' + JSON.stringify({cmd: cacheCmd.cmd, cmdArgs: cacheCmd.cmdArgs, cmdRes: cacheCmd.cmdRes}));
 
       switch(cacheCmd.cmd) {
         case 'get':

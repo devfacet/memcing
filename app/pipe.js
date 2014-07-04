@@ -75,7 +75,7 @@ exports = module.exports = function(options, appInstance) {
   // Starts reading
   start = function start() {
 
-    if(config.debug) utilex.tidyLog('[pipe.start]');
+    if(config.debug) utilex.conLog('[pipe.start]');
 
     var deferred = q.defer(),
         cacheCmd,
@@ -122,7 +122,7 @@ exports = module.exports = function(options, appInstance) {
                 cacheCmd = appInstance.execCmd(lineF); // TODO: What to do with errors?
               }
 
-              if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable.lines]: ' + lines[i] + ' - ' + JSON.stringify(cacheCmd));
+              if(config.debug) utilex.conLog('[pipe.start.stdin.readable.lines]: ' + lines[i] + ' - ' + JSON.stringify(cacheCmd));
             }
           }
 
@@ -141,19 +141,19 @@ exports = module.exports = function(options, appInstance) {
             cacheCmd = appInstance.execCmd(buffer); // TODO: What to do with errors?
           }
 
-          if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable.buffer]: ' + buffer + ' - ' + JSON.stringify(cacheCmd));
+          if(config.debug) utilex.conLog('[pipe.start.stdin.readable.buffer]: ' + buffer + ' - ' + JSON.stringify(cacheCmd));
 
           buffer = '';
         }
 
         cntReadable++;
 
-        if(config.debug) utilex.tidyLog('[pipe.start.stdin.readable]:' + cntReadable);
+        if(config.debug) utilex.conLog('[pipe.start.stdin.readable]:' + cntReadable);
       });
 
       // end event
       process.stdin.on('end', function() {
-        if(config.debug) utilex.tidyLog('[pipe.start.stdin.end]: ' + cntReadable + ':' + cntRead);
+        if(config.debug) utilex.conLog('[pipe.start.stdin.end]: ' + cntReadable + ':' + cntRead);
 
         deferred.resolve();
       });
@@ -189,14 +189,14 @@ exports = module.exports = function(options, appInstance) {
 
           cacheCmd = appInstance.set(entryKey, entryVal); // TODO: What to do with errors?
 
-          if(config.debug) utilex.tidyLog('[pipe.start.csv.record.cacheCmd]: ' + JSON.stringify(record) + ' - ' + JSON.stringify(cacheCmd));
+          if(config.debug) utilex.conLog('[pipe.start.csv.record.cacheCmd]: ' + JSON.stringify(record) + ' - ' + JSON.stringify(cacheCmd));
         }
       })
       .on('error', function(err) {
         deferred.reject(err.message);
       })
       .on('end', function(count) {
-        if(config.debug) utilex.tidyLog('[pipe.start.csv.end]: ' + count);
+        if(config.debug) utilex.conLog('[pipe.start.csv.end]: ' + count);
 
         deferred.resolve();
       });

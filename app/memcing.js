@@ -40,10 +40,10 @@ appCache.loadFile(appConfig.loadFile)
 .then(appREST.listen)
 .then(appREPL.start)
 .then(function(res) {
-  if(res) utilex.tidyLog(res);
+  if(res) utilex.conLog(res);
 })
 .catch(function(err) {
-  utilex.tidyLog(err);
+  utilex.conLog(err);
   process.exit(0);
 })
 .done(function() {

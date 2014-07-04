@@ -15,7 +15,7 @@ var utilex = require('utilex');
 // Init the module
 exports = module.exports = function(options) {
 
-  var appArgs  = utilex.tidyArgs(),
+  var appArgs  = utilex.appArgs(),
       appFlags = {},
       appConfig;
 
