@@ -1,9 +1,7 @@
 ## Memcing
+[![NPM][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
 [memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application with RESTful API.  
-
-[![Build Status][travis-image]][travis-url] | [![NPM][npm-image]][npm-url]
----------- | ----------
 
 ### Installation
 
@@ -73,7 +71,8 @@ node memcing.js -help
 
 #### Examples
 
-Interactive mode and RESTful can be used in same time.
+##### Interactive Mode
+
 ```
 node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http
 ```
@@ -85,14 +84,12 @@ For RESTful API performance tests;
 `ab -n 10000 http://localhost:12080/entries/hello`  
 `ab -n 10000 -c 100 http://localhost:12080/entries/hello`
 
--
-
 ##### Postal Code Service Example
 
 You can easily create a postal code service;
 ```
-wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && unzip -p zip-codes.zip US.txt | cat \
-| node memcing.js -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
+wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && unzip -p zip-codes.zip US.txt \
+| cat | node memcing.js -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
 ```
 
 See `http://localhost:12080/entries/78729`
@@ -176,7 +173,7 @@ curl -X DELETE http://localhost:12080/entries
 * For issues see [Issues](https://github.com/cmfatih/memcing/issues)
 * For design goals and coding see [coding](https://github.com/cmfatih/coding)
 * It is 'originally' developed for code exercise. The requirements were; 
-non-persistent, non-durable and supporting eviction.
+  non-persistent, non-durable and supporting eviction.
 
 #### Implementations
 
@@ -201,7 +198,6 @@ For all notable changes see [CHANGELOG.md](https://github.com/cmfatih/memcing/bl
 
 ### License
 
-Copyright (c) 2014 Fatih Cetinkaya (http://github.com/cmfatih/memcing)  
 Licensed under The MIT License (MIT)  
 For the full copyright and license information, please view the LICENSE.txt file.
 
