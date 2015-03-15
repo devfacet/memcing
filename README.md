@@ -1,7 +1,8 @@
 ## Memcing
+
 [![NPM][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
-[memcing](http://github.com/cmfatih/memcing) is an in-memory key-value caching application with RESTful API.  
+Memcing is an in-memory key-value caching application with RESTful API.
 
 ### Installation
 
@@ -11,18 +12,15 @@ npm install memcing
 
 ### Usage
 
-#### Test
-```
-npm test
-```
-
 #### Interactive mode
+
 ```
 npm start
 ```
 Add an entry (`add hello world`) and see `http://localhost:12080/entries/hello`
 
 #### Help
+
 ```
 node memcing.js -help
 ```
@@ -84,8 +82,10 @@ ab -n 10000 -c 100 http://localhost:12080/entries/hello
 
 You can easily create a postal code service;
 ```
-wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && unzip -p zip-codes.zip US.txt \
-| cat | node memcing.js -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
+wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && \
+unzip -p zip-codes.zip US.txt | \
+cat | \
+node memcing.js -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
 ```
 
 See `http://localhost:12080/entries/78729`
