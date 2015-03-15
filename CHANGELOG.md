@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.2.9 (2015-03-15)
+
+* Misc. updates
+
 ### 0.2.8 (2014-07-04)
 
 * Misc. updates
