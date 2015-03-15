@@ -5,14 +5,8 @@
 
 ### Installation
 
-For latest release
 ```
 npm install memcing
-```
-
-For HEAD
-```
-git clone https://github.com/cmfatih/memcing.git
 ```
 
 ### Usage
@@ -77,12 +71,14 @@ node memcing.js -help
 node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http
 ```
 Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
-then switch to interactive mode and listen http requests. The cached data will be available for 
-REPL and RESTful API.  
+then switch to interactive mode and listen http requests. The cached data will be available for
+REPL and RESTful API.
 
-For RESTful API performance tests;  
-`ab -n 10000 http://localhost:12080/entries/hello`  
-`ab -n 10000 -c 100 http://localhost:12080/entries/hello`
+For RESTful API performance tests;
+```
+ab -n 10000 http://localhost:12080/entries/hello
+ab -n 10000 -c 100 http://localhost:12080/entries/hello
+```
 
 ##### Postal Code Service Example
 
@@ -103,12 +99,11 @@ See `http://localhost:12080/entries/78729`
 ```
 
 If you want to include other countries see http://download.geonames.org/export/zip/
-and change the part (`US.zip` and `US.txt`) of the command at above. 
+and change the part (`US.zip` and `US.txt`) of the command at above.
 
 ### RESTful API
 
-*RESTful API is still under development. For the current implementations 
-See [Implementations](#implementations)*  
+*RESTful API is still under development. For the current implementations see [Implementations](#implementations)* 
 
 **Notes**
 * Use `application/x-www-form-urlencoded` for request method.
@@ -170,9 +165,7 @@ curl -X DELETE http://localhost:12080/entries
 
 ### Notes
 
-* For issues see [Issues](https://github.com/cmfatih/memcing/issues)
-* For design goals and coding see [coding](https://github.com/cmfatih/coding)
-* It is 'originally' developed for code exercise. The requirements were; 
+* It is 'originally' developed for code exercise. The requirements were;
   non-persistent, non-durable and supporting eviction.
 
 #### Implementations
@@ -191,10 +184,6 @@ curl -X DELETE http://localhost:12080/entries
   - [x] DELETE
     - [x] Collection (`/entries`)
     - [x] Element (`/entries/{KEY}`)
-
-### Changelog
-
-For all notable changes see [CHANGELOG.md](https://github.com/cmfatih/memcing/blob/master/CHANGELOG.md)
 
 ### License
 

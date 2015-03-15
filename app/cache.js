@@ -345,7 +345,7 @@ exports = module.exports = function(options) {
 
     var ts    = new Date().getTime(),
         tsExp = (expF) ? (ts+(expF*1000)) : 0;
-    
+
     cacheData.entries[key] = {key: key, val: valF, ts: ts, expTS: tsExp};
 
     result = cacheData.entries[key];

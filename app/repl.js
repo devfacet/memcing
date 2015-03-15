@@ -5,7 +5,7 @@
  */
 
 // repl module implements Read-Eval-Print-Loop (REPL).
-// 
+//
 // TODO: Command result messages should be change.
 
 // Init reqs

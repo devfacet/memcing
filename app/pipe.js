@@ -5,9 +5,9 @@
  */
 
 // pipe module implements stream operations.
-// 
+//
 // TODO: This module needs a lot of things such as mime type detection, JSON support, etc.
-//       For now just keep it simple. 
+//       For now just keep it simple.
 
 // Init reqs
 /* jslint node: true */

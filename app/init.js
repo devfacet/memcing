@@ -29,7 +29,7 @@ exports = module.exports = function(options) {
   } else {
     throw new Error('Invalid app options!');
   }
-  
+
   // Flags
   appFlags.debug     = (appArgs['debug'] !== undefined) ? true : false;
   appFlags.verbose   = (appArgs['verbose'] !== undefined) ? parseInt(appArgs['verbose'],  10) : 1;
