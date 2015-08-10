@@ -1,14 +1,16 @@
-# Ignored files
-
-# Examples
-#
-#   /.tmp-file-*
-#   /tmp-dir/*
-#   /symlink*
-#
-sources/
 node_modules/
 npm-debug.log
 
-*.heapsnapshot
 .DS_Store
+.idea
+.settings
+.coverrun
+.coverdata
+*.log
+*.heapsnapshot
+xunit.xml
+
+logs/*
+reports/*
+tmp/*
+sources/
