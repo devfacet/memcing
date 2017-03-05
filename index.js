@@ -1,21 +1,19 @@
 /*
  * Memcing
- * Copyright (c) 2014 Fatih Cetinkaya (http://github.com/cmfatih/memcing)
  * For the full copyright and license information, please view the LICENSE.txt file.
  */
 
-// Init reqs
 /* jslint node: true */
 'use strict';
 
 var utilex = require('utilex'),
     fs     = require('fs'),
     path   = require('path'),
-    init   = require('./init'),
-    cache  = require('./cache'),
-    pipe   = require('./pipe'),
-    rest   = require('./rest'),
-    repl   = require('./repl');
+    init   = require('./lib/init'),
+    cache  = require('./lib/cache'),
+    pipe   = require('./lib/pipe'),
+    rest   = require('./lib/rest'),
+    repl   = require('./lib/repl');
 
 var appConfig = {appPath: fs.realpathSync(path.join(__dirname, '..'))},
     appPIPE,  // pipe instance

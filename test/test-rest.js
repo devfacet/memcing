@@ -1,11 +1,9 @@
-// Init reqs
 /* jslint node: true */
-/* global describe: false */
-/* global it: false */
+/* global describe: false, it: false */
 'use strict';
 
-var cache   = require('../app/cache'),
-    rest    = require('../app/rest'),
+var cache   = require('../lib/cache'),
+    rest    = require('../lib/rest'),
     request = require('request'),
     expect  = require('chai').expect;
 

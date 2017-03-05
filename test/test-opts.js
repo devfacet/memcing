@@ -1,7 +1,5 @@
-// Init reqs
 /* jslint node: true */
-/* global describe: false */
-/* global it: false */
+/* global describe: false, it: false */
 'use strict';
 
 var spawn   = require('child_process').spawn,
@@ -14,7 +12,7 @@ var spawn   = require('child_process').spawn,
 // Test for options
 describe('options', function() {
 
-  var mingCmd    = spawn('node', ['app/memcing.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
+  var mingCmd    = spawn('node', ['index.js', '-load-file', 'test/cmds-lf.txt', '-listen-http', ':12082', '-verbose'], {stdio: 'inherit', env: process.env}),
       restUrl    = 'http://127.0.0.1:12082',
       urlEntries = restUrl + '/entries',
       reqDelay   = 500;
@@ -54,7 +52,7 @@ describe('options', function() {
     });
 
     it('should fail to load commands from the given bad file', function(done) {
-      exec('node app/memcing.js -load-file test/cmds-dup.txt -verbose 5 -debug', function(err, stdout, stderr) {
+      exec('node index.js -load-file test/cmds-dup.txt -verbose 5 -debug', function(err, stdout, stderr) {
         if(err) {
           done(err);
           return;

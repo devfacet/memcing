@@ -1,7 +1,5 @@
-// Init reqs
 /* jslint node: true */
-/* global describe: false */
-/* global it: false */
+/* global describe: false, it: false */
 'use strict';
 
 var spawn   = require('child_process').spawn,
@@ -19,11 +17,11 @@ describe('stdin', function() {
       reqDelay = 500;
 
   //stream
-  describe('`echo hello world | memcing.js`', function() {
+  describe('`echo hello world | index.js`', function() {
     it('should add an entry', function(done) {
 
       echoCmd = spawn('echo', ['hello', 'world']);
-      mingCmd = spawn('node', ['app/memcing.js', '-listen-http', ':12083', '-verbose']);
+      mingCmd = spawn('node', ['index.js', '-listen-http', ':12083', '-verbose']);
       restUrl = 'http://127.0.0.1:12083';
 
       echoCmd.stdout.on('data', function(data) {
@@ -56,11 +54,11 @@ describe('stdin', function() {
   });
 
   //csv
-  describe('`cat test/csv-sample.csv | memcing.js -csv`', function() {
+  describe('`cat test/csv-sample.csv | index.js -csv`', function() {
     it('should load entries from the given CSV stream', function(done) {
 
       echoCmd = spawn('cat', ['test/csv-sample.csv']);
-      mingCmd = spawn('node', ['app/memcing.js', '-listen-http', ':12084', '-csv', '-verbose']);
+      mingCmd = spawn('node', ['index.js', '-listen-http', ':12084', '-csv', '-verbose']);
       restUrl = 'http://127.0.0.1:12084';
 
       echoCmd.stdout.on('data', function(data) {
@@ -108,7 +106,7 @@ describe('stdin', function() {
     it('should apply CSV field options', function(done) {
 
       echoCmd = spawn('cat', ['test/csv-sample.csv']);
-      mingCmd = spawn('node', ['app/memcing.js', '-listen-http', ':12084', '-csv', '-csv-delimiter', ',', '-csv-field-key', '2', '-csv-field-filter', '1,2', 'verbose']);
+      mingCmd = spawn('node', ['index.js', '-listen-http', ':12084', '-csv', '-csv-delimiter', ',', '-csv-field-key', '2', '-csv-field-filter', '1,2', 'verbose']);
       restUrl = 'http://127.0.0.1:12084';
 
       echoCmd.stdout.on('data', function(data) {
@@ -158,7 +156,7 @@ describe('stdin', function() {
     it('should load entries from the given command stream', function(done) {
 
       echoCmd = spawn('cat', ['test/cmds-dup.txt']);
-      mingCmd = spawn('node', ['app/memcing.js', '-listen-http', ':12085', '-cmd', '-verbose']);
+      mingCmd = spawn('node', ['index.js', '-listen-http', ':12085', '-cmd', '-verbose']);
       restUrl = 'http://127.0.0.1:12085';
 
       echoCmd.stdout.on('data', function(data) {

@@ -1,9 +1,8 @@
-// Init reqs
-/* jslint node: true */
+/* jslint node: true, sub: true */
 'use strict';
 
 var utilex = require('utilex'),
-    cache  = require('../app/cache');
+    cache  = require('../lib/cache');
 
 var appArgs   = utilex.appArgs(),
     appConfig = {isHeapdump: false},

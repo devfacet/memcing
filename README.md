@@ -1,28 +1,28 @@
-## Memcing
+# Memcing
 
 [![NPM][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
 Memcing is an in-memory key-value caching application with RESTful API.
 
-### Installation
+## Installation
 
-```
+```bash
 npm install memcing
 ```
 
-### Usage
+## Usage
 
-#### Interactive mode
+### Interactive mode
 
-```
+```bash
 npm start
 ```
 Add an entry (`add hello world`) and see `http://localhost:12080/entries/hello`
 
-#### Help
+### Help
 
-```
-node memcing.js -help
+```bash
+./memcing -help
 ```
 ```
   Options:
@@ -61,34 +61,38 @@ node memcing.js -help
     exit
 ```
 
-#### Examples
+### Examples
 
-##### Interactive Mode
+#### Interactive Mode
 
+```bash
+./memcing -load-file ../test/cmds-lf.txt -i -listen-http
 ```
-node memcing.js -load-file ../test/cmds-lf.txt -i -listen-http
-```
+
 Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
 then switch to interactive mode and listen http requests. The cached data will be available for
 REPL and RESTful API.
 
 For RESTful API performance tests;
-```
+
+```bash
 ab -n 10000 http://localhost:12080/entries/hello
 ab -n 10000 -c 100 http://localhost:12080/entries/hello
 ```
 
-##### Postal Code Service Example
+#### Postal Code Service Example
 
 You can easily create a postal code service;
-```
+
+```bash
 wget -qO zip-codes.zip http://download.geonames.org/export/zip/US.zip && \
 unzip -p zip-codes.zip US.txt | \
 cat | \
-node memcing.js -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
+./memcing -listen-http -csv -csv-delimiter tab -csv-field-key 2 -csv-field-filter 1,3,4,5,6,10,11
 ```
 
 See `http://localhost:12080/entries/78729`
+
 ```JSON
 {
   "key":"78729",
@@ -101,16 +105,15 @@ See `http://localhost:12080/entries/78729`
 If you want to include other countries see http://download.geonames.org/export/zip/
 and change the part (`US.zip` and `US.txt`) of the command at above.
 
-### RESTful API
+## RESTful API
 
 *RESTful API is still under development. For the current implementations see [Implementations](#implementations)* 
 
-**Notes**
 * Use `application/x-www-form-urlencoded` for request method.
 * Use `val` query parameter for value.
 * Use `exp` query parameter for expiration.
 
-**PUT**
+### PUT
 
 ```
 /entries/{KEY}
@@ -123,7 +126,7 @@ curl -X PUT -d "val=world" http://localhost:12080/entries/hello
 curl -X PUT -d "val=world&exp=10" http://localhost:12080/entries/bye
 ```
 
-**POST**
+### POST
 
 ```
 /entries/{KEY}
@@ -135,7 +138,7 @@ Examples:
 curl -X POST -d "val=1" http://localhost:12080/entries/counter
 ```
 
-**GET**
+### GET
 
 ```
 /entries
@@ -149,7 +152,7 @@ curl http://localhost:12080/entries
 curl http://localhost:12080/entries/hello
 ```
 
-**DELETE**
+### DELETE
 
 ```
 /entries
@@ -163,12 +166,12 @@ curl -X DELETE http://localhost:12080/entries/hello
 curl -X DELETE http://localhost:12080/entries
 ```
 
-### Notes
+## Notes
 
 * It is 'originally' developed for code exercise. The requirements were;
   non-persistent, non-durable and supporting eviction.
 
-#### Implementations
+## Implementations
 
 - [x] Interactive mode
 - [ ] RESTful API
@@ -185,13 +188,13 @@ curl -X DELETE http://localhost:12080/entries
     - [x] Collection (`/entries`)
     - [x] Element (`/entries/{KEY}`)
 
-### License
+###License
 
 Licensed under The MIT License (MIT)  
 For the full copyright and license information, please view the LICENSE.txt file.
 
 [npm-url]: http://npmjs.org/package/memcing
-[npm-image]: https://badge.fury.io/js/memcing.png
+[npm-image]: https://badge.fury.io/js/memcing.svg
 
-[travis-url]: https://travis-ci.org/cmfatih/memcing
-[travis-image]: https://travis-ci.org/cmfatih/memcing.svg?branch=master
+[travis-url]: https://travis-ci.org/devfacet/memcing
+[travis-image]: https://travis-ci.org/devfacet/memcing.svg?branch=master
