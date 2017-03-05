@@ -1,6 +1,6 @@
 {
   "name": "memcing",
-  "version": "0.2.10",
+  "version": "1.0.0",
   "description": "An in-memory key-value caching application with RESTful API",
   "main": "index.js",
   "scripts": {
