@@ -69,9 +69,8 @@ Add an entry (`add hello world`) and see `http://localhost:12080/entries/hello`
 ./memcing -load-file ../test/cmds-lf.txt -i -listen-http
 ```
 
-Reads commands from [cmds-lf.txt](https://github.com/cmfatih/memcing/blob/master/test/cmds-lf.txt)
-then switch to interactive mode and listen http requests. The cached data will be available for
-REPL and RESTful API.
+Reads commands from `cmds-lf.txt` then switch to interactive mode and listen 
+ttp requests. The cached data will be available for REPL and RESTful API.
 
 For RESTful API performance tests;
 

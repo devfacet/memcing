@@ -99,7 +99,5 @@ function cmdHelp() {
   console.log("    cat file.csv | node memcing.js -listen-http -csv");
   console.log("    cat cmds.txt | node memcing.js -listen-http -cmd\n");
 
-  console.log("  Please report issues to https://github.com/cmfatih/memcing/issues\n");
-
   process.exit(0);
 }
